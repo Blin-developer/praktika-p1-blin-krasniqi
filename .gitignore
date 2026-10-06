@@ -1,0 +1,86 @@
+# =======================
+# FRONTEND (React / Node)
+# =======================
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+
+# =======================
+# BACKEND (Laravel / PHP)
+# =======================
+backend/vendor/
+backend/.env
+backend/storage/logs/*.log
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*.php
+backend/database/database.sqlite
+backend/public/storage
+backend/.phpunit.result.cache
+backend/.php-cs-fixer.cache
+
+# =======================
+# DATABASE
+# =======================
+*.sql
+*.sqlite
+*.sqlite3
+
+# =======================
+# SISTEMI I OPERIMIT
+# =======================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# =======================
+# IDE / EDITORE
+# =======================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.suo
+*.user
+*.workspace
+*.sublime-project
+*.sublime-workspace
+
+# =======================
+# SECRETS DHE KONFIGURIMI
+# =======================
+.env
+.env.local
+.env.production
+*.pem
+*.key
+*.p12
+
+# =======================
+# LOGS DHE CACHE
+# =======================
+*.log
+*.cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =======================
+# IMAZHE DHE MEDIA (UPLOADS)
+# =======================
+backend/storage/app/public/businesses/
+backend/storage/app/public/logos/
+backend/storage/app/public/advertisements/
