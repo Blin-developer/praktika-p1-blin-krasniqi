@@ -8,7 +8,7 @@
 
 ## Ditari i punës
 
-### 6 tetor 2026
+### 6 tetor 2026 (Dita 1)
 - [x] Klonuar repository-i nga GitHub
 - [x] Fshirë fajllat e panevojshëm (index.html)
 - [x] Inicializuar projekti React (Vite)
@@ -16,6 +16,13 @@
 - [x] Krijuar struktura e folderave (docs/, frontend/, backend/)
 - [x] Shkruar README profesional
 - [x] Konfiguiruar .gitignore
+
+### 7 tetor 2026 (Dita 2)
+- [x] Kontrolluar statusin e Git dhe branch-in `main`
+- [x] Verifikuar konfigurimin global të Git (user.name, user.email, defaultBranch)
+- [x] Përditësuar `.gitignore` me rregulla shtesë (`node_modules/`, `vendor/`, `.env`)
+- [x] Krijuar skedarët `.env.example` në root dhe frontend
+- [x] Përditësuar `README.md` me statusin e Ditës 2 dhe planin 4-javor
 
 ---
 

@@ -1,6 +1,8 @@
 # =======================
 # FRONTEND (React / Node)
 # =======================
+node_modules/
+/node_modules
 frontend/node_modules/
 frontend/dist/
 frontend/.env
@@ -10,6 +12,8 @@ frontend/.env.*.local
 # =======================
 # BACKEND (Laravel / PHP)
 # =======================
+vendor/
+/vendor
 backend/vendor/
 backend/.env
 backend/storage/logs/*.log

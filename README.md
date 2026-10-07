@@ -5,195 +5,103 @@ Shkolla Digjitale Lipjan
 
 ---
 
-## Përshkrimi
+## Përshkrimi dhe Qëllimi
 
-Platformë full stack për gjetjen e bizneseve, shërbimeve dhe kontakteve në komunën e Lipjanit.
+**Katalogu i Bizneseve të Lipjanit** është një platformë web full-stack e planifikuar për t'u ndërtuar gjatë një periudhe 4-javore. 
 
-Platforma i ndihmon qytetarët të gjejnë biznese, produkte dhe informata kontakti në komunën e Lipjanit. Vizitori mund të kërkojë një biznes, të ngushtojë rezultatet me filtra, të hapë profilin dhe të kuptojë çfarë ofron biznesi, ku ndodhet dhe si mund ta kontaktojë.
+Qëllimi i projektit është t'u mundësojë qytetarëve dhe vizitorëve të komunës së Lipjanit kërkimin dhe filtrimin e bizneseve lokale, shërbimeve dhe informacioneve të kontaktit, si dhe vizualizimin e lokacioneve të tyre në hartë ndërvepruese.
 
 ---
 
-## Teknologjitë
+## Teknologjitë e Planifikuara
 
 | Shtresa | Teknologjia |
 |---------|-------------|
-| Frontend | React 18 + Vite |
-| Backend | Laravel 11 |
-| Database | MySQL 8 |
-| API | REST API |
-| Autentikimi | Laravel Sanctum |
-| Harta | Leaflet (Java 3) |
-| Version Control | Git + GitHub |
+| **Frontend** | React (Vite) |
+| **Backend** | Laravel |
+| **Database** | MySQL |
+| **API** | REST API |
+| **Harta** | Leaflet |
+| **Autentikimi** | Laravel Sanctum |
+| **Version Control** | Git & GitHub |
 
 ---
 
-## Struktura e projektit
+## Statusi Aktual i Projektit
 
-```
+- **Dita 1:** Inicializimi i strukturës fillestare të projektit (`backend/`, `frontend/`, `docs/`).
+- **Dita 2:** Konfigurimi fillestar i projektit, verifikimi i Git repo, rregullimi i `.gitignore` dhe krijimi i `.env.example`.
+
+*(Asnjë funksionalitet i databazës, API-ve ose ndërfaqes nuk është ndërtuar ende; ato do të zhvillohen gradualisht.)*
+
+---
+
+## Struktura Bazë e Repository-t
+
+```text
 praktika-p1-blin-krasniqi/
 │
-├── frontend/                    # React + Vite
+├── frontend/                    # React + Vite Application
 │   ├── src/
-│   │   ├── components/          # Komponentët e ripërdorshëm
-│   │   ├── pages/               # Faqet kryesore (Home, List, Profile...)
-│   │   ├── layouts/             # Layout-et (PublicLayout, AdminLayout)
-│   │   ├── services/            # API calls (axios)
-│   │   ├── hooks/               # Custom React hooks
-│   │   ├── utils/               # Funksione ndihmëse
-│   │   ├── assets/              # Imazhe, ikona, fonte
-│   │   ├── routes/              # Konfigurimi i routing-ut
-│   │   ├── context/             # React Context (auth, filters...)
-│   │   ├── App.jsx
-│   │   └── main.jsx
 │   ├── public/
+│   ├── .env.example
+│   ├── .gitignore
 │   └── package.json
 │
-├── backend/                     # Laravel 11
+├── backend/                     # Laravel 11 Application
 │   ├── app/
-│   │   ├── Http/
-│   │   │   ├── Controllers/     # API Controllers
-│   │   │   ├── Requests/        # Form Request Validation
-│   │   │   └── Resources/       # API Resources (transformers)
-│   │   ├── Models/              # Eloquent Models
-│   │   └── Services/            # Business Logic Services
 │   ├── database/
-│   │   ├── migrations/          # Skema e databazës
-│   │   ├── seeders/             # Të dhënat demo
-│   │   └── factories/           # Model factories për testing
 │   ├── routes/
-│   │   ├── api.php              # API routes
-│   │   └── web.php
-│   ├── config/
-│   └── tests/
+│   ├── .env.example
+│   ├── .gitignore
+│   └── composer.json
 │
-├── docs/                        # Dokumentacioni
-│   ├── screenshots/             # Screenshots të aplikacionit
-│   └── project-notes.md         # Ditari i punës
+├── docs/                        # Dokumentacioni i projektit
+│   └── project-notes.md
 │
-├── README.md
-├── .gitignore
-└── LICENSE
+├── .env.example                 # Konfigurimet shembullore të projektit
+├── .gitignore                   # Rregullat e Git ignore
+└── README.md                    # Dokumentacioni kryesor
 ```
 
 ---
 
-## Plani 4-javor
+## Plani i Përgjithshëm i Zhvillimit (4 Javë)
 
 ### Java 1 – Themelet (5–11 tetor 2026)
-- [x] Struktura e projektit
-- [x] Git/GitHub setup
-- [ ] MySQL + Migrations
-- [ ] Seeders bazë
-- [ ] Laravel + React connection
-- [ ] API bazë
-- [ ] Autentikimi i administratorit (Sanctum)
+- [x] Struktura e projektit dhe Git setup (Dita 1)
+- [x] Konfigurimi fillestar dhe bazat e projektit (Dita 2)
+- [ ] Konfigurimi i databazës MySQL dhe Migrations
+- [ ] Seeders bazë për testime
+- [ ] Lidhja Laravel + React dhe API bazë
+- [ ] Autentikimi bazë i administratorit (Sanctum)
 
-**Rezultati i javës:** API kthen listën e bizneseve nga MySQL dhe React i shfaq.
+### Java 2 – Pjesa Publike (12–18 tetor 2026)
+- [ ] Layout-i publike (Navbar, Footer)
+- [ ] Homepage me modul kërkimi
+- [ ] Faqja e listimit të bizneseve dhe filtrat
+- [ ] Faqezimi (Pagination) dhe parametrat e URL-së
+- [ ] Faqja e profililt të biznesit
 
-### Java 2 – Pjesa publike (12–18 tetor 2026)
-- [ ] Homepage me kërkim
-- [ ] Navbar dhe Footer
-- [ ] Lista e bizneseve
-- [ ] Kërkim dhe filtra
-- [ ] Filtra në URL (query params)
-- [ ] Faqezim (pagination)
-- [ ] Profili i biznesit
+### Java 3 – Paneli dhe Harta (19–25 tetor 2026)
+- [ ] Paneli i administrimit (Admin Dashboard)
+- [ ] CRUD i bizneseve (Shtim, Redaktim, Fshirje, Statuset)
+- [ ] Menaxhimi i kategorive dhe vendbanimeve
+- [ ] Integrimi i hartës ndërvepruese Leaflet
+- [ ] Moduli i reklamave dhe promovimeve
 
-**Rezultati i javës:** Vizitori gjen një biznes dhe hap profilin e tij.
-
-### Java 3 – Paneli dhe harta (19–25 tetor 2026)
-- [ ] Paneli administrues
-- [ ] CRUD i bizneseve (Draft/Published/Archived)
-- [ ] Kategoritë dhe vendbanimet
-- [ ] Shërbimet
-- [ ] Harta Leaflet
-- [ ] Reklamat me rregullat e kohës
-
-**Rezultati i javës:** Administratori menaxhon katalogun pa ndryshuar kodin.
-
-### Java 4 – Përfundimi (26 tetor – 1 nëntor 2026)
-- [ ] Responsive design (mobile, tablet, desktop)
-- [ ] Loading, empty dhe error states
-- [ ] Siguria (input validation, CSRF, XSS protection)
-- [ ] Testimi i skenarëve
-- [ ] README me screenshots
-- [ ] Demo dhe prezantimi
-
-**Rezultati i javës:** Projekti i dorëzuar dhe i prezantuar.
+### Java 4 – Përfundimi dhe Optimizimi (26 tetor – 1 nëntor 2026)
+- [ ] Përshtatja responsive (Mobile, Tablet, Desktop)
+- [ ] Trajtimi i gjendjeve (Loading, Empty, Error states)
+- [ ] Siguria dhe validimi i të dhënave
+- [ ] Testimi përfundimtar i skenarëve
+- [ ] Përgatitja e dokumentacionit përfundimtar dhe prezantimi
 
 ---
 
-## Instalimi
-
-### Kërkesat
-
-- PHP >= 8.2
-- Composer
-- Node.js >= 18
-- MySQL 8
-
-### 1. Klono repository-n
-
-```bash
-git clone https://github.com/Blin-developer/praktika-p1-blin-krasniqi.git
-cd praktika-p1-blin-krasniqi
-```
-
-### 2. Backend – Laravel
-
-```bash
-cd backend
-composer install
-cp .env.example .env
-php artisan key:generate
-```
-
-Konfiguro `.env` me kredencialet e MySQL-it:
-
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=lipjan_businesses
-DB_USERNAME=root
-DB_PASSWORD=
-```
-
-```bash
-php artisan migrate
-php artisan db:seed
-php artisan serve
-```
-
-Backend do të jetë aktiv në: `http://localhost:8000`
-
-### 3. Frontend – React
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend do të jetë aktiv në: `http://localhost:5173`
-
----
-
-## Rolet e përdoruesve
-
-| Roli | Qasja | Çfarë mund të bëjë |
-|------|-------|---------------------|
-| Vizitori | Pa regjistrim | Kërkon biznese, shikon profilet, hap hartën |
-| Administratori | Llogari e autorizuar | Menaxhon të gjithë katalogun, kategoritë, reklamat |
-
----
-
-## Informacion
+## Informacion i Përgjithshëm
 
 - **Studenti:** Blin Krasniqi
+- **Projekti:** Katalogu i Bizneseve të Lipjanit – Praktika Profesionale 2026/27
 - **Shkolla:** Shkolla Digjitale Lipjan
-- **Projekti:** Praktika Profesionale 2026/27 – Projekti 01
-- **Periudha:** 5 tetor – 1 nëntor 2026
-- **Afati:** E diel, 1 nëntor 2026, ora 23:59
-
-> ⚠️ Ky projekt është punë studentore dhe nuk pretendon të jetë regjistër zyrtar i komunës.
+- **Periudha:** Tetor – Nëntor 2026
