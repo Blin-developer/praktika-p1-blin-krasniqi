@@ -24,6 +24,13 @@
 - [x] Krijuar skedarët `.env.example` në root dhe frontend
 - [x] Përditësuar `README.md` me statusin e Ditës 2 dhe planin 4-javor
 
+### 8 tetor 2026 (Dita 3)
+- [x] Përgatitur dega `development` si dega kryesore e zhvillimit
+- [x] Konfiguruar MySQL si databazë primare në `backend/config/database.php` dhe `backend/.env.example`
+- [x] Verifikuar që skedarët `.env` janë në `.gitignore` dhe nuk përmbajnë sekrete reale
+- [x] Verifikuar migrimet bazë të Laravel-it
+
+
 ---
 
 ## Vendimet teknike
