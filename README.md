@@ -105,3 +105,4 @@ praktika-p1-blin-krasniqi/
 - **Projekti:** Katalogu i Bizneseve të Lipjanit – Praktika Profesionale 2026/27
 - **Shkolla:** Shkolla Digjitale Lipjan
 - **Periudha:** Tetor – Nëntor 2026
+
