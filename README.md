@@ -31,6 +31,8 @@ Qëllimi i projektit është t'u mundësojë qytetarëve dhe vizitorëve të kom
 
 - **Dita 1:** Inicializimi i strukturës fillestare të projektit (`backend/`, `frontend/`, `docs/`).
 - **Dita 2:** Konfigurimi fillestar i projektit, verifikimi i Git repo, rregullimi i `.gitignore` dhe krijimi i `.env.example`.
+- **Dita 3:** Përgatitja e degës `development`, konfigurimi fillestar i MySQL dhe verifikimi i migrimeve bazë të Laravel-it.
+
 
 *(Asnjë funksionalitet i databazës, API-ve ose ndërfaqes nuk është ndërtuar ende; ato do të zhvillohen gradualisht.)*
 
