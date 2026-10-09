@@ -30,6 +30,15 @@
 - [x] Verifikuar që skedarët `.env` janë në `.gitignore` dhe nuk përmbajnë sekrete reale
 - [x] Verifikuar migrimet bazë të Laravel-it
 
+### 9 tetor 2026 (Dita 4)
+- [x] Verifikuar degën aktive të zhvillimit (`development`)
+- [x] Kontrolluar versionin e Laravel-it (Laravel 12.x), PHP (8.2.12) dhe Composer (2.8.8)
+- [x] Verifikuar praninë dhe aktivizimin e modulit PHP `pdo_mysql`
+- [x] Kontrolluar konfigurimin e MySQL në `backend/.env` dhe `backend/config/database.php` (`DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=lipjan_businesses`, `DB_USERNAME=root`)
+- [x] Inspektuar migrimet ekzistuese bazë të Laravel-it (`users`, `cache`, `jobs`)
+- [! ] Identifikuar se shërbimi MySQL në mjedisin lokal (XAMPP) nuk është aktiv në portin 3306, prandaj lidhja me databazën kërkon nisjen e shërbimit MySQL dhe konfirmimin/krijimin e databazës `lipjan_businesses`
+
+
 
 ---
 
