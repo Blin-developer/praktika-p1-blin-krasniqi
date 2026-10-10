@@ -36,7 +36,16 @@
 - [x] Verifikuar praninë dhe aktivizimin e modulit PHP `pdo_mysql`
 - [x] Kontrolluar konfigurimin e MySQL në `backend/.env` dhe `backend/config/database.php` (`DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=lipjan_businesses`, `DB_USERNAME=root`)
 - [x] Inspektuar migrimet ekzistuese bazë të Laravel-it (`users`, `cache`, `jobs`)
-- [! ] Identifikuar se shërbimi MySQL në mjedisin lokal (XAMPP) nuk është aktiv në portin 3306, prandaj lidhja me databazën kërkon nisjen e shërbimit MySQL dhe konfirmimin/krijimin e databazës `lipjan_businesses`
+- [x] Identifikuar se shërbimi MySQL në mjedisin lokal (XAMPP) nuk ishte aktiv në portin 3306 dhe u përcaktuan hapat për aktivizim
+
+### 10 tetor 2026 (Dita 5)
+- [x] Verifikuar statusin e repository-t dhe degën aktive të zhvillimit (`development`)
+- [x] Aktivizuar shërbimi MySQL (MariaDB 10.4.32) në portin 3306 dhe konfirmuar qasja TCP në `127.0.0.1:3306`
+- [x] Verifikuar listën e databazave ekzistuese; u konfirmua se `lipjan_businesses` nuk ekzistonte dhe emri ishte i lirë
+- [x] Krijuar databaza e re `lipjan_businesses` (me `utf8mb4` dhe `utf8mb4_unicode_ci`) pa prekur asnjë databazë ekzistuese
+- [x] Testuar dhe verifikuar lidhja e Laravel-it me MySQL përmes PDO (`Connected successfully to: lipjan_businesses`)
+- [x] Ekzekutuar `php artisan migrate:status`; u verifikua statusi (`Migration table not found.`), konform pritshmërive për një databazë të sapokrijuar dhe të zbrazët
+- [x] Konfirmuar gatishmëria e 3 migrimeve standarde të Laravel-it (`users`, `cache`, `jobs`) pa ekzekutuar komanda destruktive
 
 
 
