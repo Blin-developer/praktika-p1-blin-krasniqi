@@ -34,7 +34,7 @@
 - [x] Verifikuar degën aktive të zhvillimit (`development`)
 - [x] Kontrolluar versionin e Laravel-it (Laravel 12.x), PHP (8.2.12) dhe Composer (2.8.8)
 - [x] Verifikuar praninë dhe aktivizimin e modulit PHP `pdo_mysql`
-- [x] Kontrolluar konfigurimin e MySQL në `backend/.env` dhe `backend/config/database.php` (`DB_CONNECTION=mysql`, `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_DATABASE=lipjan_businesses`, `DB_USERNAME=root`)
+- [x] Kontrolluar konfigurimin e MySQL në `backend/.env` dhe `backend/config/database.php`
 - [x] Inspektuar migrimet ekzistuese bazë të Laravel-it (`users`, `cache`, `jobs`)
 - [x] Identifikuar se shërbimi MySQL në mjedisin lokal (XAMPP) nuk ishte aktiv në portin 3306 dhe u përcaktuan hapat për aktivizim
 
@@ -44,105 +44,111 @@
 - [x] Verifikuar listën e databazave ekzistuese; u konfirmua se `lipjan_businesses` nuk ekzistonte dhe emri ishte i lirë
 - [x] Krijuar databaza e re `lipjan_businesses` (me `utf8mb4` dhe `utf8mb4_unicode_ci`) pa prekur asnjë databazë ekzistuese
 - [x] Testuar dhe verifikuar lidhja e Laravel-it me MySQL përmes PDO (`Connected successfully to: lipjan_businesses`)
-- [x] Ekzekutuar `php artisan migrate:status`; u verifikua statusi (`Migration table not found.`), konform pritshmërive për një databazë të sapokrijuar dhe të zbrazët
+- [x] Ekzekutuar `php artisan migrate:status`; u verifikua statusi (`Migration table not found.`), konform pritshmërive
 - [x] Konfirmuar gatishmëria e 3 migrimeve standarde të Laravel-it (`users`, `cache`, `jobs`) pa ekzekutuar komanda destruktive
 
 ### 13 tetor 2026 (Java 2, Dita 1)
 - [x] Verifikuar gjendjen e Git-it në degën `development` (working tree clean, commit paraardhës: `bcc6307`)
 - [x] Verifikuar dhe aktivizuar shërbimin MySQL në portin 3306 dhe testuar lidhjen me Laravel përmes PDO (`Connected successfully to: lipjan_businesses`)
 - [x] Kontrolluar statusin fillestar të migrimeve me `php artisan migrate:status` (`Migration table not found.`)
-- [x] Ekzekutuar me sukses migrimet standarde fillestare të Laravel-it me `php artisan migrate`:
-  - `0001_01_01_000000_create_users_table`
-  - `0001_01_01_000001_create_cache_table`
-  - `0001_01_01_000002_create_jobs_table`
+- [x] Ekzekutuar me sukses migrimet standarde fillestare të Laravel-it me `php artisan migrate`
 - [x] Verifikuar rezultatin me `php artisan migrate:status` (të gjitha migrimet me status `[1] Ran`)
-- [x] Konfirmuar krijimi i 9 tabelave të pritura në bazën e të dhënave `lipjan_businesses`:
-  - `users`, `password_reset_tokens`, `sessions`
-  - `cache`, `cache_locks`
-  - `jobs`, `job_batches`, `failed_jobs`
-  - `migrations`
-- [x] Rishikuar detyrat e mbetura nga Java 1 dhe dalluar qartë statusin e tyre:
-  - Të kryera: Struktura e projektit, konfigurimi Git/GitHub, konfigurimi bazë Laravel & React, konfigurimi dhe lidhja me MySQL, ekzekutimi i migrimeve fillestare të sistemit.
-  - Të mbetura sipas planit të zhvillimit për integrim në Javën 2: Modelet dhe migrimet specifike të katalogut, seeders për të dhëna testuese, aktivizimi i rrugëve API (`routes/api.php`) dhe lidhja backend-frontend (CORS).
-- [x] Audituar dhe testuar shtresën e Frontend-it: u konstatua mungesa e varësive lokale; u ekzekutua `npm install` në `frontend/`, u gjenerua `package-lock.json` dhe u testua ndërtimi i aplikacionit me `npm run build` (sukses i plotë pa gabime, 354ms).
-- [x] Konfirmuar se mjedisi Full-Stack (PHP 8.2, Composer 2.8, Laravel 12, Node 22, React 19, MySQL) është plotësisht funksional dhe operativ.
-- [x] Hartuar propozimin teknik të detajuar për skemën e bazës së të dhënave të katalogut (`categories`, `settlements`, `businesses`, `services`, `business_service`) me marrëdhëniet dhe fushat përkatëse pa krijuar ende skedarë para kohe.
-- [x] Verifikuar që rezultati kryesor i Javës 1 (API që merr bizneset nga MySQL dhe React që i shfaq) kërkon ekzistencën e tabelës `businesses` dhe të dhënave testuese, prandaj mbetet objektivi primar për Ditën 2 të Javës 2.
+- [x] Audituar dhe testuar shtresën e Frontend-it: u ekzekutua `npm install` dhe `npm run build` (sukses i plotë)
+- [x] Konfirmuar se mjedisi Full-Stack është plotësisht funksional dhe operativ
+
+### 13 tetor 2026 (Java 2, Dita 1 – vijim)
+- [x] Krijuar migrimet specifike të katalogut (batch 2 – të gjitha Ran):
+  - `2026_10_13_000001_create_categories_table`
+  - `2026_10_13_000002_create_settlements_table`
+  - `2026_10_13_000003_create_businesses_table`
+  - `2026_10_13_000004_create_services_table`
+  - `2026_10_13_000005_create_business_service_table`
+- [x] Ekzekutuar `php artisan migrate` pa gabime – të 8 migrimet me status Ran
+- [x] Krijuar Modelet Eloquent me marrëdhëniet e plota:
+  - `Category` (hasMany Business)
+  - `Settlement` (hasMany Business)
+  - `Service` (belongsToMany Business)
+  - `Business` (belongsTo Category, Settlement; belongsToMany Service; scope published)
+- [x] Aktivizuar rrugët API (`routes/api.php`) dhe regjistruar në `bootstrap/app.php`
+- [x] Publikuar konfigurimin CORS (`config/cors.php`) – paths: `api/*`
+- [x] Krijuar kontrollerët:
+  - `Api\BusinessController` (index me filtrim search/category/settlement/featured; show me slug/id)
+  - `Api\CategoryController` (index me businesses_count)
+  - `Api\SettlementController` (index me businesses_count)
+- [x] Ekzekutuar `CatalogSeeder` me sukses:
+  - **6 kategori**: Gastronomi, Tregti, Shëndetësi, Shërbime, Auto & Transport, Edukim
+  - **8 vendbanime**: Lipjan Qendër, Gadime e Ulët, Janjevë, Magure, Sllovi, Rufc i Ri, Dobrajë e Madhe, Babush i Muhaxherëve
+  - **6 shërbime**: Wi-Fi falas, Parking, Pagesa me kartelë, Dërgesë, Teracë, Qasje pa pengesa
+  - **30 biznese total**: 22 published, 4 draft, 4 archived
+- [x] Verifikuar API me `php artisan route:list` – 9 endpoint-e aktive
+- [x] Ekzekutuar testet PHPUnit (5/5 PASS, 303 assertions):
+  - `test_api_health_check_returns_ok` ✓
+  - `test_can_list_published_businesses` ✓
+  - `test_can_get_single_business_by_slug` ✓
+  - `test_returns_404_for_non_existing_business` ✓
+  - `test_can_list_categories_and_settlements` ✓
+- [x] Lidhja React–API:
+  - Krijuar `frontend/src/services/api.js` – shërbimi qendror me fetchBusinesses, fetchCategories, fetchSettlements
+  - Krijuar `frontend/src/hooks/useBusinesses.js` – hook me loading/error/reload
+  - Krijuar `frontend/src/components/BusinessCard.jsx` – kartela e biznesit me meta-të
+  - Krijuar `frontend/src/components/BusinessList.jsx` – lista me state loading/error/empty
+  - Krijuar `frontend/src/pages/BusinessCatalogPage.jsx` – faqja kryesore me filtrim
+  - Përditësuar `frontend/src/App.jsx` – renderëson BusinessCatalogPage
+  - Përditësuar `frontend/src/App.css` – CSS komplet me grid, cards, header gradient, spinner
+  - Krijuar `frontend/.env` me `VITE_API_BASE_URL=http://localhost:8000/api`
+- [x] Ekzekutuar `npm run build` – sukses, 22 module, 225KB JS, asnjë gabim
+
+---
+
+## API Endpoints
+
+| Endpoint | Metoda | Përshkrim |
+|----------|--------|-----------|
+| `GET /api/health` | GET | Health check |
+| `GET /api/v1/businesses` | GET | Lista e bizneseve të publikuara |
+| `GET /api/v1/businesses/{slug|id}` | GET | Detajet e biznesit |
+| `GET /api/v1/categories` | GET | Lista e kategorive |
+| `GET /api/v1/settlements` | GET | Lista e vendbanimeve |
+
+**Parametra të opsionshëm për `/api/v1/businesses`:**
+- `?search=` – kërkim tekstual (emër, përshkrim, adresë)
+- `?category=` – filtrim sipas slug kategorisë
+- `?settlement=` – filtrim sipas slug vendbanimit
+- `?featured=1` – vetëm bizneset e veçuara
+
+**Shembull i përgjigjes:**
+```json
+{
+  "status": "success",
+  "count": 22,
+  "data": [
+    {
+      "id": 1,
+      "name": "Restorant \"Shpella e Gadimes\"",
+      "slug": "restorant-shpella-e-gadimes",
+      "status": "published",
+      "is_featured": true,
+      "category": { "id": 1, "name": "Gastronomi", "slug": "gastronomi" },
+      "settlement": { "id": 1, "name": "Gadime e Ulët", "slug": "gadime-e-ulet" },
+      "services": [...]
+    }
+  ]
+}
+```
 
 ---
 
 ## Vendimet teknike
 
 | Vendimi | Zgjedhja | Arsyeja |
-|---------|----------|---------|
+|---------|----------|----------|
 | Frontend framework | React + Vite | I shpejtë, modern, i rekomanduar |
-| Backend framework | Laravel 11/12 | PHP, REST API i lehtë, ekosistem i pasur |
-| Database | MySQL | Relacional, i qëndrueshëm |
+| Backend framework | Laravel 12 | PHP, REST API i lehtë, ekosistem i pasur |
+| Database | MySQL/MariaDB | Relacional, i qëndrueshëm |
 | Harta | Leaflet (Java 3) | Open-source, lehtë i integruar |
-| Autentikimi | Laravel Sanctum (Java 1/3) | SPA-ready, i thjeshtë |
-
----
-
-## Propozimi teknik për strukturën e databazës së katalogut (Java 2)
-
-### 1. Entitetet kryesore dhe fushat e propozuara
-
-#### A. Tabela `categories` (Kategoritë e bizneseve)
-- `id` (BIGINT UNSIGNED, AUTO_INCREMENT, PRIMARY KEY)
-- `name` (VARCHAR(100), NOT NULL) – Emri i kategorisë (p.sh. Gastronomi, Shëndetësi, Tregti, Shërbime)
-- `slug` (VARCHAR(120), UNIQUE, NOT NULL) – Identifikuesi URL-friendly
-- `description` (TEXT, NULLABLE) – Përshkrim opsional
-- `icon` (VARCHAR(100), NULLABLE) – Emri i ikonës për ndërfaqen vizuale
-- `timestamps` (`created_at`, `updated_at`)
-
-#### B. Tabela `settlements` (Vendbanimet / Lokacionet e Komunës së Lipjanit)
-- `id` (BIGINT UNSIGNED, AUTO_INCREMENT, PRIMARY KEY)
-- `name` (VARCHAR(100), NOT NULL) – Emri i vendbanimit (p.sh. Lipjan Qendër, Gadime, Janjevë, Magure, Sllovi, Rufc)
-- `slug` (VARCHAR(120), UNIQUE, NOT NULL) – Identifikuesi URL-friendly
-- `postal_code` (VARCHAR(20), NULLABLE) – Kodi postar (p.sh. 14000)
-- `timestamps` (`created_at`, `updated_at`)
-
-#### C. Tabela `businesses` (Bizneset e katalogut)
-- `id` (BIGINT UNSIGNED, AUTO_INCREMENT, PRIMARY KEY)
-- `name` (VARCHAR(150), NOT NULL) – Emri zyrtar/tregtar i biznesit
-- `slug` (VARCHAR(180), UNIQUE, NOT NULL) – Slug unik për faqen e profilit të biznesit
-- `category_id` (BIGINT UNSIGNED, NOT NULL, FOREIGN KEY -> `categories.id` ON DELETE RESTRICT)
-- `settlement_id` (BIGINT UNSIGNED, NOT NULL, FOREIGN KEY -> `settlements.id` ON DELETE RESTRICT)
-- `description` (TEXT, NULLABLE) – Përshkrimi i zgjeruar i biznesit dhe ofertës
-- `short_description` (VARCHAR(255), NULLABLE) – Përshkrim i shkurtër për kartelat e listimit
-- `address` (VARCHAR(255), NULLABLE) – Adresa fizike (rruga, numri)
-- `phone` (VARCHAR(50), NULLABLE) – Numri kontaktues i telefonit
-- `email` (VARCHAR(100), NULLABLE) – Emaili zyrtar
-- `website` (VARCHAR(255), NULLABLE) – Uebsajti zyrtar
-- `latitude` (DECIMAL(10, 8), NULLABLE) – Koordinata gjeografike për hartën Leaflet
-- `longitude` (DECIMAL(11, 8), NULLABLE) – Koordinata gjeografike për hartën Leaflet
-- `logo_path` (VARCHAR(255), NULLABLE) – Shtegu i logos/fotos kryesore
-- `status` (ENUM('draft', 'published', 'archived'), DEFAULT 'draft') – Statusi i publikimit
-- `is_featured` (BOOLEAN, DEFAULT FALSE) – Përzgjedhje për ballinë/biznese të veçuara
-- `opening_hours` (JSON, NULLABLE) – Orari i punës (ditët dhe orët)
-- `timestamps` (`created_at`, `updated_at`)
-
-#### D. Tabela `services` (Shërbimet)
-- `id` (BIGINT UNSIGNED, AUTO_INCREMENT, PRIMARY KEY)
-- `name` (VARCHAR(100), NOT NULL) – Emri i shërbimit (p.sh. Dërgesë me postë, Pagesë me kartelë, Wi-Fi falas, Parking)
-- `slug` (VARCHAR(120), UNIQUE, NOT NULL)
-- `description` (TEXT, NULLABLE)
-- `timestamps` (`created_at`, `updated_at`)
-
-#### E. Tabela Pivot `business_service` (Marrëdhënia Many-to-Many)
-- `id` (BIGINT UNSIGNED, AUTO_INCREMENT, PRIMARY KEY)
-- `business_id` (BIGINT UNSIGNED, NOT NULL, FOREIGN KEY -> `businesses.id` ON DELETE CASCADE)
-- `service_id` (BIGINT UNSIGNED, NOT NULL, FOREIGN KEY -> `services.id` ON DELETE CASCADE)
-- `timestamps` (`created_at`, `updated_at`)
-
----
-
-### 2. Marrëdhëniet mes entiteteve (Eloquent Relationships)
-
-- **Category -> Businesses:** `hasMany(Business::class)` | `belongsTo(Category::class)` (Një kategori përmban shumë biznese).
-- **Settlement -> Businesses:** `hasMany(Business::class)` | `belongsTo(Settlement::class)` (Një vendbanim përmban shumë biznese).
-- **Business <-> Services:** `belongsToMany(Service::class, 'business_service')` (Një biznes mund të ofrojë disa shërbime; një shërbim mund t'u takojë disa bizneseve).
-- **User (Admin) -> Businesses:** Menaxhimi i statusit (`draft`, `published`, `archived`) bëhet nga administratori i autorizuar.
+| Autentikimi | Laravel Sanctum (Java 3) | SPA-ready, i thjeshtë |
+| API Prefix | `/api/v1/` + aliases `/api/` | Konsistencë dhe kompatibilitet |
+| CORS | `allowed_origins: ['*']` (zhvillim lokal) | Komunikim React↔Laravel lokal |
 
 ---
 
@@ -152,21 +158,27 @@
 - Frontend port: http://localhost:5173
 - Backend port: http://localhost:8000
 - API base: http://localhost:8000/api
+- API v1: http://localhost:8000/api/v1/businesses
 
 ---
 
-## Hapat e ardhshëm (Java 2, Dita 2)
+## Hapat e ardhshëm (Java 2, Dita 2+)
 
-1. Krijimi i migrimeve specifike të katalogut në Laravel (`create_categories_table`, `create_settlements_table`, `create_businesses_table`, `create_services_table`, `create_business_service_table`).
-2. Krijimi i modeleve Eloquent (`Category`, `Settlement`, `Business`, `Service`) dhe përcaktimi i marrëdhënieve përkatëse.
-3. Krijimi i seeder-ave me të dhëna testuese për Lipjanin (kategori reale, fshatra/zona të Lipjanit dhe biznese shembull).
-4. Verifikimi dhe testimi i migrimeve dhe seeder-ave të katalogut në MySQL.
+1. Testim manual i integrimit React–API me serverë aktivë njëkohësisht (Laravel Serve + Vite Dev)
+2. Shtimi i filtrave vizualë shtesë (kërkim live me debounce)
+3. Hartë interaktive me Leaflet (Java 3) për bizneset me koordinata
+4. Paneli i Administratorit me CRUD (Java 3):
+   - Autentikimi i administratorit me Laravel Sanctum
+   - Endpoint-et e mbrojtura me middleware `auth:sanctum`
+   - Formulari i shtimit/redaktimit të bizneseve
 
 ---
 
 ## Shënime teknike
 
-- Laravel Sanctum përdoret për autentikim të administratorit
-- CORS konfigurohet në `config/cors.php`
-- API prefix: `/api/v1/`
+- Laravel Sanctum planifikohet për Java 3 (autentikim administrator)
+- CORS konfigurohet në `config/cors.php` – `allowed_origins: ['*']` për zhvillim lokal
+- API prefix: `/api/v1/` (me aliases të drejtpërdrejta `/api/`)
 - Secrets dhe API keys kurrë nuk shtohen në GitHub
+- Testet PHPUnit ekzekutohen me SQLite in-memory (izolim i plotë nga MySQL i prodhimit)
+- `opening_hours` ruhet si TEXT/JSON; cast si `array` në modelin Business
