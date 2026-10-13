@@ -64,7 +64,10 @@
 - [x] Rishikuar detyrat e mbetura nga Java 1 dhe dalluar qartë statusin e tyre:
   - Të kryera: Struktura e projektit, konfigurimi Git/GitHub, konfigurimi bazë Laravel & React, konfigurimi dhe lidhja me MySQL, ekzekutimi i migrimeve fillestare të sistemit.
   - Të mbetura sipas planit të zhvillimit për integrim në Javën 2: Modelet dhe migrimet specifike të katalogut, seeders për të dhëna testuese, aktivizimi i rrugëve API (`routes/api.php`) dhe lidhja backend-frontend (CORS).
+- [x] Audituar dhe testuar shtresën e Frontend-it: u konstatua mungesa e varësive lokale; u ekzekutua `npm install` në `frontend/`, u gjenerua `package-lock.json` dhe u testua ndërtimi i aplikacionit me `npm run build` (sukses i plotë pa gabime, 354ms).
+- [x] Konfirmuar se mjedisi Full-Stack (PHP 8.2, Composer 2.8, Laravel 12, Node 22, React 19, MySQL) është plotësisht funksional dhe operativ.
 - [x] Hartuar propozimin teknik të detajuar për skemën e bazës së të dhënave të katalogut (`categories`, `settlements`, `businesses`, `services`, `business_service`) me marrëdhëniet dhe fushat përkatëse pa krijuar ende skedarë para kohe.
+- [x] Verifikuar që rezultati kryesor i Javës 1 (API që merr bizneset nga MySQL dhe React që i shfaq) kërkon ekzistencën e tabelës `businesses` dhe të dhënave testuese, prandaj mbetet objektivi primar për Ditën 2 të Javës 2.
 
 ---
 
