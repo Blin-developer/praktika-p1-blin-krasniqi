@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import BusinessCard from './BusinessCard';
 
 /**
@@ -40,6 +41,10 @@ function EmptyState() {
 }
 
 function BusinessList({ businesses, loading, error, onRetry }) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil((businesses || []).length / itemsPerPage);
+  const paginatedBusinesses = (businesses || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={onRetry} />;
   if (!businesses || businesses.length === 0) return <EmptyState />;
@@ -50,10 +55,31 @@ function BusinessList({ businesses, loading, error, onRetry }) {
         {businesses.length} biznes{businesses.length !== 1 ? 'e' : ''} gjetur
       </p>
       <div className="business-grid">
-        {businesses.map((biz) => (
+        {paginatedBusinesses.map((biz) => (
           <BusinessCard key={biz.id} business={biz} />
         ))}
       </div>
+      {totalPages > 1 && (
+        <div className="pagination-controls">
+          <button
+            className="btn btn--secondary"
+            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span className="page-info">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className="btn btn--secondary"
+            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 }

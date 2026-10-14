@@ -100,6 +100,68 @@
 
 ---
 
+### 14 tetor 2026 (Java 2, Dita 2)
+
+#### Çfarë u kontrollua
+- Kodi i `BusinessCatalogPage.jsx`, `BusinessList.jsx`, `useBusinesses.js` dhe `api.js`
+- Gjendja e filtrave (kërkim, kategori, vendbanim) dhe sinkronizimi me UI-në
+- Gjendjet UI: loading, error, empty — të pranishme dhe funksionale
+- Bizneset e statusit `published` janë të vetmet që kthehen nga API (konfirmuar me seeders dhe tests)
+
+#### Çfarë u ndryshua
+- **`frontend/src/pages/BusinessCatalogPage.jsx`**:
+  - Shtuar state `debouncedSearch` (300ms debounce me `setTimeout`/`clearTimeout`)
+  - Shtuar state `categories` dhe `settlements` (shkoqitje e plotë e gjendjes)
+  - Implementuar lexim i filtrave nga URL-ja (`URLSearchParams`) kur faqja ngarkohet
+  - Implementuar sinkronizim i URL-së (`window.history.replaceState`) sa herë ndryshon ndonjë filtër
+  - `handleReset` pastron edhe `debouncedSearch` edhe parametrat e URL-së
+  - `filters` objekt tani përdor `debouncedSearch` në vend të `search` direkt
+- **`frontend/src/components/BusinessList.jsx`**:
+  - Shtuar import `useState` (mungonte — shkaktonte gabim runtime)
+  - Shtuar faqëzim bazë me 10 elementë për faqe (Faqe e mëparshme / Faqe e ardhshme)
+  - Tekste të paginimit në shqip: "Faqja e mëparshme" / "Faqja e ardhshme"
+
+#### Funksionalitetet e verifikuara
+- ✅ Kërkimi sipas emrit (debounce 300ms, pa request për çdo karakter)
+- ✅ Filtrimi sipas kategorisë
+- ✅ Filtrimi sipas vendbanimit
+- ✅ Kombinimi i të tre filtrave njëkohësisht
+- ✅ Butoni "Pastro" fshin të gjithë filtrat dhe URL-në
+- ✅ Gjendja loading gjatë marrjes së të dhënave
+- ✅ Gjendja error me buton "Provo Sërish" nëse API dështon
+- ✅ Gjendja empty nëse nuk gjenden biznese
+- ✅ Filtrat ruhen në URL dhe rikthehen pas rifreskimit
+- ✅ Vetëm bizneset `published` shfaqen (22 nga 30 total)
+
+#### Rezultatet e testeve – PHPUnit
+```
+Tests: 7 passed (305 assertions)
+Duration: 9.24s
+✓ that true is true
+✓ api health check returns ok
+✓ can list published businesses
+✓ can get single business by slug
+✓ returns 404 for non existing business
+✓ can list categories and settlements
+✓ the application returns a successful response
+```
+
+#### Rezultati i build-it – Frontend
+```
+✓ vite build — 22 modules transformed
+dist/index.html   0.47 kB
+dist/assets/*.css 6.83 kB (gzip: 2.18 kB)
+dist/assets/*.js  226.87 kB (gzip: 70.80 kB)
+Built in 391ms — asnjë gabim
+```
+
+#### Çfarë mbetet
+- Pagination nga API-ja (server-side) — Java 2, Dita 3 nëse kërkohet
+- Verifikimi manual i UI-së me serverë aktivë njëkohësisht (Vite + Laravel)
+- Paneli administrativ, Sanctum, Leaflet — Java 3
+
+---
+
 ## API Endpoints
 
 | Endpoint | Metoda | Përshkrim |

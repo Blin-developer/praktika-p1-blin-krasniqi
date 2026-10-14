@@ -10,15 +10,44 @@ function BusinessCatalogPage() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSettlement, setSelectedSettlement] = useState('');
+  // Debounced search value to avoid sending request on every keystroke
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [categories, setCategories] = useState([]);
   const [settlements, setSettlements] = useState([]);
 
+  // Initialize filters from URL query parameters on first render
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('search') || '';
+    const cat = params.get('category') || '';
+    const setl = params.get('settlement') || '';
+    setSearch(q);
+    setSelectedCategory(cat);
+    setSelectedSettlement(setl);
+    setDebouncedSearch(q);
+  }, []);
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+  // Update URL whenever filters change (search, category, settlement)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.set('search', debouncedSearch);
+    if (selectedCategory) params.set('category', selectedCategory);
+    if (selectedSettlement) params.set('settlement', selectedSettlement);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, '', newUrl);
+  }, [debouncedSearch, selectedCategory, selectedSettlement]);
+
   const filters = {
-    search: search || undefined,
+    search: debouncedSearch || undefined,
     category: selectedCategory || undefined,
     settlement: selectedSettlement || undefined,
   };
-
   const { businesses, loading, error, reload } = useBusinesses(filters);
 
   useEffect(() => {
@@ -39,6 +68,9 @@ function BusinessCatalogPage() {
     setSearch('');
     setSelectedCategory('');
     setSelectedSettlement('');
+    setDebouncedSearch('');
+    // Clear URL query parameters
+    window.history.replaceState(null, '', window.location.pathname);
   }
 
   return (
