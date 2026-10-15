@@ -7,39 +7,38 @@ import { fetchCategories, fetchSettlements } from '../services/api';
  * BusinessCatalogPage – Faqja kryesore e katalogut të bizneseve
  */
 function BusinessCatalogPage() {
-  const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedSettlement, setSelectedSettlement] = useState('');
-  // Debounced search value to avoid sending request on every keystroke
-  const [debouncedSearch, setDebouncedSearch] = useState('');
+  // Inicializo filtrat drejtpërdrejt nga URL query parameters
+  const [search, setSearch] = useState(() => {
+    return new URLSearchParams(window.location.search).get('search') || '';
+  });
+  const [selectedCategory, setSelectedCategory] = useState(() => {
+    return new URLSearchParams(window.location.search).get('category') || '';
+  });
+  const [selectedSettlement, setSelectedSettlement] = useState(() => {
+    return new URLSearchParams(window.location.search).get('settlement') || '';
+  });
+  const [debouncedSearch, setDebouncedSearch] = useState(() => {
+    return new URLSearchParams(window.location.search).get('search') || '';
+  });
   const [categories, setCategories] = useState([]);
   const [settlements, setSettlements] = useState([]);
 
-  // Initialize filters from URL query parameters on first render
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get('search') || '';
-    const cat = params.get('category') || '';
-    const setl = params.get('settlement') || '';
-    setSearch(q);
-    setSelectedCategory(cat);
-    setSelectedSettlement(setl);
-    setDebouncedSearch(q);
-  }, []);
-  // Debounce search input
+  // Debounce search input (300ms)
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
     }, 300);
     return () => clearTimeout(handler);
   }, [search]);
-  // Update URL whenever filters change (search, category, settlement)
+
+  // Sinkronizo URL-në kur ndryshojnë filtrat
   useEffect(() => {
     const params = new URLSearchParams();
-    if (debouncedSearch) params.set('search', debouncedSearch);
+    if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim());
     if (selectedCategory) params.set('category', selectedCategory);
     if (selectedSettlement) params.set('settlement', selectedSettlement);
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    const queryString = params.toString();
+    const newUrl = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
     window.history.replaceState(null, '', newUrl);
   }, [debouncedSearch, selectedCategory, selectedSettlement]);
 

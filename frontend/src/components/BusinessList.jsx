@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import BusinessCard from './BusinessCard';
 
 /**
@@ -34,7 +34,7 @@ function EmptyState() {
   return (
     <div className="state-container state-container--empty">
       <p className="state-icon">🔍</p>
-      <p>Nuk u gjetën biznese për filtrat aktualë.</p>
+      <p>Nuk u gjet asnjë biznes.</p>
       <p className="state-hint">Provoni të ndryshoni kriteret e kërkimit.</p>
     </div>
   );
@@ -43,8 +43,15 @@ function EmptyState() {
 function BusinessList({ businesses, loading, error, onRetry }) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil((businesses || []).length / itemsPerPage);
+
+  // Rikthe faqen në 1 sa herë ndryshon lista e bizneseve (p.sh. nga filtrat)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [businesses]);
+
+  const totalPages = Math.max(1, Math.ceil((businesses || []).length / itemsPerPage));
   const paginatedBusinesses = (businesses || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={onRetry} />;
   if (!businesses || businesses.length === 0) return <EmptyState />;
@@ -63,20 +70,22 @@ function BusinessList({ businesses, loading, error, onRetry }) {
         <div className="pagination-controls">
           <button
             className="btn btn--secondary"
-            onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
             disabled={currentPage === 1}
+            aria-label="Faqja e mëparshme"
           >
-            Previous
+            Faqja e mëparshme
           </button>
           <span className="page-info">
-            Page {currentPage} of {totalPages}
+            Faqja {currentPage} nga {totalPages}
           </span>
           <button
             className="btn btn--secondary"
-            onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
             disabled={currentPage === totalPages}
+            aria-label="Faqja e ardhshme"
           >
-            Next
+            Faqja e ardhshme
           </button>
         </div>
       )}

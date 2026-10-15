@@ -162,6 +162,83 @@ Built in 391ms — asnjë gabim
 
 ---
 
+### 15 tetor 2026 (Java 2, Dita 3)
+
+#### Problemi me MySQL, Diagnostikimi dhe Zgjidhja
+- **Problemi i raportuar:** API shfaqte gabimin `SQLSTATE[HY000] [2002] No connection could be made because the target machine actively refused it` gjatë thirrjes së `GET /api/v1/businesses`.
+- **Diagnostikimi:**
+  - U kontrolluan konfigurimet në `backend/.env` dhe `backend/config/database.php`.
+  - U ekzekutuan komandat e rrjetit (`netstat -ano`) dhe inspektimi i proceseve (`Get-Process mysqld`).
+  - U zbulua se shërbimi MySQL/MariaDB nga XAMPP (`mysqld.exe`) po dëgjonte në portin **3307** dhe jo në portin e paracaktuar 3306.
+  - Në skedarin `backend/.env`, `DB_PORT=3307` ishte konfiguruar saktë, por shërbimi `mysqld` nuk kishte qenë i ndezur paraprakisht.
+- **Zgjidhja:**
+  - Shërbimi `mysqld` në XAMPP u konfirmua aktiv në portin 3307 me PID 14268.
+  - U verifikua lidhja me `php artisan migrate:status`: të 8 migrimet u konfirmuan si të ekzekutuara (`Ran`).
+  - U konfirmua se nuk nevojiteshin modifikime destruktive në skemat ekzistuese të të dhënave.
+
+#### Testimi i API-së Reale
+- Endpoint-i shëndetësor `GET /api/health` ktheu statusin `200 OK` me `{"status":"ok","message":"Lipjan Businesses API is running"}`.
+- Endpoint-i kryesor `GET /api/v1/businesses` ktheu `200 OK` me saktësisht **22 biznese** me status `published`.
+- U verifikua që bizneset me status `draft` (4) dhe `archived` (4) nuk ekspozohen në API-në publike.
+- Endpoint-et ndihmëse `GET /api/v1/categories` (6 kategori) dhe `GET /api/v1/settlements` (8 vendbanime) kthyen të dhëna të sakta me lidhje të paprekura.
+- Të dhënat demo në bazë: 30 biznese gjithsej (22 published, 4 draft, 4 archived), 6 kategori, 8 vendbanime, 6 shërbime.
+
+#### Testimi React ↔ Laravel dhe Katalogut Publik
+- U nisën dy serverët në prapavijë: Laravel Artisan (`127.0.0.1:8000`) dhe Vite Dev Server (`localhost:5173`).
+- React konsumon me sukses të dhënat reale nga API-ja (jo të dhëna hardcoded).
+- **Kërkimi (Search):**
+  - Kërkimi për biznes ekzistues ("pica") ktheu me saktësi 1 rezultat.
+  - Kërkimi pa rezultate ("xyzabc123") shfaqi gjendjen Empty me mesazhin: *"Nuk u gjet asnjë biznes."*
+  - Kërkimi me shkronja të mëdha ("PICA") funksionoi siç duhet (case-insensitive).
+- **Debounce:**
+  - Vlera e debounce prej **300ms** funksionon korrekt duke evituar kërkesa të panevojshme për çdo goditje taste.
+- **Filtrat dhe Kombinimet:**
+  - Filtrimi sipas kategorive dhe sipas vendbanimeve funksionon me saktësi.
+  - Kombinimet: search + category, search + settlement, category + settlement, si dhe të treja së bashku funksionojnë pa ndërprerje.
+- **URL Filters dhe Pastrimi:**
+  - Parametrat `?search=...`, `?category=...`, `?settlement=...` pasqyrohen në URL në mënyrë të pastër pa trailing `?`.
+  - U optimizua inicializimi i gjendjes në React nga `window.location.search` duke garantuar ruajtjen e filtrave pas rifreskimit (refresh/F5) ose ngjitjes së drejtpërdrejtë të URL-së.
+  - Butoni **Pastro** pastron të gjitha fushat e kërkimit/filtrave, heq query params nga URL-ja dhe rikthen listën e plotë fillestare.
+- **Faqëzimi (Pagination):**
+  - Pagination në anën e frontend-it me 10 biznese për faqe (gjithsej 3 faqe për 22 biznese).
+  - Butonat e paginimit: "Faqja e mëparshme", "Faqja e ardhshme", informacioni "Faqja X nga Y".
+  - U shtua resetimi automatik i faqes në `1` sa herë ndryshohen filtrat, duke parandaluar faqe të zbrazëta.
+- **Gjendjet e Ndërfaqes (UI States):**
+  - *Loading:* Spinner shfaqet gjatë marrjes asinkrone të të dhënave.
+  - *Error:* Mesazh i qartë me butonin "Provo Sërish" kur API-ja nuk përgjigjet.
+  - *Empty:* Mesazhi "Nuk u gjet asnjë biznes." kur nuk ka përputhje me filtrat.
+
+#### Rezultatet e PHPUnit
+```
+Tests: 7 passed (305 assertions)
+Duration: 0.51s
+✓ that true is true
+✓ api health check returns ok
+✓ can list published businesses
+✓ can get single business by slug
+✓ returns 404 for non existing business
+✓ can list categories and settlements
+✓ the application returns a successful response
+```
+
+#### Rezultati i Build-it Frontend
+```
+> frontend@0.0.0 build
+> vite build
+✓ 22 modules transformed.
+dist/index.html                   0.47 kB │ gzip:  0.30 kB
+dist/assets/index-CKNxReIo.css    6.83 kB │ gzip:  2.18 kB
+dist/assets/index-D7jPjCOx.js   227.13 kB │ gzip: 70.81 kB
+✓ built in 105ms — 0 gabime
+```
+
+#### Problemet që mbetën / Hapat e ardhshëm
+- Asnjë problem bllokues; lidhja MySQL, API dhe React katalogu janë 100% stabile dhe funksionale.
+- Pagination mbetet në anën e frontend-it për 22 bizneset ekzistuese; pagination në nivel baze të të dhënave (server-side) mund të shtohet kur volumi i të dhënave të rritet në fazat vijuese.
+- Hapat e ardhshëm (Java 2, Dita 4 / Java 3): Përgatitja për panelin e administratorit, autentikimin me Sanctum dhe hartën Leaflet.
+
+---
+
 ## API Endpoints
 
 | Endpoint | Metoda | Përshkrim |
