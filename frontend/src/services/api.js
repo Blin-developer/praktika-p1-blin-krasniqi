@@ -62,3 +62,26 @@ export async function fetchSettlements() {
 
   return response.json();
 }
+
+/**
+ * Merr të dhënat e plota të një biznesi sipas ID-së ose slug-ut nga API-ja.
+ * @param {string|number} idOrSlug
+ */
+export async function fetchBusiness(idOrSlug) {
+  const response = await fetch(`${API_BASE_URL}/v1/businesses/${encodeURIComponent(idOrSlug)}`, {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error('Biznesi nuk u gjet.');
+    }
+    throw new Error(`Gabim HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+

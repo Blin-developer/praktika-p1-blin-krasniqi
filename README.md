@@ -9,7 +9,7 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 
 ## Statusi i Projektit
 
-> **Statusi aktual:** Java 2 – Pjesa publike e katalogut është funksionale dhe e lidhur me API-në.
+> **Statusi aktual:** Java 2 – Përfunduar me sukses (100%). Pjesa publike e katalogut dhe profili i biznesit janë plotësisht funksionale dhe të lidhura me API-në.
 
 * ✅ **Frontend (React 19 + Vite):** Ndërfaqe dinamike dhe responsive me komponentë modulare.
 * ✅ **Backend (Laravel 12):** REST API funksionale me kontrollerë, modele Eloquent dhe validim.
@@ -24,6 +24,7 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 * ✅ **Kërkim në kohë reale:** Kërkim sipas emrit, përshkrimit dhe adresës me mekanizëm **debounce (300ms)**.
 * ✅ **Filtrim i shumëfishtë:** Filtrim sipas kategorisë, vendbanimit dhe kombinimeve të tyre.
 * ✅ **URL Filters:** Sinkronizim i dyanshëm i parametrave të kërkimit në URL dhe ruajtje pas rifreskimit (refresh/F5).
+* ✅ **Profili i zgjeruar i biznesit:** Pamje e dedikuar me detaje të plota, shërbime, orare pune, kontakt (telefon, email, website), adresë, koordinata dhe lundrim kthyes pa humbur filtrat.
 * ✅ **Pagination:** Faqëzim në anën e klientit me 10 biznese për faqe dhe resetim automatik të faqes gjatë filtrimit.
 * ✅ **Gjendjet e ndërfaqes (UI States):** Trajtim i plotë i gjendjeve *Loading* (spinner), *Error* (me buton "Provo Sërish") dhe *Empty* ("Nuk u gjet asnjë biznes.").
 * ✅ **Integrimi Full-Stack:** Komunikim i verifikuar dhe stabil ndërmjet React dhe Laravel API.
@@ -231,7 +232,7 @@ Repository-i ndjek një rrjedhë të pastër dhe të disiplinuar të zhvillimit:
 - [x] REST API fillestare dhe konfigurimi i CORS
 
 ### Java 2 – Pjesa Publike e Katalogut (12–18 tetor 2026)
-*Statusi: **Në zhvillim / Pjesërisht e përfunduar***
+*Statusi: **Përfunduar (100%)***
 - [x] Ndërtimi i ndërfaqes publike të katalogut me React
 - [x] Lidhja dhe konsumimi i të dhënave reale nga Laravel API
 - [x] Moduli i kërkimit tekstual me debounce (300ms)
@@ -240,7 +241,7 @@ Repository-i ndjek një rrjedhë të pastër dhe të disiplinuar të zhvillimit:
 - [x] Faqëzimi bazë në frontend me reset automatik
 - [x] Gjendjet e ndërfaqes (Loading, Error, Empty states)
 - [x] Testet e integruara të API-së me PHPUnit (7 teste, 305 assertions)
-- [ ] Detajet e zgjeruara të profilit të biznesit dhe optimizime shtesë
+- [x] Detajet e zgjeruara të profilit të biznesit (Business Profile) me shërbime, orare dhe kontakt nga API
 
 ### Java 3 – Paneli Administrativ dhe Harta (19–25 tetor 2026)
 *Statusi: **Në pritje***

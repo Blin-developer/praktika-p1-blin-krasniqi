@@ -2,13 +2,13 @@
  * BusinessCard.jsx – Kartela vizuale e një biznesi në listë
  */
 
-function BusinessCard({ business }) {
+function BusinessCard({ business, onSelectBusiness }) {
   const {
+    slug,
     name,
     short_description,
     address,
     phone,
-    status,
     is_featured,
     category,
     settlement,
@@ -26,7 +26,19 @@ function BusinessCard({ business }) {
         <div className="business-card__category-tag">
           {category?.name ?? '—'}
         </div>
-        <h3 className="business-card__name">{name}</h3>
+        <h3 className="business-card__name">
+          {onSelectBusiness ? (
+            <button
+              type="button"
+              className="business-card__title-btn"
+              onClick={() => onSelectBusiness(slug)}
+            >
+              {name}
+            </button>
+          ) : (
+            name
+          )}
+        </h3>
       </div>
 
       <div className="business-card__body">
@@ -59,6 +71,19 @@ function BusinessCard({ business }) {
           )}
         </dl>
       </div>
+
+      {onSelectBusiness && (
+        <div className="business-card__footer">
+          <button
+            type="button"
+            className="btn btn--outline-primary business-card__action"
+            onClick={() => onSelectBusiness(slug)}
+            aria-label={`Shiko profilin e ${name}`}
+          >
+            Shiko Profilin →
+          </button>
+        </div>
+      )}
     </article>
   );
 }

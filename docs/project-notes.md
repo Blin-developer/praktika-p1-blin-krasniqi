@@ -2,7 +2,7 @@
 
 ## Statusi aktual
 
-**Java 2 – Pjesa Publike dhe Zhvillimi i Bazës së të Dhënave (12–18 tetor 2026)**
+**Java 2 – Pjesa Publike dhe Zhvillimi i Bazës së të Dhënave (12–18 tetor 2026) – PËRFUNDUAR 100%**
 
 ---
 
@@ -236,6 +236,46 @@ dist/assets/index-D7jPjCOx.js   227.13 kB │ gzip: 70.81 kB
 - Asnjë problem bllokues; lidhja MySQL, API dhe React katalogu janë 100% stabile dhe funksionale.
 - Pagination mbetet në anën e frontend-it për 22 bizneset ekzistuese; pagination në nivel baze të të dhënave (server-side) mund të shtohet kur volumi i të dhënave të rritet në fazat vijuese.
 - Hapat e ardhshëm (Java 2, Dita 4 / Java 3): Përgatitja për panelin e administratorit, autentikimin me Sanctum dhe hartën Leaflet.
+
+---
+
+### 17 tetor 2026 (Java 2, Dita 5 – Kontrolli dhe Përmbyllja e Plotë e Javës 2)
+
+#### Çfarë u kontrollua
+- Verifikuar integriteti i Git-it (repository `praktika-p1-blin-krasniqi`, branch `development`, origin i sinkronizuar).
+- Ekzekutuar dhe audituar të gjitha testet ekzistuese: 7 teste PHPUnit (305 assertions) kaluan me sukses të plotë.
+- Kontrolluar shërbimi MySQL/MariaDB në portin 3307 dhe lidhja me Laravel përmes PDO (30 biznese gjithsej, 22 të publikuara).
+- Verifikuar endpoint-et `/api/health`, `/api/v1/businesses`, `/api/v1/businesses/{idOrSlug}`, `/api/v1/categories`, `/api/v1/settlements`.
+- Audituar frontend-i: kërkimi me debounce (300ms), filtrat sipas kategorisë dhe vendbanimit, sinkronizimi me parametrat në URL, butoni "Pastro", dhe faqëzimi (pagination).
+
+#### Çfarë u implementua dhe u përfundua sot (Detyra e mbetur e Javës 2)
+- **Profili i Biznesit (Business Profile):**
+  - Shtuar funksioni `fetchBusiness(idOrSlug)` në `frontend/src/services/api.js` për marrjen e të dhënave të plota nga Laravel API (`GET /api/v1/businesses/{idOrSlug}`).
+  - Krijuar hook-u `frontend/src/hooks/useBusiness.js` me menaxhim të gjendjeve loading, error dhe të dhënave.
+  - Krijuar komponenti `frontend/src/components/BusinessProfile.jsx` me prezantim të pasur dhe të plotë:
+    - Lundrim kthyes ("← Kthehu te Katalogu") dhe breadcrumb navigues.
+    - Header me stemë ("★ I Veçuar"), kategori, titull dhe përshkrim të shkurtër.
+    - Kartela "Rreth Biznesit" me përshkrim të plotë.
+    - Kartela "Shërbimet & Lehtësirat" me distinktivë dhe përshkrime për çdo shërbim (Wi-Fi, Parking, etj.).
+    - Kartela "Orari i Punës" me orare të formatuara për ditët e punës dhe fundjavë.
+    - Kartela "Kontakti & Vendndodhja" me lidhje të klikueshme (`tel:`, `mailto:`, uebfaqe e jashtme) dhe adresë.
+    - Koordinatat gjeografike me njoftim për integrimin e hartës Leaflet në Java 3.
+  - Përditësuar `frontend/src/components/BusinessCard.jsx` me buton veprimi ("Shiko Profilin →") dhe titull të klikueshëm.
+  - Përditësuar `frontend/src/components/BusinessList.jsx` për përcjelljen e ngjarjes së përzgjedhjes së biznesit.
+  - Përditësuar `frontend/src/pages/BusinessCatalogPage.jsx` me rrugëzim të sinkronizuar në URL (`?business=slug`), mbështetje për historikun e shfletuesit (`popstate` për butonat Back/Forward) dhe ruajtje të filtrave aktivë gjatë kthimit.
+  - Përditësuar `frontend/src/App.css` me stile responsive për profilin në desktop, tablet dhe mobile.
+  - Përmirësuar SEO dhe metadata në `frontend/index.html` (`lang="sq"`, titull përshkrues dhe meta description).
+  - Pastruar dhe optimizuar paralajmërimet e linterit (oxlint) në `useBusinesses.js` dhe `BusinessList.jsx`.
+
+#### Rezultatet e Testeve
+- **Backend (PHPUnit):** 7 passed (305 assertions) – kohëzgjatja 0.53s.
+- **Frontend (Vite Build):** `npm run build` kaloi me 0 gabime (24 module të transformuara, 104ms).
+- **Frontend (Linter):** `npm run lint` kaloi me 0 gabime.
+
+#### Statusi Përfundimtar i Javës 2
+- **JAVA 2: 100% E PËRFUNDUAR**.
+- Të gjitha funksionalitetet e planifikuara për pjesën publike të katalogut dhe profilin e biznesit janë të realizuara, të lidhura me API-në dhe të testuara plotësisht.
+- Projekti është i gatshëm për kalimin në Javën 3 (Paneli Administrativ, Sanctum dhe Harta Leaflet).
 
 ---
 

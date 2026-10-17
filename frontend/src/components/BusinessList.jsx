@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import BusinessCard from './BusinessCard';
 
 /**
@@ -40,14 +40,16 @@ function EmptyState() {
   );
 }
 
-function BusinessList({ businesses, loading, error, onRetry }) {
+function BusinessList({ businesses, loading, error, onRetry, onSelectBusiness }) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [prevBusinesses, setPrevBusinesses] = useState(businesses);
   const itemsPerPage = 10;
 
   // Rikthe faqen në 1 sa herë ndryshon lista e bizneseve (p.sh. nga filtrat)
-  useEffect(() => {
+  if (prevBusinesses !== businesses) {
+    setPrevBusinesses(businesses);
     setCurrentPage(1);
-  }, [businesses]);
+  }
 
   const totalPages = Math.max(1, Math.ceil((businesses || []).length / itemsPerPage));
   const paginatedBusinesses = (businesses || []).slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -63,7 +65,11 @@ function BusinessList({ businesses, loading, error, onRetry }) {
       </p>
       <div className="business-grid">
         {paginatedBusinesses.map((biz) => (
-          <BusinessCard key={biz.id} business={biz} />
+          <BusinessCard
+            key={biz.id}
+            business={biz}
+            onSelectBusiness={onSelectBusiness}
+          />
         ))}
       </div>
       {totalPages > 1 && (
