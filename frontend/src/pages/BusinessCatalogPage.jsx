@@ -7,7 +7,7 @@ import { fetchCategories, fetchSettlements } from '../services/api';
 /**
  * BusinessCatalogPage – Faqja kryesore e katalogut të bizneseve
  */
-function BusinessCatalogPage() {
+function BusinessCatalogPage({ onNavigateToAdmin }) {
   // Inicializo filtrat dhe profilin drejtpërdrejt nga URL query parameters
   const [search, setSearch] = useState(() => {
     return new URLSearchParams(window.location.search).get('search') || '';
@@ -109,6 +109,18 @@ function BusinessCatalogPage() {
   return (
     <div className="catalog-page">
       <header className="catalog-header">
+        {onNavigateToAdmin && (
+          <div className="catalog-header__top-bar">
+            <button
+              type="button"
+              className="catalog-header__admin-btn"
+              onClick={onNavigateToAdmin}
+              aria-label="Hyrja e administratorit"
+            >
+              🔐 Paneli Administrativ
+            </button>
+          </div>
+        )}
         <div className="catalog-header__content">
           <h1 className="catalog-header__title">
             Katalogu i Bizneseve

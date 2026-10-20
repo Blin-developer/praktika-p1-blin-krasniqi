@@ -9,30 +9,29 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 
 ## Statusi i Projektit
 
-> **Statusi aktual:** Java 2 – Përfunduar me sukses (100%). Pjesa publike e katalogut dhe profili i biznesit janë plotësisht funksionale dhe të lidhura me API-në.
+> **Statusi aktual:** Java 3 – Dita 1: Përgatitja e bazës së autentikimit të administratorit me **Laravel Sanctum** dhe mbrojtja e API-së administrative. Katalogu publik dhe profili i biznesit mbeten plotësisht funksionale.
 
-* ✅ **Frontend (React 19 + Vite):** Ndërfaqe dinamike dhe responsive me komponentë modulare.
-* ✅ **Backend (Laravel 12):** REST API funksionale me kontrollerë, modele Eloquent dhe validim.
-* ✅ **Databaza (MySQL/MariaDB):** E strukturuar, e migruar dhe e lidhur me sukses përmes PDO.
-* ✅ **Të dhëna demo:** 30 biznese demo të gjeneruara në databazë:
+* ✅ **Frontend (React 19 + Vite):** Ndërfaqe dinamike dhe responsive me komponentë modulare, katalog publik, profil biznesi dhe faqe hyrjeje (Login) për administratorin.
+* ✅ **Autentikimi (Laravel Sanctum):** Implementuar autentikimi me Bearer token për administratorët (`/api/v1/auth/login`, `logout`, `me`) dhe mbrojtja e rrugëve me middleware `auth:sanctum` dhe `admin`.
+* ✅ **Backend (Laravel 12):** REST API funksionale me kontrollerë, modele Eloquent, validim dhe middleware autorizimi.
+* ✅ **Databaza (MySQL/MariaDB):** E strukturuar, e migruar dhe e lidhur me sukses përmes PDO; përfshin tabelën `personal_access_tokens` dhe kolonën `is_admin` në tabelën `users`.
+* ✅ **Të dhëna demo & Administrator:**
+  * Administrator lokal i konfiguruar përmes `AdminUserSeeder` dhe `.env`.
   * **22** biznese me status `published` (shfaqen në katalog)
   * **4** biznese me status `draft` (të fshehura)
   * **4** biznese me status `archived` (të fshehura)
-  * **6** kategori
-  * **8** vendbanime
-  * **6** shërbime
+  * **6** kategori, **8** vendbanime, **6** shërbime.
 * ✅ **Kërkim në kohë reale:** Kërkim sipas emrit, përshkrimit dhe adresës me mekanizëm **debounce (300ms)**.
 * ✅ **Filtrim i shumëfishtë:** Filtrim sipas kategorisë, vendbanimit dhe kombinimeve të tyre.
 * ✅ **URL Filters:** Sinkronizim i dyanshëm i parametrave të kërkimit në URL dhe ruajtje pas rifreskimit (refresh/F5).
-* ✅ **Profili i zgjeruar i biznesit:** Pamje e dedikuar me detaje të plota, shërbime, orare pune, kontakt (telefon, email, website), adresë, koordinata dhe lundrim kthyes pa humbur filtrat.
-* ✅ **Pagination:** Faqëzim në anën e klientit me 10 biznese për faqe dhe resetim automatik të faqes gjatë filtrimit.
-* ✅ **Gjendjet e ndërfaqes (UI States):** Trajtim i plotë i gjendjeve *Loading* (spinner), *Error* (me buton "Provo Sërish") dhe *Empty* ("Nuk u gjet asnjë biznes.").
-* ✅ **Integrimi Full-Stack:** Komunikim i verifikuar dhe stabil ndërmjet React dhe Laravel API.
-* ✅ **Testet e automatizuara:** 7 teste PHPUnit të kaluara me sukses (305 assertions).
+* ✅ **Profili i zgjeruar i biznesit:** Pamje e dedikuar me detaje të plota, shërbime, orare pune, kontakt dhe lundrim kthyes.
+* ✅ **Pagination:** Faqëzim në anën e klientit me 10 biznese për faqe.
+* ✅ **Gjendjet e ndërfaqes (UI States):** Trajtim i plotë i gjendjeve *Loading*, *Error* dhe *Empty*.
+* ✅ **Testet e automatizuara:** 17 teste PHPUnit të kaluara me sukses (336 assertions).
 * ✅ **Production Build:** `npm run build` ekzekutohet pa gabime (0 lint/build errors).
 * ✅ **Version Control:** Zhvillim aktiv në degën `development` dhe sinkronizim i rregullt në GitHub.
 
-*(Paneli i Administratorit, Autentikimi me Laravel Sanctum, Harta me Leaflet dhe Moduli i Reklamave janë të planifikuara për Java 3.)*
+*(Dizajni i plotë i Admin Dashboard, veprimet CRUD, Harta me Leaflet dhe Moduli i Reklamave janë në plan për ditët në vijim të Javës 3.)*
 
 ---
 
@@ -45,8 +44,8 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 | **Database** | MySQL / MariaDB |
 | **API** | REST API |
 | **Styling** | Vanilla CSS |
-| **Maps** | Leaflet – Java 3 |
-| **Authentication** | Laravel Sanctum – Java 3 |
+| **Authentication** | Laravel Sanctum |
+| **Maps** | Leaflet – Në vijim të Javës 3 |
 | **Version Control** | Git + GitHub |
 
 ---
@@ -83,13 +82,19 @@ Backend-i ofron endpoint-et REST API të mëposhtme:
 * `GET /api/v1/businesses/{slug|id}` — Kthen detajet e plota të një biznesi sipas identifikuesit ose slug-ut.
 * `GET /api/v1/categories` — Kthen listën e kategorive aktive bashkë me numrin e bizneseve përkatëse.
 * `GET /api/v1/settlements` — Kthen listën e vendbanimeve aktive të komunës së Lipjanit.
+* `POST /api/v1/auth/login` — Autentikon administratorin dhe kthen token Sanctum.
+* `POST /api/v1/auth/logout` — Shkyç administratorin dhe shkatërron token-in aktual (Bearer token).
+* `GET /api/v1/auth/me` — Kthen profilin e administratorit aktual të autentikuar.
+* `GET /api/v1/admin/test` — Rrugë prove e mbrojtur nga `auth:sanctum` dhe `admin` middleware.
 
 ---
 
 ## Database
 
-Databaza e projektit përmban skemën relacionale të optimizuar për katalogun:
+Databaza e projektit përmban skemën relacionale të optimizuar për katalogun dhe autentikimin:
 
+* **`users`** — Përdoruesit e sistemit me kolonën `is_admin` për dallimin e rolit administrator.
+* **`personal_access_tokens`** — Tabela e token-ave API të Laravel Sanctum.
 * **`categories`** — Kategoritë e bizneseve (emri, slug, përshkrimi, ikona).
 * **`settlements`** — Vendbanimet e komunës së Lipjanit (emri, slug, kodi postar).
 * **`businesses`** — Të dhënat kryesore të biznesit (emri, slug, adresa, telefoni, email, website, orari, statusi: `published`/`draft`/`archived`, `is_featured`, koordinatat gjeografike).
@@ -191,12 +196,9 @@ Projekti posedon teste të automatizuara dhe verifikim të rregullt të build-it
 cd backend
 php artisan test
 ```
-* **Rezultati aktual:** **7 teste të kaluara me sukses (305 assertions)**
-  * `test_api_health_check_returns_ok` ✓
-  * `test_can_list_published_businesses` ✓
-  * `test_can_get_single_business_by_slug` ✓
-  * `test_returns_404_for_non_existing_business` ✓
-  * `test_can_list_categories_and_settlements` ✓
+* **Rezultati aktual:** **17 teste të kaluara me sukses (336 assertions)**
+  * `AuthApiTest` (10 teste autentikimi, token, logout, siguri, seeder) ✓
+  * `BusinessApiTest` (5 teste të katalogut dhe profileve) ✓
   * `ExampleTest` (Unit & Feature) ✓
 
 ### Build-i i Frontend-it
@@ -204,7 +206,7 @@ php artisan test
 cd frontend
 npm run build
 ```
-* **Rezultati:** Paketohet me sukses në pak milisekonda përmes Vite, me 0 paralajmërime dhe 0 gabime sintaksore.
+* **Rezultati:** Paketohet me sukses në pak milisekonda përmes Vite, me 0 gabime sintaksore.
 
 ---
 
@@ -244,8 +246,8 @@ Repository-i ndjek një rrjedhë të pastër dhe të disiplinuar të zhvillimit:
 - [x] Detajet e zgjeruara të profilit të biznesit (Business Profile) me shërbime, orare dhe kontakt nga API
 
 ### Java 3 – Paneli Administrativ dhe Harta (19–25 tetor 2026)
-*Statusi: **Në pritje***
-- [ ] Autentikimi i administratorit me Laravel Sanctum
+*Statusi: **Në zhvillim aktiv***
+- [x] Autentikimi i administratorit me Laravel Sanctum (Java 3 – Dita 1)
 - [ ] Paneli i administrimit (Admin Dashboard)
 - [ ] Veprimet e plota CRUD për bizneset, kategoritë dhe vendbanimet
 - [ ] Integrimi i hartës ndërvepruese me Leaflet
