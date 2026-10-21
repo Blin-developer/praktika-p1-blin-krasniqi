@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 import { createAdminBusiness, updateAdminBusiness, ApiError } from '../../services/api';
 
 /**
+ * Ndihmës për pastrimin e vlerave tekstuale (shmang gabimet TypeError nëse vlera është null ose jo-string).
+ */
+function cleanString(val) {
+  if (val === null || val === undefined) return '';
+  return String(val).trim();
+}
+
+/**
  * BusinessFormModal – Formular modal për krijimin dhe editimin e biznesit nga administratori.
  */
 export default function BusinessFormModal({
@@ -42,20 +50,20 @@ export default function BusinessFormModal({
 
     if (business) {
       setFormData({
-        name: business.name || '',
+        name: cleanString(business.name),
         status: business.status || 'draft',
         category_id: business.category_id || business.category?.id || (categories[0]?.id || ''),
         settlement_id: business.settlement_id || business.settlement?.id || (settlements[0]?.id || ''),
-        short_description: business.short_description || '',
-        description: business.description || '',
-        phone: business.phone || '',
-        email: business.email || '',
-        website: business.website || '',
-        address: business.address || '',
+        short_description: cleanString(business.short_description),
+        description: cleanString(business.description),
+        phone: cleanString(business.phone),
+        email: cleanString(business.email),
+        website: cleanString(business.website),
+        address: cleanString(business.address),
         latitude: business.latitude !== null && business.latitude !== undefined ? business.latitude : '',
         longitude: business.longitude !== null && business.longitude !== undefined ? business.longitude : '',
         is_featured: Boolean(business.is_featured),
-        services: business.services ? business.services.map((s) => s.id) : [],
+        services: Array.isArray(business.services) ? business.services.map((s) => s.id) : [],
       });
     } else {
       setFormData({
@@ -89,7 +97,7 @@ export default function BusinessFormModal({
       [name]: type === 'checkbox' ? checked : value,
     }));
 
-    // Pastro gabimin për këtë fushë
+    // Pastro gabimin e fushës në ndryshim
     if (errors[name]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -115,22 +123,26 @@ export default function BusinessFormModal({
     setErrors({});
     setGeneralError(null);
 
-    // Përgatit payload-in
+    // Përgatit payload-in me tipet e sakta
     const payload = {
-      name: formData.name.trim(),
+      name: cleanString(formData.name),
       category_id: Number(formData.category_id),
       settlement_id: Number(formData.settlement_id),
       status: formData.status,
-      short_description: formData.short_description.trim() || null,
-      description: formData.description.trim() || null,
-      phone: formData.phone.trim() || null,
-      email: formData.email.trim() || null,
-      website: formData.website.trim() || null,
-      address: formData.address.trim() || null,
-      latitude: formData.latitude !== '' ? Number(formData.latitude) : null,
-      longitude: formData.longitude !== '' ? Number(formData.longitude) : null,
+      short_description: cleanString(formData.short_description) || null,
+      description: cleanString(formData.description) || null,
+      phone: cleanString(formData.phone) || null,
+      email: cleanString(formData.email) || null,
+      website: cleanString(formData.website) || null,
+      address: cleanString(formData.address) || null,
+      latitude: formData.latitude !== '' && formData.latitude !== null && formData.latitude !== undefined
+        ? Number(formData.latitude)
+        : null,
+      longitude: formData.longitude !== '' && formData.longitude !== null && formData.longitude !== undefined
+        ? Number(formData.longitude)
+        : null,
       is_featured: Boolean(formData.is_featured),
-      services: formData.services,
+      services: formData.services || [],
     };
 
     try {
@@ -146,9 +158,9 @@ export default function BusinessFormModal({
       }
       onClose();
     } catch (err) {
-      if (err instanceof ApiError && err.errors) {
+      if (err instanceof ApiError && err.errors && Object.keys(err.errors).length > 0) {
         setErrors(err.errors);
-        setGeneralError(err.message || 'Ju lutem kontrolloni fushat me gabime.');
+        setGeneralError(err.message || 'Ju lutem kontrolloni fushat me gabime të theksuara me të kuqe.');
       } else {
         setGeneralError(err.message || 'Ndodhi një gabim gjatë ruajtjes së biznesit.');
       }
@@ -165,6 +177,7 @@ export default function BusinessFormModal({
       aria-labelledby="business-modal-title"
     >
       <div className="admin-modal admin-modal--form">
+        {/* Header-i i modalit gjithmonë i fiksuar në krye */}
         <div className="admin-modal__header">
           <div>
             <h2 id="business-modal-title" className="admin-modal__title">
@@ -187,11 +200,12 @@ export default function BusinessFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="admin-form">
+        {/* Formulari me scroll të pavarur dhe footer të fiksuar në fund */}
+        <form onSubmit={handleSubmit} className="admin-form" noValidate>
           <div className="admin-modal__body">
             {generalError && (
               <div className="admin-alert admin-alert--error" role="alert">
-                <strong>Gabim gjatë validimit:</strong> {generalError}
+                <strong>Gabim gjatë ruajtjes:</strong> {generalError}
               </div>
             )}
 
@@ -455,9 +469,11 @@ export default function BusinessFormModal({
             </div>
           </div>
 
+          {/* Footer-i i modalit gjithmonë i dukshëm dhe i fiksuar në fund */}
           <div className="admin-modal__footer">
             <button
               type="button"
+              id="business-form-cancel-btn"
               className="btn btn--secondary"
               onClick={onClose}
               disabled={submitting}
@@ -466,14 +482,15 @@ export default function BusinessFormModal({
             </button>
             <button
               type="submit"
+              id="business-form-submit-btn"
               className="btn btn--primary"
               disabled={submitting}
             >
               {submitting
-                ? 'Duke ruajtur të dhënat...'
+                ? 'Duke ruajtur...'
                 : isEdit
-                ? 'Ruaj Ndryshimet'
-                : 'Krijo Biznesin'}
+                ? 'Ruaj ndryshimet'
+                : 'Krijo biznesin'}
             </button>
           </div>
         </form>
