@@ -95,4 +95,174 @@ class BusinessApiTest extends TestCase
         $settlementsResponse->assertStatus(200)
             ->assertJsonStructure(['status', 'data']);
     }
+
+    /**
+     * Teston kërkimin me emër të plotë.
+     */
+    public function test_can_search_by_exact_name(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?search=' . urlencode('Lounge & Bar "Qendra"'));
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        $this->assertEquals('lounge-bar-qendra', $data[0]['slug']);
+    }
+
+    /**
+     * Teston kërkimin me pjesë të emrit (substring).
+     */
+    public function test_can_search_by_partial_name(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?search=Qendra');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        $this->assertTrue(collect($data)->contains(fn ($b) => str_contains($b['name'], 'Qendra')));
+    }
+
+    /**
+     * Teston kërkimin me shkronja të vogla / të mëdha (case-insensitive).
+     */
+    public function test_can_search_case_insensitive(): void
+    {
+        $responseLower = $this->getJson('/api/v1/businesses?search=shpella');
+        $responseUpper = $this->getJson('/api/v1/businesses?search=SHPELLA');
+
+        $responseLower->assertStatus(200);
+        $responseUpper->assertStatus(200);
+
+        $this->assertNotEmpty($responseLower->json('data'));
+        $this->assertNotEmpty($responseUpper->json('data'));
+        $this->assertEquals(count($responseLower->json('data')), count($responseUpper->json('data')));
+    }
+
+    /**
+     * Teston kërkimin me shërbim (p.sh. "Wi-Fi" ose "Parking").
+     */
+    public function test_can_search_by_service(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?search=Parking');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $biz) {
+            $hasParking = collect($biz['services'])->contains(fn ($s) => str_contains(strtolower($s['name']), 'parking') || str_contains($s['slug'], 'parking'))
+                || str_contains(strtolower($biz['name']), 'parking')
+                || str_contains(strtolower($biz['description']), 'parking')
+                || str_contains(strtolower($biz['short_description']), 'parking');
+            $this->assertTrue($hasParking);
+        }
+    }
+
+    /**
+     * Teston kërkimin pa rezultate.
+     */
+    public function test_search_with_no_results_returns_empty_array(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?search=TekstInekzistent12345XYZ');
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'count' => 0,
+                'data' => [],
+            ]);
+    }
+
+    /**
+     * Teston filtrin sipas kategorisë.
+     */
+    public function test_can_filter_by_category(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?category=gastronomi');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $biz) {
+            $this->assertEquals('gastronomi', $biz['category']['slug']);
+        }
+    }
+
+    /**
+     * Teston filtrin sipas vendbanimit.
+     */
+    public function test_can_filter_by_settlement(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?settlement=gadime-e-ulet');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $biz) {
+            $this->assertEquals('gadime-e-ulet', $biz['settlement']['slug']);
+        }
+    }
+
+    /**
+     * Teston filtrin sipas shërbimit.
+     */
+    public function test_can_filter_by_service_slug(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?service=terace-verore');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $biz) {
+            $serviceSlugs = collect($biz['services'])->pluck('slug')->all();
+            $this->assertContains('terace-verore', $serviceSlugs);
+        }
+    }
+
+    /**
+     * Teston filtrin sipas uebfaqes (me uebfaqe / pa uebfaqe).
+     */
+    public function test_can_filter_by_website(): void
+    {
+        $withWeb = $this->getJson('/api/v1/businesses?website=yes');
+        $withWeb->assertStatus(200);
+        foreach ($withWeb->json('data') as $biz) {
+            $this->assertNotEmpty($biz['website']);
+        }
+
+        $withoutWeb = $this->getJson('/api/v1/businesses?website=no');
+        $withoutWeb->assertStatus(200);
+        foreach ($withoutWeb->json('data') as $biz) {
+            $this->assertEmpty($biz['website']);
+        }
+    }
+
+    /**
+     * Teston filtrin sipas orarit të punës (me orar / pa orar).
+     */
+    public function test_can_filter_by_schedule(): void
+    {
+        $withSched = $this->getJson('/api/v1/businesses?schedule=yes');
+        $withSched->assertStatus(200);
+        foreach ($withSched->json('data') as $biz) {
+            $this->assertNotNull($biz['opening_hours']);
+        }
+
+        $withoutSched = $this->getJson('/api/v1/businesses?schedule=no');
+        $withoutSched->assertStatus(200);
+        foreach ($withoutSched->json('data') as $biz) {
+            $this->assertNull($biz['opening_hours']);
+        }
+    }
+
+    /**
+     * Teston kombinimin e disa filtrave njëkohësisht.
+     */
+    public function test_can_combine_multiple_filters(): void
+    {
+        $response = $this->getJson('/api/v1/businesses?category=gastronomi&settlement=gadime-e-ulet&service=terace-verore&website=yes');
+        $response->assertStatus(200);
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        foreach ($data as $biz) {
+            $this->assertEquals('gastronomi', $biz['category']['slug']);
+            $this->assertEquals('gadime-e-ulet', $biz['settlement']['slug']);
+            $this->assertNotEmpty($biz['website']);
+            $serviceSlugs = collect($biz['services'])->pluck('slug')->all();
+            $this->assertContains('terace-verore', $serviceSlugs);
+        }
+    }
 }
+

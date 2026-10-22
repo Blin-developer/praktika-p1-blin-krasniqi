@@ -17,13 +17,17 @@ class BusinessController extends Controller
         $query = Business::with(['category', 'settlement', 'services'])
             ->published();
 
-        // Filtro sipas fjalës kyçe (emër, përshkrim, adresë)
+        // Filtro sipas fjalës kyçe (emër, përshkrim, adresë, ose shërbim)
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('short_description', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+                  ->orWhere('address', 'like', "%{$search}%")
+                  ->orWhereHas('services', function ($sq) use ($search) {
+                      $sq->where('name', 'like', "%{$search}%")
+                         ->orWhere('slug', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -47,6 +51,39 @@ class BusinessController extends Controller
                     $q->where('slug', $settlement);
                 }
             });
+        }
+
+        // Filtro sipas shërbimit (slug ose ID)
+        if ($service = $request->input('service')) {
+            $query->whereHas('services', function ($q) use ($service) {
+                if (is_numeric($service)) {
+                    $q->where('services.id', $service);
+                } else {
+                    $q->where('services.slug', $service);
+                }
+            });
+        }
+
+        // Filtro sipas prezencës së uebfaqes
+        if ($request->has('website') || $request->has('has_website')) {
+            $websiteFilter = $request->input('website') ?? $request->input('has_website');
+            if (in_array($websiteFilter, ['yes', '1', 'with', 'true'], true)) {
+                $query->whereNotNull('website')->where('website', '!=', '');
+            } elseif (in_array($websiteFilter, ['no', '0', 'without', 'false'], true)) {
+                $query->where(function ($q) {
+                    $q->whereNull('website')->orWhere('website', '');
+                });
+            }
+        }
+
+        // Filtro sipas orarit të punës
+        if ($request->has('schedule') || $request->has('has_schedule')) {
+            $scheduleFilter = $request->input('schedule') ?? $request->input('has_schedule');
+            if (in_array($scheduleFilter, ['yes', '1', 'with', 'true'], true)) {
+                $query->whereNotNull('opening_hours');
+            } elseif (in_array($scheduleFilter, ['no', '0', 'without', 'false'], true)) {
+                $query->whereNull('opening_hours');
+            }
         }
 
         // Filtro vetëm bizneset e veçuara

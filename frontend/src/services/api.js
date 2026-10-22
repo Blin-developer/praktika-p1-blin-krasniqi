@@ -56,6 +56,9 @@ export async function fetchBusinesses(params = {}) {
   if (params.search) url.searchParams.set('search', params.search);
   if (params.category) url.searchParams.set('category', params.category);
   if (params.settlement) url.searchParams.set('settlement', params.settlement);
+  if (params.service) url.searchParams.set('service', params.service);
+  if (params.website) url.searchParams.set('website', params.website);
+  if (params.schedule) url.searchParams.set('schedule', params.schedule);
   if (params.featured) url.searchParams.set('featured', '1');
 
   const response = await fetch(url.toString(), {

@@ -394,6 +394,103 @@ body {
   color: #fff;
 }
 
+/* ---------- Pagination & Results Section ---------- */
+.catalog-results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.catalog-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.results-count {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.results-count__page-hint {
+  font-size: 0.85rem;
+  color: var(--color-secondary);
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.pagination-number-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 38px;
+  padding: 0 0.5rem;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.pagination-number-btn:hover {
+  background: #eff6ff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pagination-number-btn--active {
+  background: var(--color-primary) !important;
+  color: #ffffff !important;
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 2px 8px rgba(26, 86, 219, 0.3);
+}
+
+.pagination-btn-prev,
+.pagination-btn-next {
+  min-width: 130px;
+}
+
+.page-info {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-left: 0.5rem;
+}
+
+/* Filter groups layout */
+.filter-group--search {
+  flex: 2;
+  min-width: 220px;
+}
+
+.filter-group--action {
+  flex: 0 0 auto;
+  min-width: auto;
+}
+
+.filter-reset-btn {
+  white-space: nowrap;
+}
+
 /* ---------- Business Profile ---------- */
 .business-profile-container {
   width: 100%;
@@ -562,19 +659,69 @@ body {
   overflow-wrap: break-word;
 }
 
-.business-profile__coords {
-  font-size: 0.85rem;
-  font-family: monospace;
-  background: var(--color-bg);
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
-  margin-bottom: 0.5rem;
+.business-profile__contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
 }
 
-.business-profile__map-notice {
-  font-size: 0.8rem;
+.business-profile__action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.15rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.business-profile__no-hours {
   color: var(--color-text-muted);
   font-style: italic;
+  padding: 0.25rem 0;
+}
+
+.business-profile__map-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.business-profile__map-iframe {
+  width: 100%;
+  height: 320px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+}
+
+.business-profile__map-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  padding: 0.25rem 0;
+}
+
+.business-profile__coords-text {
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.business-profile__map-external-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .business-profile__error-actions {
@@ -596,17 +743,27 @@ body {
   .filter-bar__form {
     flex-direction: column;
   }
-  .filter-group { min-width: 100%; }
+  .filter-group { min-width: 100%; width: 100%; }
   .filter-bar__form .btn { width: 100%; }
+  .filter-reset-btn { width: 100%; }
   .business-grid {
     grid-template-columns: 1fr;
   }
   .pagination-controls {
     flex-direction: column;
     gap: 0.75rem;
+    align-items: stretch;
+  }
+  .pagination-numbers {
+    width: 100%;
+    justify-content: center;
   }
   .pagination-controls .btn {
     width: 100%;
+  }
+  .page-info {
+    text-align: center;
+    margin-left: 0;
   }
   .business-profile__header {
     padding: 1.25rem;
@@ -620,6 +777,17 @@ body {
   }
   .business-profile__back-btn {
     width: 100%;
+  }
+  .business-profile__contact-actions {
+    flex-direction: column;
+  }
+  .business-profile__action-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+  .business-profile__map-iframe {
+    height: 240px;
   }
 }
 

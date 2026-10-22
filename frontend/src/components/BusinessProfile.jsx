@@ -2,7 +2,8 @@ import { useBusiness } from '../hooks/useBusiness';
 
 /**
  * BusinessProfile.jsx – Pamja e detajuar e profilit të një biznesi
- * Konsumon të dhënat reale nga Laravel API përmes hook-ut useBusiness.
+ * Shfaq emrin, kategorinë, përshkrimin, shërbimet, telefonin, adresën,
+ * lokacionin në hartë, orarin e punës, website dhe butonat e veprimit të kontaktit.
  */
 function BusinessProfile({ slug, onBack }) {
   const { business, loading, error, reload } = useBusiness(slug);
@@ -70,6 +71,10 @@ function BusinessProfile({ slug, onBack }) {
     longitude,
   } = business;
 
+  const hasCoordinates = Boolean(latitude && longitude);
+  const latNum = parseFloat(latitude);
+  const lngNum = parseFloat(longitude);
+
   return (
     <div className="business-profile-container">
       {/* Shirit lundrimi mbrapsht */}
@@ -106,9 +111,53 @@ function BusinessProfile({ slug, onBack }) {
 
           {settlement?.name && (
             <p className="business-profile__location-tag">
-              📍 {settlement.name}{settlement.postal_code ? ` (Kodi: ${settlement.postal_code})` : ''}
+              📍 {settlement.name}{settlement.postal_code ? ` (Kodi Postal: ${settlement.postal_code})` : ''}
             </p>
           )}
+
+          {/* Butonat e shpejtë të kontaktit */}
+          <div className="business-profile__contact-actions" role="group" aria-label="Butonat e kontaktit">
+            {phone && (
+              <a
+                href={`tel:${phone}`}
+                className="btn btn--primary business-profile__action-btn"
+                aria-label={`Telefono ${name}`}
+              >
+                📞 Telefono: {phone}
+              </a>
+            )}
+            {email && (
+              <a
+                href={`mailto:${email}`}
+                className="btn btn--secondary business-profile__action-btn"
+                aria-label={`Dërgo email te ${name}`}
+              >
+                ✉️ Dërgo Email
+              </a>
+            )}
+            {website && (
+              <a
+                href={website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--outline-primary business-profile__action-btn"
+                aria-label={`Vizito uebfaqen e ${name}`}
+              >
+                🌐 Vizito Uebfaqen ↗
+              </a>
+            )}
+            {hasCoordinates && (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${latNum},${lngNum}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--secondary business-profile__action-btn"
+                aria-label="Hap lokacionin në Google Maps"
+              >
+                🗺️ Hap në Hartë ↗
+              </a>
+            )}
+          </div>
         </header>
 
         {/* Trupi kryesor: rrjeti me 2 kolona */}
@@ -143,6 +192,49 @@ function BusinessProfile({ slug, onBack }) {
                 </div>
               </section>
             )}
+
+            {/* Lokacioni në Hartë */}
+            <section className="business-profile__card" aria-labelledby="map-heading">
+              <h2 id="map-heading" className="business-profile__card-title">
+                📍 Lokacioni në Hartë
+              </h2>
+              {hasCoordinates ? (
+                <div className="business-profile__map-container">
+                  <iframe
+                    title={`Harta e ${name}`}
+                    className="business-profile__map-iframe"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${lngNum - 0.007}%2C${latNum - 0.005}%2C${lngNum + 0.007}%2C${latNum + 0.005}&layer=mapnik&marker=${latNum}%2C${lngNum}`}
+                    loading="lazy"
+                  />
+                  <div className="business-profile__map-footer">
+                    <span className="business-profile__coords-text">
+                      Koordinatat: {latNum.toFixed(6)}, {lngNum.toFixed(6)}
+                    </span>
+                    <div className="business-profile__map-external-links">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${latNum},${lngNum}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="business-card__link"
+                      >
+                        Google Maps ↗
+                      </a>
+                      <span aria-hidden="true"> &bull; </span>
+                      <a
+                        href={`https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lngNum}#map=16/${latNum}/${lngNum}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="business-card__link"
+                      >
+                        OpenStreetMap ↗
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-muted">Lokacioni në hartë nuk është publikuar për këtë biznes.</p>
+              )}
+            </section>
           </div>
 
           {/* Kolona anësore djathtas */}
@@ -152,7 +244,7 @@ function BusinessProfile({ slug, onBack }) {
               <h2 id="hours-heading" className="business-profile__card-title">
                 🕒 Orari i Punës
               </h2>
-              {opening_hours && typeof opening_hours === 'object' ? (
+              {opening_hours && typeof opening_hours === 'object' && Object.keys(opening_hours).length > 0 ? (
                 <ul className="business-profile__hours-list">
                   {opening_hours.monday_friday && (
                     <li>
@@ -166,8 +258,39 @@ function BusinessProfile({ slug, onBack }) {
                       <span className="hours-time">{opening_hours.saturday_sunday}</span>
                     </li>
                   )}
+                  {opening_hours.monday_saturday && (
+                    <li>
+                      <span className="hours-day">E Hënë – E Shtunë</span>
+                      <span className="hours-time">{opening_hours.monday_saturday}</span>
+                    </li>
+                  )}
+                  {opening_hours.monday_sunday && (
+                    <li>
+                      <span className="hours-day">E Hënë – E Diel</span>
+                      <span className="hours-time">{opening_hours.monday_sunday}</span>
+                    </li>
+                  )}
+                  {opening_hours.saturday && (
+                    <li>
+                      <span className="hours-day">E Shtunë</span>
+                      <span className="hours-time">{opening_hours.saturday}</span>
+                    </li>
+                  )}
+                  {opening_hours.sunday && (
+                    <li>
+                      <span className="hours-day">E Diel</span>
+                      <span className="hours-time">{opening_hours.sunday}</span>
+                    </li>
+                  )}
                   {Object.entries(opening_hours)
-                    .filter(([key]) => key !== 'monday_friday' && key !== 'saturday_sunday')
+                    .filter(([key]) => ![
+                      'monday_friday',
+                      'saturday_sunday',
+                      'monday_saturday',
+                      'monday_sunday',
+                      'saturday',
+                      'sunday'
+                    ].includes(key))
                     .map(([key, val]) => (
                       <li key={key}>
                         <span className="hours-day">{key}</span>
@@ -176,7 +299,7 @@ function BusinessProfile({ slug, onBack }) {
                     ))}
                 </ul>
               ) : (
-                <p className="text-muted">Kontaktoni biznesin për orarin e plotë të shërbimit.</p>
+                <p className="text-muted business-profile__no-hours">Orari nuk është publikuar</p>
               )}
             </section>
 
@@ -235,22 +358,6 @@ function BusinessProfile({ slug, onBack }) {
                 )}
               </dl>
             </section>
-
-            {/* Lokacioni gjeografik */}
-            {(latitude || longitude) && (
-              <section className="business-profile__card" aria-labelledby="geo-heading">
-                <h2 id="geo-heading" className="business-profile__card-title">
-                  📍 Koordinatat Gjeografike
-                </h2>
-                <p className="business-profile__coords">
-                  {latitude && <span>Lat: <strong>{latitude}</strong></span>}
-                  {longitude && <span> &bull; Lng: <strong>{longitude}</strong></span>}
-                </p>
-                <p className="business-profile__map-notice">
-                  Harta interaktive me vendndodhjen vizuale është e planifikuar për Java 3.
-                </p>
-              </section>
-            )}
           </aside>
         </div>
       </article>

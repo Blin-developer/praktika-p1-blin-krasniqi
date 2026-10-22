@@ -6,7 +6,7 @@ import { fetchBusinesses } from '../services/api';
  * @param {Object} filters – filtrat aktualë { search, category, settlement }
  */
 export function useBusinesses(filters = {}) {
-  const { search, category, settlement, featured } = filters;
+  const { search, category, settlement, service, website, schedule, featured } = filters;
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -15,7 +15,7 @@ export function useBusinesses(filters = {}) {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchBusinesses({ search, category, settlement, featured });
+      const data = await fetchBusinesses({ search, category, settlement, service, website, schedule, featured });
       setBusinesses(data.data || []);
     } catch (err) {
       setError(err.message || 'Ndodhi një gabim gjatë lidhjes me serverin.');
@@ -23,7 +23,7 @@ export function useBusinesses(filters = {}) {
     } finally {
       setLoading(false);
     }
-  }, [search, category, settlement, featured]);
+  }, [search, category, settlement, service, website, schedule, featured]);
 
   useEffect(() => {
     load();
