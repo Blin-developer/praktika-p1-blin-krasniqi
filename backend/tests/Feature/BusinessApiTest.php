@@ -58,13 +58,13 @@ class BusinessApiTest extends TestCase
      */
     public function test_can_get_single_business_by_slug(): void
     {
-        $response = $this->getJson('/api/v1/businesses/restorant-shpella-e-gadimes');
+        $response = $this->getJson('/api/v1/businesses/centrum');
 
         $response->assertStatus(200)
             ->assertJson([
                 'status' => 'success',
                 'data' => [
-                    'slug' => 'restorant-shpella-e-gadimes',
+                    'slug' => 'centrum',
                 ],
             ]);
     }
@@ -101,11 +101,11 @@ class BusinessApiTest extends TestCase
      */
     public function test_can_search_by_exact_name(): void
     {
-        $response = $this->getJson('/api/v1/businesses?search=' . urlencode('Lounge & Bar "Qendra"'));
+        $response = $this->getJson('/api/v1/businesses?search=' . urlencode('Centrum'));
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertNotEmpty($data);
-        $this->assertEquals('lounge-bar-qendra', $data[0]['slug']);
+        $this->assertEquals('centrum', $data[0]['slug']);
     }
 
     /**
@@ -113,11 +113,11 @@ class BusinessApiTest extends TestCase
      */
     public function test_can_search_by_partial_name(): void
     {
-        $response = $this->getJson('/api/v1/businesses?search=Qendra');
+        $response = $this->getJson('/api/v1/businesses?search=Palma');
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertNotEmpty($data);
-        $this->assertTrue(collect($data)->contains(fn ($b) => str_contains($b['name'], 'Qendra')));
+        $this->assertTrue(collect($data)->contains(fn ($b) => str_contains($b['name'], 'Palma')));
     }
 
     /**
@@ -125,8 +125,8 @@ class BusinessApiTest extends TestCase
      */
     public function test_can_search_case_insensitive(): void
     {
-        $responseLower = $this->getJson('/api/v1/businesses?search=shpella');
-        $responseUpper = $this->getJson('/api/v1/businesses?search=SHPELLA');
+        $responseLower = $this->getJson('/api/v1/businesses?search=centrum');
+        $responseUpper = $this->getJson('/api/v1/businesses?search=CENTRUM');
 
         $responseLower->assertStatus(200);
         $responseUpper->assertStatus(200);
@@ -252,13 +252,13 @@ class BusinessApiTest extends TestCase
      */
     public function test_can_combine_multiple_filters(): void
     {
-        $response = $this->getJson('/api/v1/businesses?category=gastronomi&settlement=gadime-e-ulet&service=terace-verore&website=yes');
+        $response = $this->getJson('/api/v1/businesses?category=gastronomi&settlement=lipjan-qender&service=terace-verore&website=yes');
         $response->assertStatus(200);
         $data = $response->json('data');
         $this->assertNotEmpty($data);
         foreach ($data as $biz) {
             $this->assertEquals('gastronomi', $biz['category']['slug']);
-            $this->assertEquals('gadime-e-ulet', $biz['settlement']['slug']);
+            $this->assertEquals('lipjan-qender', $biz['settlement']['slug']);
             $this->assertNotEmpty($biz['website']);
             $serviceSlugs = collect($biz['services'])->pluck('slug')->all();
             $this->assertContains('terace-verore', $serviceSlugs);

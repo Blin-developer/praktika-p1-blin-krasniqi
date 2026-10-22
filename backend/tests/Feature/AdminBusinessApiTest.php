@@ -145,13 +145,13 @@ class AdminBusinessApiTest extends TestCase
         [, $token] = $this->authenticateAdmin();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/v1/admin/businesses?search=Gadimes');
+            ->getJson('/api/v1/admin/businesses?search=Centrum');
 
         $response->assertStatus(200);
         $data = $response->json('data');
 
         $this->assertNotEmpty($data);
-        $this->assertStringContainsString('Gadimes', $data[0]['name']);
+        $this->assertStringContainsString('Centrum', $data[0]['name']);
     }
 
     /**

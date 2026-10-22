@@ -267,7 +267,7 @@ function BusinessCatalogPage({ onNavigateToAdmin }) {
                     id="search-input"
                     type="search"
                     className="filter-input"
-                    placeholder="Emri, shërbimi, adresa..."
+                    placeholder="Kërko biznes ose shërbim"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     aria-label="Kërko biznese sipas emrit ose shërbimit"

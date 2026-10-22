@@ -232,7 +232,7 @@ function BusinessProfile({ slug, onBack }) {
                   </div>
                 </div>
               ) : (
-                <p className="text-muted">Lokacioni në hartë nuk është publikuar për këtë biznes.</p>
+                <p className="text-muted business-profile__no-location">Lokacioni i saktë nuk është verifikuar</p>
               )}
             </section>
           </div>
@@ -309,53 +309,55 @@ function BusinessProfile({ slug, onBack }) {
                 📞 Kontakti &amp; Vendndodhja
               </h2>
               <dl className="business-profile__contact-list">
-                {address && (
-                  <>
-                    <dt>🏠 Adresa:</dt>
-                    <dd>{address}</dd>
-                  </>
-                )}
+                <dt>🏠 Adresa:</dt>
+                <dd>
+                  {address || <span className="text-muted">Lokacioni i saktë nuk është verifikuar</span>}
+                </dd>
+
                 {settlement?.name && (
                   <>
                     <dt>📍 Vendbanimi:</dt>
                     <dd>{settlement.name}</dd>
                   </>
                 )}
-                {phone && (
-                  <>
-                    <dt>📱 Telefoni:</dt>
-                    <dd>
-                      <a href={`tel:${phone}`} className="business-card__link">
-                        {phone}
-                      </a>
-                    </dd>
-                  </>
-                )}
-                {email && (
-                  <>
-                    <dt>✉️ Email:</dt>
-                    <dd>
-                      <a href={`mailto:${email}`} className="business-card__link">
-                        {email}
-                      </a>
-                    </dd>
-                  </>
-                )}
-                {website && (
-                  <>
-                    <dt>🌐 Uebfaqja:</dt>
-                    <dd>
-                      <a
-                        href={website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="business-card__link"
-                      >
-                        {website.replace(/^https?:\/\//, '')}
-                      </a>
-                    </dd>
-                  </>
-                )}
+
+                <dt>📱 Telefoni:</dt>
+                <dd>
+                  {phone ? (
+                    <a href={`tel:${phone}`} className="business-card__link">
+                      {phone}
+                    </a>
+                  ) : (
+                    <span className="text-muted">Telefoni nuk është publikuar</span>
+                  )}
+                </dd>
+
+                <dt>✉️ Email:</dt>
+                <dd>
+                  {email ? (
+                    <a href={`mailto:${email}`} className="business-card__link">
+                      {email}
+                    </a>
+                  ) : (
+                    <span className="text-muted">Email nuk është publikuar</span>
+                  )}
+                </dd>
+
+                <dt>🌐 Uebfaqja:</dt>
+                <dd>
+                  {website ? (
+                    <a
+                      href={website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="business-card__link"
+                    >
+                      {website.replace(/^https?:\/\//, '')}
+                    </a>
+                  ) : (
+                    <span className="text-muted">Uebfaqja nuk është publikuar</span>
+                  )}
+                </dd>
               </dl>
             </section>
           </aside>
