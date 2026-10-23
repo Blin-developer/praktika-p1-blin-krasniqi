@@ -37,6 +37,9 @@ export default function BusinessFormModal({
     latitude: '',
     longitude: '',
     is_featured: false,
+    monday_friday: '',
+    saturday_sunday: '',
+    monday_sunday: '',
     services: [],
   });
 
@@ -49,6 +52,7 @@ export default function BusinessFormModal({
     if (!isOpen) return;
 
     if (business) {
+      const hours = business.opening_hours || {};
       setFormData({
         name: cleanString(business.name),
         status: business.status || 'draft',
@@ -63,6 +67,9 @@ export default function BusinessFormModal({
         latitude: business.latitude !== null && business.latitude !== undefined ? business.latitude : '',
         longitude: business.longitude !== null && business.longitude !== undefined ? business.longitude : '',
         is_featured: Boolean(business.is_featured),
+        monday_friday: cleanString(hours.monday_friday || hours.monday_saturday),
+        saturday_sunday: cleanString(hours.saturday_sunday || hours.sunday),
+        monday_sunday: cleanString(hours.monday_sunday),
         services: Array.isArray(business.services) ? business.services.map((s) => s.id) : [],
       });
     } else {
@@ -80,6 +87,9 @@ export default function BusinessFormModal({
         latitude: '',
         longitude: '',
         is_featured: false,
+        monday_friday: '08:00 - 20:00',
+        saturday_sunday: '09:00 - 18:00',
+        monday_sunday: '',
         services: [],
       });
     }
@@ -123,6 +133,16 @@ export default function BusinessFormModal({
     setErrors({});
     setGeneralError(null);
 
+    // Përgatit strukturën e orarit
+    let opening_hours = null;
+    if (cleanString(formData.monday_sunday)) {
+      opening_hours = { monday_sunday: cleanString(formData.monday_sunday) };
+    } else if (cleanString(formData.monday_friday) || cleanString(formData.saturday_sunday)) {
+      opening_hours = {};
+      if (cleanString(formData.monday_friday)) opening_hours.monday_friday = cleanString(formData.monday_friday);
+      if (cleanString(formData.saturday_sunday)) opening_hours.saturday_sunday = cleanString(formData.saturday_sunday);
+    }
+
     // Përgatit payload-in me tipet e sakta
     const payload = {
       name: cleanString(formData.name),
@@ -142,6 +162,7 @@ export default function BusinessFormModal({
         ? Number(formData.longitude)
         : null,
       is_featured: Boolean(formData.is_featured),
+      opening_hours: opening_hours,
       services: formData.services || [],
     };
 
@@ -439,9 +460,60 @@ export default function BusinessFormModal({
               </div>
             </div>
 
-            {/* Seksioni 3: Shërbimet e Biznesit */}
+            {/* Seksioni 3: Orari i Punës */}
             <div className="admin-form-section">
-              <h3 className="admin-form-section__title">3. Shërbimet & Komoditetet</h3>
+              <h3 className="admin-form-section__title">3. Orari i Punës</h3>
+              <p className="admin-form-section__hint">
+                Përcaktoni orarin javor të punës. Mund të specifikoni ditët e javës dhe fundjavën veçmas, ose orar uniformë për të gjithë javën:
+              </p>
+
+              <div className="admin-form-grid admin-form-grid--2">
+                <div className="form-field">
+                  <label htmlFor="field-hours-mf">E Hënë – E Premte</label>
+                  <input
+                    id="field-hours-mf"
+                    name="monday_friday"
+                    type="text"
+                    placeholder="p.sh. 08:00 - 20:00"
+                    value={formData.monday_friday}
+                    onChange={handleChange}
+                    disabled={submitting}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="field-hours-ss">E Shtunë – E Diel</label>
+                  <input
+                    id="field-hours-ss"
+                    name="saturday_sunday"
+                    type="text"
+                    placeholder="p.sh. 09:00 - 18:00 ose Mbyllur"
+                    value={formData.saturday_sunday}
+                    onChange={handleChange}
+                    disabled={submitting}
+                  />
+                </div>
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="field-hours-all">
+                  Ose Orar i Njëjtë Çdo Ditë (E Hënë – E Diel)
+                </label>
+                <input
+                  id="field-hours-all"
+                  name="monday_sunday"
+                  type="text"
+                  placeholder="p.sh. 08:00 - 23:00 ose 00:00 - 24:00 (Nëse plotësohet, mbishkruan oraret e mësipërme)"
+                  value={formData.monday_sunday}
+                  onChange={handleChange}
+                  disabled={submitting}
+                />
+              </div>
+            </div>
+
+            {/* Seksioni 4: Shërbimet e Biznesit */}
+            <div className="admin-form-section">
+              <h3 className="admin-form-section__title">4. Shërbimet & Komoditetet</h3>
               <p className="admin-form-section__hint">
                 Përzgjidhni shërbimet që ky biznes ofron për qytetarët e Lipjanit:
               </p>

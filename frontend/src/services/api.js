@@ -160,6 +160,8 @@ export async function fetchAdminBusinesses(params = {}) {
   if (params.settlement_id) query.set('settlement_id', params.settlement_id);
   if (params.page) query.set('page', params.page);
   if (params.per_page) query.set('per_page', params.per_page);
+  if (params.sort_by) query.set('sort_by', params.sort_by);
+  if (params.sort_order) query.set('sort_order', params.sort_order);
 
   const qs = query.toString();
   const endpoint = `/v1/admin/businesses${qs ? `?${qs}` : ''}`;

@@ -138,6 +138,8 @@ class AdminBusinessController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'status' => ['required', 'in:draft,published,archived'],
             'is_featured' => ['nullable', 'boolean'],
+            'opening_hours' => ['nullable', 'array'],
+            'opening_hours.*' => ['nullable', 'string', 'max:100'],
             'services' => ['nullable', 'array'],
             'services.*' => ['integer', 'exists:services,id'],
         ], [
@@ -205,6 +207,8 @@ class AdminBusinessController extends Controller
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'status' => ['required', 'in:draft,published,archived'],
             'is_featured' => ['nullable', 'boolean'],
+            'opening_hours' => ['nullable', 'array'],
+            'opening_hours.*' => ['nullable', 'string', 'max:100'],
             'services' => ['nullable', 'array'],
             'services.*' => ['integer', 'exists:services,id'],
         ], [

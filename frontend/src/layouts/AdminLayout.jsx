@@ -5,7 +5,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 /**
  * AdminLayout – Korniza e përbashkët administrative me kokë lundrimi, të dhënat e administratorit dhe butonat e veprimit.
  */
-export default function AdminLayout({ children, activeTab = 'businesses', onNavigateToCatalog }) {
+export default function AdminLayout({ children, activeTab = 'dashboard', onNavigateToCatalog, onTabChange }) {
   const { user, logout, loading } = useAuth();
 
   return (
@@ -24,8 +24,17 @@ export default function AdminLayout({ children, activeTab = 'businesses', onNavi
           <nav className="admin-header__nav" aria-label="Lundrimi kryesor administrativ">
             <button
               type="button"
+              className={`admin-nav-item ${activeTab === 'dashboard' ? 'is-active' : ''}`}
+              aria-current={activeTab === 'dashboard' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('dashboard')}
+            >
+              📊 Dashboard
+            </button>
+            <button
+              type="button"
               className={`admin-nav-item ${activeTab === 'businesses' ? 'is-active' : ''}`}
               aria-current={activeTab === 'businesses' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('businesses')}
             >
               🏢 Bizneset
             </button>
