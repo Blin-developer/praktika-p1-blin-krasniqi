@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import BusinessCatalogPage from './pages/BusinessCatalogPage';
@@ -24,7 +24,10 @@ function AppContent() {
     if (path.startsWith('/admin') || search.get('page') === 'admin' || search.get('admin') === '1') {
       return 'admin';
     }
-    return '/';
+    if (path.startsWith('/catalog') || search.get('page') === 'catalog') {
+      return 'catalog';
+    }
+    return 'home';
   });
 
   // Filtrat fillestare kur navigo në katalog nga faqja kryesore
