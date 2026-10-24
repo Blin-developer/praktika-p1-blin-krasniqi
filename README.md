@@ -9,29 +9,22 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 
 ## Statusi i Projektit
 
-> **Statusi aktual:** Java 3 – Dita 1: Përgatitja e bazës së autentikimit të administratorit me **Laravel Sanctum** dhe mbrojtja e API-së administrative. Katalogu publik dhe profili i biznesit mbeten plotësisht funksionale.
+> **Statusi aktual:** Java 3 – Dita 5: **Java 3 e përfunduar 100% ✅**. Auditimi i plotë, stabilizimi i 60 bizneseve (50 Published, 4 Draft, 6 Archived), katalogu publik me 5 filtra dhe pagination (12 për faqe), profili me harta dhe fallbacks, paneli i plotë administrativ me autentikim Sanctum dhe CRUD, si dhe 40 teste automatike të kaluara me sukses.
 
-* ✅ **Frontend (React 19 + Vite):** Ndërfaqe dinamike dhe responsive me komponentë modulare, katalog publik, profil biznesi dhe faqe hyrjeje (Login) për administratorin.
-* ✅ **Autentikimi (Laravel Sanctum):** Implementuar autentikimi me Bearer token për administratorët (`/api/v1/auth/login`, `logout`, `me`) dhe mbrojtja e rrugëve me middleware `auth:sanctum` dhe `admin`.
-* ✅ **Backend (Laravel 12):** REST API funksionale me kontrollerë, modele Eloquent, validim dhe middleware autorizimi.
-* ✅ **Databaza (MySQL/MariaDB):** E strukturuar, e migruar dhe e lidhur me sukses përmes PDO; përfshin tabelën `personal_access_tokens` dhe kolonën `is_admin` në tabelën `users`.
-* ✅ **Të dhëna demo & Administrator:**
-  * Administrator lokal i konfiguruar përmes `AdminUserSeeder` dhe `.env`.
-  * **22** biznese me status `published` (shfaqen në katalog)
-  * **4** biznese me status `draft` (të fshehura)
-  * **4** biznese me status `archived` (të fshehura)
-  * **6** kategori, **8** vendbanime, **6** shërbime.
-* ✅ **Kërkim në kohë reale:** Kërkim sipas emrit, përshkrimit dhe adresës me mekanizëm **debounce (300ms)**.
-* ✅ **Filtrim i shumëfishtë:** Filtrim sipas kategorisë, vendbanimit dhe kombinimeve të tyre.
-* ✅ **URL Filters:** Sinkronizim i dyanshëm i parametrave të kërkimit në URL dhe ruajtje pas rifreskimit (refresh/F5).
-* ✅ **Profili i zgjeruar i biznesit:** Pamje e dedikuar me detaje të plota, shërbime, orare pune, kontakt dhe lundrim kthyes.
-* ✅ **Pagination:** Faqëzim në anën e klientit me 10 biznese për faqe.
-* ✅ **Gjendjet e ndërfaqes (UI States):** Trajtim i plotë i gjendjeve *Loading*, *Error* dhe *Empty*.
-* ✅ **Testet e automatizuara:** 17 teste PHPUnit të kaluara me sukses (336 assertions).
-* ✅ **Production Build:** `npm run build` ekzekutohet pa gabime (0 lint/build errors).
-* ✅ **Version Control:** Zhvillim aktiv në degën `development` dhe sinkronizim i rregullt në GitHub.
-
-*(Dizajni i plotë i Admin Dashboard, veprimet CRUD, Harta me Leaflet dhe Moduli i Reklamave janë në plan për ditët në vijim të Javës 3.)*
+* ✅ **Frontend (React 19 + Vite):** Ndërfaqe responsive me katalog publik, 5 filtra dinamikë (Kategori, Vendbanim, Shërbim, Website, Orar), faqosje (12 për faqe), profil biznesi me hartë Leaflet dhe Google Maps/OpenStreetMap, dhe Paneli i plotë Administrativ me Dashboard dhe CRUD.
+* ✅ **Autentikimi & Siguria (Laravel Sanctum):** Autentikim me Bearer token për administratorët (`/api/auth/login`, `logout`, `me`) dhe mbrojtja e rrugëve me middleware `auth:sanctum` dhe `admin` (401/403).
+* ✅ **Backend (Laravel 12):** REST API e plotë me 31 endpoint-e të mbrojtura dhe publike, kontrolle dhe validim të rreptë të të dhënave.
+* ✅ **Databaza (MySQL/MariaDB):** Integritet i plotë i 60 bizneseve me të dhëna të sakta, koordinata gjeografike brenda komunës së Lipjanit dhe marrëdhënie të plota:
+  * **50** biznese me status `published` (shfaqen në katalog)
+  * **4** biznese me status `draft`
+  * **6** biznese me status `archived`
+  * **6** kategori, **8** vendbanime, **6** shërbime të ndërlidhura.
+* ✅ **Kërkim & Filtrim në kohë reale:** Kërkim debounced (300ms) sipas emrit, shërbimit, përshkrimit dhe adresës; 5 filtra të kombinuar me ruajtje në URL dhe reset automatik të faqes.
+* ✅ **Pagination:** Faqëzim me 12 biznese për faqe (Page 1–4 me 12, Page 5 me 2 për 50 bizneset e publikuara).
+* ✅ **Paneli Administrativ:** Dashboard me statistika të sakta në kohë reale, kërkim dhe filtrim, krijim, redaktim, ndryshim statusi dhe arkivim të sigurt.
+* ✅ **Testet e automatizuara:** 40 teste PHPUnit të kaluara me sukses (1024 assertions, 0 failed).
+* ✅ **Production Build & Lint:** `npm run build` dhe `npm run lint` kalojnë me 0 gabime.
+* ✅ **Version Control:** Zhvillim i rregullt në degën `development` me commit-e përshkruese.
 
 ---
 
@@ -109,11 +102,11 @@ Databaza e projektit përmban skemën relacionale të optimizuar për katalogun 
 ---
 
 ## Demo Data
-
-* **30 biznese gjithsej**
-  * **22** me status `published`
+ 
+* **60 biznese gjithsej**
+  * **50** me status `published`
   * **4** me status `draft`
-  * **4** me status `archived`
+  * **6** me status `archived`
 * **6 kategori:** Gastronomi, Tregti, Shëndetësi & Farmaci, Shërbime & Zejtari, Auto & Transport, Edukim & Trajnime
 * **8 vendbanime:** Lipjan Qendër, Gadime e Ulët, Janjevë, Magure, Sllovi, Rufc i Ri, Dobrajë e Madhe, Babush i Muhaxherëve
 * **6 shërbime:** Wi-Fi falas, Parking veturash, Pagesa me kartelë, Dërgesë me porosi, Teracë / Ambient i jashtëm, Qasje për persona me nevoja të veçanta
@@ -196,17 +189,19 @@ Projekti posedon teste të automatizuara dhe verifikim të rregullt të build-it
 cd backend
 php artisan test
 ```
-* **Rezultati aktual:** **17 teste të kaluara me sukses (336 assertions)**
-  * `AuthApiTest` (10 teste autentikimi, token, logout, siguri, seeder) ✓
-  * `BusinessApiTest` (5 teste të katalogut dhe profileve) ✓
+* **Rezultati aktual:** **40 teste të kaluara me sukses (1024 assertions, 0 failed)**
+  * `AdminBusinessApiTest` (12 teste: listim, filtrim, kërkim, CRUD, validim, status) ✓
+  * `AuthApiTest` (10 teste: login, token, logout, profil, siguri) ✓
+  * `BusinessApiTest` (16 teste: katalog, kërkim, 5 filtra, detaje, 404) ✓
   * `ExampleTest` (Unit & Feature) ✓
 
-### Build-i i Frontend-it
+### Build-i dhe Lint-i i Frontend-it
 ```bash
 cd frontend
 npm run build
+npm run lint
 ```
-* **Rezultati:** Paketohet me sukses në pak milisekonda përmes Vite, me 0 gabime sintaksore.
+* **Rezultati:** Paketohet me sukses në pak milisekonda përmes Vite, me 0 gabime sintaksore dhe 0 gabime lint.
 
 ---
 
@@ -224,7 +219,7 @@ Repository-i ndjek një rrjedhë të pastër dhe të disiplinuar të zhvillimit:
 ## Plani i Zhvillimit (4 Javë)
 
 ### Java 1 – Themelet e Projektit (5–11 tetor 2026)
-*Statusi: **Përfunduar***
+*Statusi: **Përfunduar (100%)***
 - [x] Inicializimi i strukturës së repository-t (React + Laravel)
 - [x] Konfigurimi i Git & GitHub dhe degës `development`
 - [x] Konfigurimi i bazës së të dhënave MySQL/MariaDB
@@ -242,16 +237,19 @@ Repository-i ndjek një rrjedhë të pastër dhe të disiplinuar të zhvillimit:
 - [x] Sinkronizimi i filtrave me URL (URL search params)
 - [x] Faqëzimi bazë në frontend me reset automatik
 - [x] Gjendjet e ndërfaqes (Loading, Error, Empty states)
-- [x] Testet e integruara të API-së me PHPUnit (7 teste, 305 assertions)
+- [x] Testet e integruara të API-së me PHPUnit
 - [x] Detajet e zgjeruara të profilit të biznesit (Business Profile) me shërbime, orare dhe kontakt nga API
 
 ### Java 3 – Paneli Administrativ dhe Harta (19–25 tetor 2026)
-*Statusi: **Në zhvillim aktiv***
+*Statusi: **Përfunduar (100%) ✅***
 - [x] Autentikimi i administratorit me Laravel Sanctum (Java 3 – Dita 1)
-- [ ] Paneli i administrimit (Admin Dashboard)
-- [ ] Veprimet e plota CRUD për bizneset, kategoritë dhe vendbanimet
-- [ ] Integrimi i hartës ndërvepruese me Leaflet
-- [ ] Menaxhimi i reklamave dhe promovimeve lokale
+- [x] Paneli i administrimit (Admin Dashboard) me statistika në kohë reale
+- [x] Veprimet e plota CRUD për menaxhimin e bizneseve (Create, Read, Update, Delete/Archive)
+- [x] 60 biznese të strukturuara në databazë (50 Published, 4 Draft, 6 Archived)
+- [x] 5 filtra të plotë në katalog (Kategori, Vendbanim, Shërbim, Website, Orar)
+- [x] Faqosje e avancuar (12 biznese për faqe)
+- [x] Profili i zgjeruar me orare pune, fallbacks zyrtarë dhe hartë ndërvepruese Leaflet + Google Maps / OpenStreetMap
+- [x] Auditimi, stabilizimi dhe testimi i plotë automatik (40 teste kaluese)
 
 ### Java 4 – Siguria, Optimizimi dhe Prezantimi (26 tetor – 1 nëntor 2026)
 *Statusi: **Në pritje***
