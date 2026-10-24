@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import BusinessFormModal from '../components/admin/BusinessFormModal';
 import DeleteConfirmModal from '../components/admin/DeleteConfirmModal';
+import AdminAdvertisementsTab from '../components/admin/AdminAdvertisementsTab';
 import {
   fetchAdminBusinesses,
   updateAdminBusinessStatus,
@@ -392,6 +393,14 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 <button
                   type="button"
                   className="admin-quick-action-card"
+                  onClick={() => { setActiveView('advertisements'); }}
+                >
+                  <span className="admin-quick-action-card__icon">📢</span>
+                  <span className="admin-quick-action-card__label">Menaxho Reklamat</span>
+                </button>
+                <button
+                  type="button"
+                  className="admin-quick-action-card"
                   onClick={onNavigateToCatalog}
                 >
                   <span className="admin-quick-action-card__icon">🌐</span>
@@ -400,6 +409,9 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
               </div>
             </div>
           </div>
+        ) : activeView === 'advertisements' ? (
+          /* ======================= ADVERTISEMENTS ======================= */
+          <AdminAdvertisementsTab />
         ) : (
           /* ======================= BUSINESSES LIST ======================= */
           <>

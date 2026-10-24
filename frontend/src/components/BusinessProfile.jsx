@@ -1,12 +1,16 @@
+import { useContext, useState } from 'react';
 import { useBusiness } from '../hooks/useBusiness';
+import { AuthContext } from '../context/AuthContext';
 
 /**
  * BusinessProfile.jsx – Pamja e detajuar e profilit të një biznesi
  * Shfaq emrin, kategorinë, përshkrimin, shërbimet, telefonin, adresën,
  * lokacionin në hartë, orarin e punës, website dhe butonat e veprimit të kontaktit.
  */
-function BusinessProfile({ slug, onBack }) {
+function BusinessProfile({ slug, onBack, onRequireAuth }) {
   const { business, loading, error, reload } = useBusiness(slug);
+  const { isAuthenticated, isFavorite, toggleFavorite } = useContext(AuthContext);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   if (loading) {
     return (
@@ -157,6 +161,27 @@ function BusinessProfile({ slug, onBack }) {
                 🗺️ Hap në Hartë ↗
               </a>
             )}
+
+            <button
+              type="button"
+              className={`btn ${isFavorite(business.id) ? 'btn--saved-active' : 'btn--secondary'} business-profile__action-btn`}
+              onClick={async () => {
+                if (!isAuthenticated) {
+                  if (onRequireAuth) onRequireAuth('Për të ruajtur këtë biznes, ju lutem kyçuni ose regjistrohuni.');
+                  return;
+                }
+                setFavoriteLoading(true);
+                try {
+                  await toggleFavorite(business.id);
+                } finally {
+                  setFavoriteLoading(false);
+                }
+              }}
+              disabled={favoriteLoading}
+              aria-label={isFavorite(business.id) ? 'Hiq nga të ruajturat' : 'Ruaj në llogari'}
+            >
+              {isFavorite(business.id) ? '❤️ E Ruajtur në Llogari' : '🤍 Ruaje Biznesin'}
+            </button>
           </div>
         </header>
 

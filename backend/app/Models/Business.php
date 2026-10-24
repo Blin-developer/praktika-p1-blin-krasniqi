@@ -55,6 +55,16 @@ class Business extends Model
             ->withTimestamps();
     }
 
+    public function advertisements(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Advertisement::class);
+    }
+
+    public function favoritedBy(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_favorites')->withTimestamps();
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');

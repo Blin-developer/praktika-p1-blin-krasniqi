@@ -40,6 +40,14 @@ export default function AdminLayout({ children, activeTab = 'dashboard', onNavig
             </button>
             <button
               type="button"
+              className={`admin-nav-item ${activeTab === 'advertisements' ? 'is-active' : ''}`}
+              aria-current={activeTab === 'advertisements' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('advertisements')}
+            >
+              📢 Reklamat
+            </button>
+            <button
+              type="button"
               className="admin-nav-item admin-nav-item--link"
               onClick={onNavigateToCatalog}
               title="Shiko katalogun publik të qytetarëve"

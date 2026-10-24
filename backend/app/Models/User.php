@@ -57,4 +57,12 @@ class User extends Authenticatable
     {
         return (bool) $this->is_admin;
     }
+
+    /**
+     * Bizneset e ruajtura / të favorizuara nga përdoruesi.
+     */
+    public function favoriteBusinesses(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Business::class, 'user_favorites')->withTimestamps();
+    }
 }

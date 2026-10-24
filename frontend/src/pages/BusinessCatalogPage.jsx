@@ -1,24 +1,48 @@
 import { useState, useEffect, useRef } from 'react';
 import BusinessList from '../components/BusinessList';
 import BusinessProfile from '../components/BusinessProfile';
+import SponsoredAdBanner from '../components/SponsoredAdBanner';
 import { useBusinesses } from '../hooks/useBusinesses';
-import { fetchCategories, fetchSettlements, fetchServices } from '../services/api';
+import {
+  fetchCategories,
+  fetchSettlements,
+  fetchServices,
+  fetchAdvertisements,
+} from '../services/api';
 
 /**
  * BusinessCatalogPage – Faqja kryesore e katalogut të bizneseve të Komunës së Lipjanit.
- * Mbështet kërkim, 5 filtra të integruar (kategoria, vendbanimi, shërbimi, website, orari),
- * ruajtje të plotë në URL dhe faqosje me 12 biznese për faqe.
+ * Mbështet kërkim me debounce, 5 filtra të integruar (kategoria, vendbanimi, shërbimi, website, orari),
+ * ruajtje të plotë në URL, faqosje me 12 biznese për faqe dhe shfaqje të reklamave anësore.
  */
-function BusinessCatalogPage({ onNavigateToAdmin }) {
-  // Inicializo gjendjet drejtpërdrejt nga URL query parameters
+function BusinessCatalogPage({
+  onNavigateToAdmin,
+  onRequireAuth,
+  initialFilters = {},
+  initialBusiness: _initialBusiness = null,
+}) {
+
+  // Inicializo gjendjet drejtpërdrejt nga URL query parameters ose props
   const [search, setSearch] = useState(() => {
-    return new URLSearchParams(window.location.search).get('search') || '';
+    return (
+      initialFilters.search ||
+      new URLSearchParams(window.location.search).get('search') ||
+      ''
+    );
   });
   const [debouncedSearch, setDebouncedSearch] = useState(() => {
-    return new URLSearchParams(window.location.search).get('search') || '';
+    return (
+      initialFilters.search ||
+      new URLSearchParams(window.location.search).get('search') ||
+      ''
+    );
   });
   const [selectedCategory, setSelectedCategory] = useState(() => {
-    return new URLSearchParams(window.location.search).get('category') || '';
+    return (
+      initialFilters.category ||
+      new URLSearchParams(window.location.search).get('category') ||
+      ''
+    );
   });
   const [selectedSettlement, setSelectedSettlement] = useState(() => {
     return new URLSearchParams(window.location.search).get('settlement') || '';
@@ -43,6 +67,7 @@ function BusinessCatalogPage({ onNavigateToAdmin }) {
   const [categories, setCategories] = useState([]);
   const [settlements, setSettlements] = useState([]);
   const [services, setServices] = useState([]);
+  const [sidebarAd, setSidebarAd] = useState(null);
 
   // Flag për të shmangur mbishkrimin e faqes gjatë rikthimit nga historia popstate
   const isPopStateRef = useRef(false);
@@ -147,7 +172,7 @@ function BusinessCatalogPage({ onNavigateToAdmin }) {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Ngarko metadata për dropdown-et (kategori, vendbanime, shërbime)
+  // Ngarko metadata për dropdown-et (kategori, vendbanime, shërbime, reklama anësore)
   useEffect(() => {
     fetchCategories()
       .then((data) => setCategories(data.data || []))
@@ -160,6 +185,14 @@ function BusinessCatalogPage({ onNavigateToAdmin }) {
     fetchServices()
       .then((data) => setServices(data.data || []))
       .catch(() => setServices([]));
+
+    fetchAdvertisements({ position: 'sidebar_banner', limit: 1 })
+      .then((data) => {
+        if (data.data && data.data.length > 0) {
+          setSidebarAd(data.data[0]);
+        }
+      })
+      .catch(() => setSidebarAd(null));
   }, []);
 
   const filters = {
@@ -248,157 +281,173 @@ function BusinessCatalogPage({ onNavigateToAdmin }) {
           <BusinessProfile
             slug={selectedBusinessSlug}
             onBack={() => handleSelectBusiness('')}
+            onRequireAuth={onRequireAuth}
           />
         ) : (
-          <>
-            {/* Shiriti i filtrave dhe kërkimit */}
-            <section className="filter-bar" aria-label="Kërkimi dhe filtrat e katalogut">
-              <form
-                className="filter-bar__form"
-                onSubmit={handleSearchSubmit}
-                role="search"
-              >
-                {/* 1. Kërko me tekst */}
-                <div className="filter-group filter-group--search">
-                  <label htmlFor="search-input" className="filter-label">
-                    🔍 Kërko
-                  </label>
-                  <input
-                    id="search-input"
-                    type="search"
-                    className="filter-input"
-                    placeholder="Kërko biznes ose shërbim"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    aria-label="Kërko biznese sipas emrit ose shërbimit"
-                  />
-                </div>
+          <div className="catalog-layout">
+            <div className="catalog-content">
+              {/* Shiriti i filtrave dhe kërkimit */}
+              <section className="filter-bar" aria-label="Kërkimi dhe filtrat e katalogut">
+                <form
+                  className="filter-bar__form"
+                  onSubmit={handleSearchSubmit}
+                  role="search"
+                >
+                  {/* 1. Kërko me tekst */}
+                  <div className="filter-group filter-group--search">
+                    <label htmlFor="search-input" className="filter-label">
+                      🔍 Kërko
+                    </label>
+                    <input
+                      id="search-input"
+                      type="search"
+                      className="filter-input"
+                      placeholder="Kërko biznes ose shërbim"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      aria-label="Kërko biznese sipas emrit ose shërbimit"
+                    />
+                  </div>
 
-                {/* 2. Kategoria */}
-                <div className="filter-group">
-                  <label htmlFor="category-select" className="filter-label">
-                    📁 Kategoria
-                  </label>
-                  <select
-                    id="category-select"
-                    className="filter-select"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    aria-label="Filtro sipas kategorisë"
-                  >
-                    <option value="">Të gjitha kategoritë</option>
-                    {categories.map((cat) => (
-                      <option key={cat.id} value={cat.slug}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  {/* 2. Kategoria */}
+                  <div className="filter-group">
+                    <label htmlFor="category-select" className="filter-label">
+                      📁 Kategoria
+                    </label>
+                    <select
+                      id="category-select"
+                      className="filter-select"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
+                      aria-label="Filtro sipas kategorisë"
+                    >
+                      <option value="">Të gjitha kategoritë</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.slug}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 3. Vendbanimi */}
-                <div className="filter-group">
-                  <label htmlFor="settlement-select" className="filter-label">
-                    📍 Vendbanimi
-                  </label>
-                  <select
-                    id="settlement-select"
-                    className="filter-select"
-                    value={selectedSettlement}
-                    onChange={(e) => setSelectedSettlement(e.target.value)}
-                    aria-label="Filtro sipas vendbanimit"
-                  >
-                    <option value="">Të gjitha vendbanimet</option>
-                    {settlements.map((s) => (
-                      <option key={s.id} value={s.slug}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  {/* 3. Vendbanimi */}
+                  <div className="filter-group">
+                    <label htmlFor="settlement-select" className="filter-label">
+                      📍 Vendbanimi
+                    </label>
+                    <select
+                      id="settlement-select"
+                      className="filter-select"
+                      value={selectedSettlement}
+                      onChange={(e) => setSelectedSettlement(e.target.value)}
+                      aria-label="Filtro sipas vendbanimit"
+                    >
+                      <option value="">Të gjitha vendbanimet</option>
+                      {settlements.map((s) => (
+                        <option key={s.id} value={s.slug}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 4. Shërbimi */}
-                <div className="filter-group">
-                  <label htmlFor="service-select" className="filter-label">
-                    ✨ Shërbimi
-                  </label>
-                  <select
-                    id="service-select"
-                    className="filter-select"
-                    value={selectedService}
-                    onChange={(e) => setSelectedService(e.target.value)}
-                    aria-label="Filtro sipas shërbimit të veçantë"
-                  >
-                    <option value="">Të gjitha shërbimet</option>
-                    {services.map((srv) => (
-                      <option key={srv.id} value={srv.slug}>
-                        {srv.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  {/* 4. Shërbimi */}
+                  <div className="filter-group">
+                    <label htmlFor="service-select" className="filter-label">
+                      ✨ Shërbimi
+                    </label>
+                    <select
+                      id="service-select"
+                      className="filter-select"
+                      value={selectedService}
+                      onChange={(e) => setSelectedService(e.target.value)}
+                      aria-label="Filtro sipas shërbimit të veçantë"
+                    >
+                      <option value="">Të gjitha shërbimet</option>
+                      {services.map((srv) => (
+                        <option key={srv.id} value={srv.slug}>
+                          {srv.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                {/* 5. Website */}
-                <div className="filter-group">
-                  <label htmlFor="website-select" className="filter-label">
-                    🌐 Uebfaqja
-                  </label>
-                  <select
-                    id="website-select"
-                    className="filter-select"
-                    value={selectedWebsite}
-                    onChange={(e) => setSelectedWebsite(e.target.value)}
-                    aria-label="Filtro sipas pranisë së faqes së internetit"
-                  >
-                    <option value="">Të gjitha</option>
-                    <option value="yes">Me uebfaqe</option>
-                    <option value="no">Pa uebfaqe</option>
-                  </select>
-                </div>
+                  {/* 5. Website */}
+                  <div className="filter-group">
+                    <label htmlFor="website-select" className="filter-label">
+                      🌐 Uebfaqja
+                    </label>
+                    <select
+                      id="website-select"
+                      className="filter-select"
+                      value={selectedWebsite}
+                      onChange={(e) => setSelectedWebsite(e.target.value)}
+                      aria-label="Filtro sipas pranisë së faqes së internetit"
+                    >
+                      <option value="">Të gjitha</option>
+                      <option value="yes">Me uebfaqe</option>
+                      <option value="no">Pa uebfaqe</option>
+                    </select>
+                  </div>
 
-                {/* 6. Orari */}
-                <div className="filter-group">
-                  <label htmlFor="schedule-select" className="filter-label">
-                    🕒 Orari
-                  </label>
-                  <select
-                    id="schedule-select"
-                    className="filter-select"
-                    value={selectedSchedule}
-                    onChange={(e) => setSelectedSchedule(e.target.value)}
-                    aria-label="Filtro sipas orarit të punës"
-                  >
-                    <option value="">Të gjitha</option>
-                    <option value="yes">Me orar të publikuar</option>
-                    <option value="no">Pa orar</option>
-                  </select>
-                </div>
+                  {/* 6. Orari */}
+                  <div className="filter-group">
+                    <label htmlFor="schedule-select" className="filter-label">
+                      🕒 Orari
+                    </label>
+                    <select
+                      id="schedule-select"
+                      className="filter-select"
+                      value={selectedSchedule}
+                      onChange={(e) => setSelectedSchedule(e.target.value)}
+                      aria-label="Filtro sipas orarit të punës"
+                    >
+                      <option value="">Të gjitha</option>
+                      <option value="yes">Me orar të publikuar</option>
+                      <option value="no">Pa orar</option>
+                    </select>
+                  </div>
 
-                {/* Butoni Pastro */}
-                <div className="filter-group filter-group--action">
-                  <button
-                    type="button"
-                    className="btn btn--secondary filter-reset-btn"
-                    onClick={handleReset}
-                    aria-label="Pastro të gjithë filtrat"
-                    title="Pastro të gjithë filtrat"
-                  >
-                    Pastro {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}
-                  </button>
-                </div>
-              </form>
-            </section>
+                  {/* Butoni Pastro */}
+                  <div className="filter-group filter-group--action">
+                    <button
+                      type="button"
+                      className="btn btn--secondary filter-reset-btn"
+                      onClick={handleReset}
+                      aria-label="Pastro të gjithë filtrat"
+                      title="Pastro të gjithë filtrat"
+                    >
+                      Pastro {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}
+                    </button>
+                  </div>
+                </form>
+              </section>
 
-            {/* Lista e bizneseve me faqosje */}
-            <BusinessList
-              businesses={businesses}
-              loading={loading}
-              error={error}
-              onRetry={reload}
-              onSelectBusiness={handleSelectBusiness}
-              currentPage={currentPage}
-              onPageChange={handlePageChange}
-            />
-          </>
+              {/* Lista e bizneseve me faqosje */}
+              <BusinessList
+                businesses={businesses}
+                loading={loading}
+                error={error}
+                onRetry={reload}
+                onReset={handleReset}
+                onSelectBusiness={handleSelectBusiness}
+                onRequireAuth={onRequireAuth}
+                currentPage={currentPage}
+                onPageChange={handlePageChange}
+              />
+            </div>
+
+            {/* Sidebar me Reklamë Anësore */}
+            {sidebarAd && (
+              <aside className="catalog-sidebar">
+                <SponsoredAdBanner
+                  ad={sidebarAd}
+                  variant="sidebar"
+                  onSelectBusiness={handleSelectBusiness}
+                />
+              </aside>
+            )}
+          </div>
         )}
       </main>
     </div>

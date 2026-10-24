@@ -1,10 +1,10 @@
 /**
- * auth.js – Shërbimi për autentikimin e administratorit me Laravel Sanctum API
+ * auth.js – Shërbimi për autentikimin e përdoruesve dhe administratorëve me Laravel Sanctum API
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-const TOKEN_KEY = 'lipjan_admin_token';
-const USER_KEY = 'lipjan_admin_user';
+const TOKEN_KEY = 'lipjan_auth_token';
+const USER_KEY = 'lipjan_auth_user';
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -45,7 +45,7 @@ export function removeUser() {
 }
 
 /**
- * Kyç administratorin me email dhe password.
+ * Kyç administratorin në panelin administrativ.
  */
 export async function loginAdmin(email, password) {
   const response = await fetch(`${API_BASE_URL}/v1/auth/login`, {
@@ -75,7 +75,72 @@ export async function loginAdmin(email, password) {
 }
 
 /**
- * Merr profilin e administratorit aktual.
+ * Kyç përdoruesin e thjeshtë të platformës.
+ */
+export async function loginUser(email, password) {
+  const response = await fetch(`${API_BASE_URL}/v1/auth/user-login`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Dështoi kyçja.');
+    throw new Error(errorMsg);
+  }
+
+  if (data.token) {
+    setToken(data.token);
+  }
+  if (data.user) {
+    setUser(data.user);
+  }
+
+  return data;
+}
+
+/**
+ * Regjistron një përdorues të ri publik.
+ */
+export async function registerUser(name, email, password, passwordConfirmation) {
+  const response = await fetch(`${API_BASE_URL}/v1/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name,
+      email,
+      password,
+      password_confirmation: passwordConfirmation,
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Dështoi regjistrimi.');
+    throw new Error(errorMsg);
+  }
+
+  if (data.token) {
+    setToken(data.token);
+  }
+  if (data.user) {
+    setUser(data.user);
+  }
+
+  return data;
+}
+
+/**
+ * Merr profilin e përdoruesit / administratorit aktual.
  */
 export async function fetchCurrentUser() {
   const token = getToken();
@@ -107,6 +172,68 @@ export async function fetchCurrentUser() {
 }
 
 /**
+ * Përditëson profilin personal (emrin dhe email-in).
+ */
+export async function updateUserProfile(name, email) {
+  const token = getToken();
+  if (!token) throw new Error('Nuk ka token autentikimi.');
+
+  const response = await fetch(`${API_BASE_URL}/v1/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name, email }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Dështoi përditësimi.');
+    throw new Error(errorMsg);
+  }
+
+  if (data.user) {
+    setUser(data.user);
+  }
+
+  return data;
+}
+
+/**
+ * Ndryshon fjalëkalimin e llogarisë.
+ */
+export async function changeUserPassword(currentPassword, newPassword, newPasswordConfirmation) {
+  const token = getToken();
+  if (!token) throw new Error('Nuk ka token autentikimi.');
+
+  const response = await fetch(`${API_BASE_URL}/v1/auth/password`, {
+    method: 'PUT',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      current_password: currentPassword,
+      password: newPassword,
+      password_confirmation: newPasswordConfirmation,
+    }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Dështoi ndryshimi i fjalëkalimit.');
+    throw new Error(errorMsg);
+  }
+
+  return data;
+}
+
+/**
  * Teston qasjen në rrugën e mbrojtur administrative (/api/v1/admin/test).
  */
 export async function testAdminRoute() {
@@ -131,9 +258,9 @@ export async function testAdminRoute() {
 }
 
 /**
- * Shkyç administratorin dhe pastron të dhënat lokale.
+ * Shkyç përdoruesin / administratorin dhe pastron të dhënat lokale.
  */
-export async function logoutAdmin() {
+export async function logoutUser() {
   const token = getToken();
 
   try {
@@ -153,3 +280,5 @@ export async function logoutAdmin() {
     removeUser();
   }
 }
+
+export const logoutAdmin = logoutUser;

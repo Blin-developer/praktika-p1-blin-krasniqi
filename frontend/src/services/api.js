@@ -20,9 +20,9 @@ export class ApiError extends Error {
 }
 
 /**
- * Ndihmës i brendshëm për thirrjet administrative me Authorization Bearer header.
+ * Ndihmës i brendshëm për thirrjet administrative ose të autentikuara me Authorization Bearer header.
  */
-async function adminRequest(endpoint, options = {}) {
+async function authRequest(endpoint, options = {}) {
   const token = getToken();
   const headers = {
     Accept: 'application/json',
@@ -46,9 +46,11 @@ async function adminRequest(endpoint, options = {}) {
   return data;
 }
 
+const adminRequest = authRequest;
+
 /**
  * Merr listën e bizneseve të publikuara nga API-ja (Publike).
- * @param {Object} params – parametra opsionalë: search, category, settlement, featured
+ * @param {Object} params – parametra opsionalë: search, category, settlement, service, website, schedule, featured
  */
 export async function fetchBusinesses(params = {}) {
   const url = new URL(`${API_BASE_URL}/v1/businesses`);
@@ -62,22 +64,34 @@ export async function fetchBusinesses(params = {}) {
   if (params.featured) url.searchParams.set('featured', '1');
 
   const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers: { Accept: 'application/json' },
   });
 
   if (!response.ok) {
-    throw new Error(`Gabim HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(`Gabim gjatë marrjes së bizneseve: ${response.status}`);
   }
 
-  return await response.json();
+  return response.json();
 }
 
 /**
- * Merr listën e kategorive nga API-ja.
+ * Merr një biznes të vetëm sipas ID-së ose slug-ut (Publike).
+ * @param {number|string} idOrSlug
+ */
+export async function fetchBusiness(idOrSlug) {
+  const response = await fetch(`${API_BASE_URL}/v1/businesses/${idOrSlug}`, {
+    headers: { Accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gabim gjatë marrjes së biznesit: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Merr listën e kategorive (Publike).
  */
 export async function fetchCategories() {
   const response = await fetch(`${API_BASE_URL}/v1/categories`, {
@@ -85,14 +99,14 @@ export async function fetchCategories() {
   });
 
   if (!response.ok) {
-    throw new Error(`Gabim HTTP ${response.status}`);
+    throw new Error(`Gabim gjatë marrjes së kategorive: ${response.status}`);
   }
 
   return response.json();
 }
 
 /**
- * Merr listën e vendbanimeve nga API-ja.
+ * Merr listën e vendbanimeve (Publike).
  */
 export async function fetchSettlements() {
   const response = await fetch(`${API_BASE_URL}/v1/settlements`, {
@@ -100,14 +114,14 @@ export async function fetchSettlements() {
   });
 
   if (!response.ok) {
-    throw new Error(`Gabim HTTP ${response.status}`);
+    throw new Error(`Gabim gjatë marrjes së vendbanimeve: ${response.status}`);
   }
 
   return response.json();
 }
 
 /**
- * Merr listën e shërbimeve nga API-ja.
+ * Merr listën e shërbimeve të lehtësirave (Publike).
  */
 export async function fetchServices() {
   const response = await fetch(`${API_BASE_URL}/v1/services`, {
@@ -115,66 +129,193 @@ export async function fetchServices() {
   });
 
   if (!response.ok) {
-    throw new Error(`Gabim HTTP ${response.status}`);
+    throw new Error(`Gabim gjatë marrjes së shërbimeve: ${response.status}`);
   }
 
   return response.json();
 }
 
+// ==========================================
+// REKLAMAT (ADVERTISEMENTS) - PUBLIKE
+// ==========================================
+
 /**
- * Merr të dhënat e plota të një biznesi sipas ID-së ose slug-ut nga API-ja.
- * @param {string|number} idOrSlug
+ * Merr reklamat aktive që plotësojnë kushtet kohore dhe të biznesit (Publike).
+ * @param {Object} params – { position, category, limit }
  */
-export async function fetchBusiness(idOrSlug) {
-  const response = await fetch(`${API_BASE_URL}/v1/businesses/${encodeURIComponent(idOrSlug)}`, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+export async function fetchAdvertisements(params = {}) {
+  const url = new URL(`${API_BASE_URL}/v1/advertisements`);
+  if (params.position) url.searchParams.set('position', params.position);
+  if (params.category) url.searchParams.set('category', params.category);
+  if (params.limit) url.searchParams.set('limit', String(params.limit));
+
+  const response = await fetch(url.toString(), {
+    headers: { Accept: 'application/json' },
   });
 
   if (!response.ok) {
-    if (response.status === 404) {
-      throw new Error('Biznesi nuk u gjet.');
-    }
-    throw new Error(`Gabim HTTP ${response.status}: ${response.statusText}`);
+    throw new Error(`Gabim gjatë ngarkimit të reklamave: ${response.status}`);
   }
 
   return response.json();
 }
 
-// ============================================================
-// ADMIN API FUNCTIONS
-// ============================================================
+/**
+ * Regjistron një klikim real të vërtetuar në backend për një reklamë.
+ * @param {number|string} adId
+ */
+export async function trackAdClick(adId) {
+  try {
+    await fetch(`${API_BASE_URL}/v1/advertisements/${adId}/click`, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+    });
+  } catch {
+    // Fail silently in background
+  }
+}
 
 /**
- * Merr listën e të gjitha bizneseve për administratorin (përfshirë draft dhe archived).
- * @param {Object} params - search, status, category_id, settlement_id, page, per_page
+ * Regjistron një shikim (impression) për një reklamë.
+ * @param {number|string} adId
+ */
+export async function trackAdImpression(adId) {
+  try {
+    await fetch(`${API_BASE_URL}/v1/advertisements/${adId}/impression`, {
+      method: 'POST',
+      headers: { Accept: 'application/json' },
+    });
+  } catch {
+    // Fail silently in background
+  }
+}
+
+// ==========================================
+// REKLAMAT - ADMINISTRATOR
+// ==========================================
+
+/**
+ * Merr të gjitha reklamat për panelin administrativ.
+ * @param {Object} params – { search, position, status, page, per_page }
+ */
+export async function fetchAdminAdvertisements(params = {}) {
+  const query = new URLSearchParams();
+  if (params.search) query.set('search', params.search);
+  if (params.position) query.set('position', params.position);
+  if (params.status) query.set('status', params.status);
+  if (params.page) query.set('page', String(params.page));
+  if (params.per_page) query.set('per_page', String(params.per_page));
+
+  const qs = query.toString();
+  return adminRequest(`/v1/admin/advertisements${qs ? `?${qs}` : ''}`);
+}
+
+/**
+ * Krijon një reklamë të re (Administrator).
+ * @param {Object} data
+ */
+export async function createAdminAdvertisement(data) {
+  return adminRequest('/v1/admin/advertisements', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Përditëson një reklamë ekzistuese (Administrator).
+ * @param {number|string} id
+ * @param {Object} data
+ */
+export async function updateAdminAdvertisement(id, data) {
+  return adminRequest(`/v1/admin/advertisements/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Ndryshon aktivizimin ose statusin e reklamës (Administrator).
+ * @param {number|string} id
+ * @param {Object} payload – { is_active, status }
+ */
+export async function toggleAdminAdvertisement(id, payload) {
+  return adminRequest(`/v1/admin/advertisements/${id}/toggle`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Fshin një reklamë nga sistemi (Administrator).
+ * @param {number|string} id
+ */
+export async function deleteAdminAdvertisement(id) {
+  return adminRequest(`/v1/admin/advertisements/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ==========================================
+// USER FAVORITES (BIZNESET E RUAJTURA)
+// ==========================================
+
+/**
+ * Merr listën e bizneseve të ruajtura nga përdoruesi i kyçur.
+ */
+export async function fetchUserFavorites() {
+  return authRequest('/v1/user/favorites');
+}
+
+/**
+ * Ndryshon gjendjen e ruajtjes (shto ose hiq) për një biznes.
+ * @param {number|string} businessId
+ */
+export async function toggleUserFavorite(businessId) {
+  return authRequest(`/v1/user/favorites/${businessId}`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * Heq një biznes nga lista e ruajtur.
+ * @param {number|string} businessId
+ */
+export async function removeUserFavorite(businessId) {
+  return authRequest(`/v1/user/favorites/${businessId}`, {
+    method: 'DELETE',
+  });
+}
+
+// ==========================================
+// BIZNESET - ADMINISTRATOR
+// ==========================================
+
+/**
+ * Merr listën e plotë të të gjitha bizneseve (Administrator).
+ * @param {Object} params – { search, status, category, settlement, page, per_page, sort, direction }
  */
 export async function fetchAdminBusinesses(params = {}) {
   const query = new URLSearchParams();
 
   if (params.search) query.set('search', params.search);
   if (params.status && params.status !== 'all') query.set('status', params.status);
-  if (params.category_id) query.set('category_id', params.category_id);
-  if (params.settlement_id) query.set('settlement_id', params.settlement_id);
-  if (params.page) query.set('page', params.page);
-  if (params.per_page) query.set('per_page', params.per_page);
-  if (params.sort_by) query.set('sort_by', params.sort_by);
-  if (params.sort_order) query.set('sort_order', params.sort_order);
+  if (params.category) query.set('category', params.category);
+  if (params.settlement) query.set('settlement', params.settlement);
+  if (params.page) query.set('page', String(params.page));
+  if (params.per_page) query.set('per_page', String(params.per_page));
+  if (params.sort) query.set('sort', params.sort);
+  if (params.direction) query.set('direction', params.direction);
 
   const qs = query.toString();
-  const endpoint = `/v1/admin/businesses${qs ? `?${qs}` : ''}`;
-
-  return adminRequest(endpoint, { method: 'GET' });
+  return adminRequest(`/v1/admin/businesses${qs ? `?${qs}` : ''}`);
 }
 
 /**
- * Merr një biznes specifik sipas ID-së për administratorin.
+ * Merr një biznes të vetëm me të gjitha detajet (Administrator).
  * @param {number|string} id
  */
 export async function fetchAdminBusiness(id) {
-  return adminRequest(`/v1/admin/businesses/${id}`, { method: 'GET' });
+  return adminRequest(`/v1/admin/businesses/${id}`);
 }
 
 /**
