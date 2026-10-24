@@ -177,17 +177,20 @@ export default function HomePage({
       </section>
 
       {/* 4. BIZNESET E SPONSORIZUARA DHE TË REKOMANDUARA */}
-      {sponsoredAds.length > 0 && (
-        <section id="sponsored" className="home-section home-section--alt" aria-labelledby="sponsored-heading">
-          <div className="site-container">
-            <div className="section-header">
-              <div>
-                <span className="section-eyebrow">Biznese të spikatura</span>
-                <h2 id="sponsored-heading" className="section-title">Të Sponsorizuara</h2>
-              </div>
-              <span className="sponsored-info-pill">★ Promovime Aktive</span>
+      {/* 4. BIZNESET E SPONSORIZUARA DHE TË REKOMANDUARA */}
+      <section id="sponsored" className="home-section home-section--alt" aria-labelledby="sponsored-heading">
+        <div className="site-container">
+          <div className="section-header">
+            <div>
+              <span className="section-eyebrow">Biznese të spikatura</span>
+              <h2 id="sponsored-heading" className="section-title">Të Sponsorizuara</h2>
             </div>
+            <span className="sponsored-info-pill">
+              ★ {sponsoredAds.length > 0 ? 'Promovime Aktive' : 'Sistemi i Reklamave'}
+            </span>
+          </div>
 
+          {sponsoredAds.length > 0 ? (
             <div className="sponsored-grid">
               {sponsoredAds.map((ad) => (
                 <article key={ad.id} className="sponsored-card">
@@ -220,9 +223,24 @@ export default function HomePage({
                 </article>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="sponsored-empty-box">
+              <div className="sponsored-empty-box__icon">📢</div>
+              <h3 className="sponsored-empty-box__title">Nuk ka promovime aktive për momentin</h3>
+              <p className="sponsored-empty-box__desc">
+                Bizneset lokale të Komunës së Lipjanit mund të promovojnë produktet dhe shërbimet e tyre përmes Panelit Administrativ me afate të kontrolluara kohore.
+              </p>
+              <button
+                type="button"
+                className="btn btn--primary"
+                onClick={() => onNavigateToCatalog()}
+              >
+                Eksploroni Katalogun e Bizneseve →
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* 5. BIZNESE TË VEÇUARA NGA KOMUNA */}
       {popularBusinesses.length > 0 && (

@@ -1,5 +1,14 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+
+const PRESET_CATEGORIES = [
+  { slug: 'gastronomi', name: 'Gastronomi', icon: '🍽️' },
+  { slug: 'tregti', name: 'Tregti & Qendra', icon: '🛒' },
+  { slug: 'shendetesi', name: 'Shëndetësi & Farmaci', icon: '💊' },
+  { slug: 'auto-transport', name: 'Auto & Transport', icon: '🚗' },
+  { slug: 'sherbime', name: 'Shërbime & Zejtari', icon: '🛠️' },
+  { slug: 'edukim', name: 'Edukim & Trajnime', icon: '🎓' },
+];
 
 export default function Navbar({
   activeView = 'home', // 'home' | 'catalog' | 'admin'
@@ -10,13 +19,64 @@ export default function Navbar({
   const { user, isAuthenticated, isAdmin, favoritesCount, logout } = useContext(AuthContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+
+  const userMenuRef = useRef(null);
+  const categoryMenuRef = useRef(null);
+
+  // Mbyll dropdowns kur klikohet jashtë ose shtypet Escape
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserDropdownOpen(false);
+      }
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target)) {
+        setCategoryDropdownOpen(false);
+      }
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setUserDropdownOpen(false);
+        setCategoryDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   const handleNav = (view, extra = null) => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
+    setCategoryDropdownOpen(false);
     if (onNavigate) {
       onNavigate(view, extra);
     }
+  };
+
+  const handleCategoryItemClick = (slug) => {
+    setCategoryDropdownOpen(false);
+    setMobileMenuOpen(false);
+    handleNav('catalog', { category: slug });
+  };
+
+  const handleCategoriesSectionClick = () => {
+    setCategoryDropdownOpen(false);
+    setMobileMenuOpen(false);
+    handleNav('home', { scrollTo: 'categories' });
+  };
+
+  const handleSponsoredSectionClick = () => {
+    setMobileMenuOpen(false);
+    setUserDropdownOpen(false);
+    setCategoryDropdownOpen(false);
+    handleNav('home', { scrollTo: 'sponsored' });
   };
 
   return (
@@ -59,22 +119,59 @@ export default function Navbar({
                 Katalogu
               </button>
             </li>
-            <li>
+
+            {/* Dropdown i Kategorive */}
+            <li className="nav-dropdown-item" ref={categoryMenuRef}>
               <button
                 type="button"
-                className="site-nav__link"
-                onClick={() => handleNav('home', { scrollTo: 'categories' })}
+                className={`site-nav__link nav-dropdown-trigger ${categoryDropdownOpen ? 'site-nav__link--active' : ''}`}
+                onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+                aria-expanded={categoryDropdownOpen}
+                aria-haspopup="true"
               >
-                Kategoritë
+                Kategoritë <span className="nav-dropdown-arrow" aria-hidden="true">{categoryDropdownOpen ? '▴' : '▾'}</span>
               </button>
+
+              {categoryDropdownOpen && (
+                <div className="nav-dropdown-menu" role="menu" aria-label="Lista e kategorive">
+                  <div className="nav-dropdown-header">
+                    <span>Zbuloni sipas sektorit</span>
+                  </div>
+                  <div className="nav-dropdown-grid">
+                    {PRESET_CATEGORIES.map((cat) => (
+                      <button
+                        key={cat.slug}
+                        type="button"
+                        className="nav-dropdown-btn"
+                        onClick={() => handleCategoryItemClick(cat.slug)}
+                        role="menuitem"
+                      >
+                        <span className="nav-dropdown-icon" aria-hidden="true">{cat.icon}</span>
+                        <span className="nav-dropdown-text">{cat.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="nav-dropdown-footer">
+                    <button
+                      type="button"
+                      className="nav-dropdown-footer-link"
+                      onClick={handleCategoriesSectionClick}
+                    >
+                      📍 Shiko të gjitha në Faqen Kryesore →
+                    </button>
+                  </div>
+                </div>
+              )}
             </li>
+
+            {/* Butoni Të Sponsorizuara */}
             <li>
               <button
                 type="button"
                 className="site-nav__link"
-                onClick={() => handleNav('home', { scrollTo: 'sponsored' })}
+                onClick={handleSponsoredSectionClick}
               >
-                Të Sponsorizuara
+                ★ Të Sponsorizuara
               </button>
             </li>
           </ul>
@@ -129,26 +226,27 @@ export default function Navbar({
               </button>
             </div>
           ) : (
-            /* Logged in User Menu */
-            <div className="user-menu-container">
+            /* Logged in User Menu (me tri pika ⋮ / user dropdown) */
+            <div className="user-menu-container" ref={userMenuRef}>
               <button
                 type="button"
                 className="user-menu-btn"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
                 aria-expanded={userDropdownOpen}
                 aria-haspopup="true"
+                aria-label="Opsionet e përdoruesit"
               >
                 <div className="user-avatar-pill" aria-hidden="true">
                   {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <span className="user-menu-name">{user.name?.split(' ')[0]}</span>
-                <span className="user-menu-arrow">▾</span>
+                <span className="user-menu-dots" aria-hidden="true">⋮</span>
               </button>
 
               {userDropdownOpen && (
-                <div className="user-dropdown-menu" role="menu">
+                <div className="user-dropdown-menu" role="menu" aria-label="Menuja e llogarisë">
                   <div className="user-dropdown-header">
-                    <strong>{user.name}</strong>
+                    <strong className="user-dropdown-name">{user.name}</strong>
                     <span className="user-dropdown-email">{user.email}</span>
                     {isAdmin && <span className="admin-tag">Administrator</span>}
                   </div>
@@ -160,6 +258,7 @@ export default function Navbar({
                       setUserDropdownOpen(false);
                       onOpenProfile('profile');
                     }}
+                    role="menuitem"
                   >
                     👤 Llogaria Ime
                   </button>
@@ -170,6 +269,7 @@ export default function Navbar({
                       setUserDropdownOpen(false);
                       onOpenProfile('saved');
                     }}
+                    role="menuitem"
                   >
                     ❤️ Bizneset e Ruajtura ({favoritesCount})
                   </button>
@@ -178,6 +278,7 @@ export default function Navbar({
                       type="button"
                       className="user-dropdown-item user-dropdown-item--admin"
                       onClick={() => handleNav('admin')}
+                      role="menuitem"
                     >
                       🔐 Paneli Administrativ
                     </button>
@@ -190,6 +291,7 @@ export default function Navbar({
                       setUserDropdownOpen(false);
                       logout();
                     }}
+                    role="menuitem"
                   >
                     🚪 Dil nga Llogaria
                   </button>
@@ -213,7 +315,7 @@ export default function Navbar({
 
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="mobile-drawer" role="navigation">
+        <div className="mobile-drawer" role="navigation" aria-label="Lundrimi mobil">
           <ul className="mobile-drawer__links">
             <li>
               <button
@@ -237,34 +339,48 @@ export default function Navbar({
               <button
                 type="button"
                 className="mobile-drawer__link"
-                onClick={() => handleNav('home', { scrollTo: 'categories' })}
+                onClick={handleCategoriesSectionClick}
               >
-                🏷️ Kategoritë
+                🏷️ Kategoritë e Bizneseve
               </button>
             </li>
             <li>
               <button
                 type="button"
                 className="mobile-drawer__link"
-                onClick={() => handleNav('home', { scrollTo: 'sponsored' })}
+                onClick={handleSponsoredSectionClick}
               >
                 ★ Të Sponsorizuara
               </button>
             </li>
 
             {isAuthenticated && (
-              <li>
-                <button
-                  type="button"
-                  className="mobile-drawer__link"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenProfile('saved');
-                  }}
-                >
-                  ❤️ Bizneset e Ruajtura ({favoritesCount})
-                </button>
-              </li>
+              <>
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-drawer__link"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenProfile('profile');
+                    }}
+                  >
+                    👤 Llogaria Ime
+                  </button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-drawer__link"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onOpenProfile('saved');
+                    }}
+                  >
+                    ❤️ Bizneset e Ruajtura ({favoritesCount})
+                  </button>
+                </li>
+              </>
             )}
 
             {isAdmin && (

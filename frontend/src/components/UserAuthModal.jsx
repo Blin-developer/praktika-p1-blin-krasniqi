@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 /**
@@ -16,7 +16,36 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
 
   const { userLogin, register, loading } = useContext(AuthContext);
 
+  // Sinkronizo mode sa herë hapet modal ose ndryshon initialMode
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setLocalError(null);
+      setSuccessMessage(null);
+      setPassword('');
+      setPasswordConfirmation('');
+    }
+  }, [isOpen, initialMode]);
+
+  // Mbyll me butonin Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +63,7 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
         setSuccessMessage('U kyçët me sukses!');
         setTimeout(() => {
           onClose();
-        }, 600);
+        }, 500);
       } catch (err) {
         setLocalError(err.message || 'Kredencialet nuk janë të sakta.');
       }
@@ -58,7 +87,7 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
         setSuccessMessage('Llogaria juaj u krijua me sukses!');
         setTimeout(() => {
           onClose();
-        }, 800);
+        }, 600);
       } catch (err) {
         setLocalError(err.message || 'Dështoi regjistrimi. Ju lutem provoni sërish.');
       }
@@ -69,10 +98,18 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
     setMode(newMode);
     setLocalError(null);
     setSuccessMessage(null);
+    setPassword('');
+    setPasswordConfirmation('');
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+    <div
+      className="modal-backdrop"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
       <div className="auth-modal">
         {/* Header me tab-et e qarta */}
         <div className="auth-modal__header">

@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 /**
@@ -11,7 +11,7 @@ export default function UserProfileModal({
   initialTab = 'profile', // 'profile' | 'password' | 'saved'
   onSelectBusiness,
 }) {
-  const { user, updateProfile, changePassword, favorites, toggleFavorite, logout, loading } =
+  const { user, updateProfile, changePassword, favorites, toggleFavorite, logout, loading: _loading } =
     useContext(AuthContext);
 
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -24,7 +24,38 @@ export default function UserProfileModal({
   const [msg, setMsg] = useState({ type: null, text: null });
   const [submitting, setSubmitting] = useState(false);
 
+  // Sinkronizo tab-in dhe të dhënat sa herë hapet modal
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+      setName(user?.name || '');
+      setEmail(user?.email || '');
+      setCurrentPassword('');
+      setNewPassword('');
+      setNewPasswordConfirmation('');
+      setMsg({ type: null, text: null });
+    }
+  }, [isOpen, initialTab, user]);
+
+  // Mbyll me butonin Escape
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !user) return null;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +109,13 @@ export default function UserProfileModal({
   };
 
   return (
-    <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="profile-modal-title">
+    <div
+      className="modal-backdrop"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profile-modal-title"
+    >
       <div className="user-profile-modal">
         {/* Header */}
         <div className="user-profile-modal__header">

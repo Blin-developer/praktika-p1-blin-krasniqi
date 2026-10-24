@@ -39,7 +39,9 @@ function AppContent() {
   // Modalet e autentikimit
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState('login');
+  const [authNoticeMessage, setAuthNoticeMessage] = useState(null);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [profileInitialTab, setProfileInitialTab] = useState('profile');
 
   // Sinkronizo URL me pamjen aktive
   useEffect(() => {
@@ -66,6 +68,18 @@ function AppContent() {
       setSelectedBusiness(null);
       setCatalogInitialFilters({});
       window.history.pushState(null, '', '/');
+
+      if (extra?.scrollTo) {
+        // Scroll në seksionin e synuar pas montimit
+        setTimeout(() => {
+          const el = document.getElementById(extra.scrollTo);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } else if (view === 'catalog') {
       setCurrentView('catalog');
       setSelectedBusiness(null);
@@ -75,6 +89,7 @@ function AppContent() {
         setCatalogInitialFilters({});
       }
       window.history.pushState(null, '', '/catalog');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (view === 'admin') {
       setCurrentView('admin');
       window.history.pushState(null, '', '/admin/businesses');
@@ -86,6 +101,7 @@ function AppContent() {
     setCatalogInitialFilters({ category: categorySlug });
     setCurrentView('catalog');
     window.history.pushState(null, '', `/catalog?category=${categorySlug}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   // Kur zgjedh biznes nga faqja kryesore, shko në katalog dhe hap profilin
@@ -93,16 +109,19 @@ function AppContent() {
     setSelectedBusiness(business);
     setCurrentView('catalog');
     window.history.pushState(null, '', '/catalog');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   // Hap modalin e autentikimit
-  const handleRequireAuth = useCallback((tab = 'login') => {
+  const handleRequireAuth = useCallback((tab = 'login', notice = null) => {
+    setAuthNoticeMessage(notice);
     setAuthModalTab(tab);
     setAuthModalOpen(true);
   }, []);
 
   // Hap modalin e profilit
-  const handleOpenProfile = useCallback(() => {
+  const handleOpenProfile = useCallback((tab = 'profile') => {
+    setProfileInitialTab(tab);
     setProfileModalOpen(true);
   }, []);
 
@@ -159,13 +178,25 @@ function AppContent() {
       <UserAuthModal
         isOpen={authModalOpen}
         initialMode={authModalTab}
-        onClose={() => setAuthModalOpen(false)}
+        noticeMessage={authNoticeMessage}
+        onClose={() => {
+          setAuthModalOpen(false);
+          setAuthNoticeMessage(null);
+        }}
       />
 
       {/* Modal për Profilin e Përdoruesit */}
       <UserProfileModal
         isOpen={profileModalOpen}
+        initialTab={profileInitialTab}
         onClose={() => setProfileModalOpen(false)}
+        onSelectBusiness={(businessSlug) => {
+          setProfileModalOpen(false);
+          handleNavigate('catalog');
+          setTimeout(() => {
+            handleSelectBusiness(businessSlug);
+          }, 50);
+        }}
       />
     </div>
   );

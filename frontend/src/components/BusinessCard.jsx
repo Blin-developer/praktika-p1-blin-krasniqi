@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
 /**
@@ -40,13 +40,37 @@ function BusinessCard({
 
   const { isAuthenticated, isFavorite, toggleFavorite } = useContext(AuthContext);
   const [saving, setSaving] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const saved = isFavorite(id);
+  const menuRef = useRef(null);
+
+  // Mbyll menunë e kartelës kur klikohet jashtë ose shtypet Escape
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    }
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
 
   const handleFavoriteClick = async (e) => {
     e.stopPropagation();
     if (!isAuthenticated) {
       if (onRequireAuth) {
-        onRequireAuth('Për të ruajtur këtë biznes, ju lutem kyçuni ose regjistrohuni.');
+        onRequireAuth('login', 'Për të ruajtur këtë biznes, ju lutem kyçuni ose regjistrohuni.');
       }
       return;
     }
@@ -68,7 +92,7 @@ function BusinessCard({
       className={`biz-card ${isSponsored ? 'biz-card--sponsored' : ''} ${is_featured ? 'biz-card--featured' : ''}`}
       aria-label={`Biznesi: ${name}`}
     >
-      {/* Header me badget dhe butonin e ruajtjes */}
+      {/* Header me badget, butonin e ruajtjes dhe menunë me tri pika */}
       <div className="biz-card__top">
         <div className="biz-card__badges">
           {isSponsored && (
@@ -87,16 +111,93 @@ function BusinessCard({
           </span>
         </div>
 
-        <button
-          type="button"
-          className={`biz-card__fav-btn ${saved ? 'biz-card__fav-btn--active' : ''}`}
-          onClick={handleFavoriteClick}
-          disabled={saving}
-          aria-label={saved ? `Hiq ${name} nga të ruajturat` : `Ruaj ${name} në llogari`}
-          title={saved ? 'Hiq nga të ruajturat' : 'Ruaje biznesin'}
-        >
-          {saved ? '❤️' : '🤍'}
-        </button>
+        <div className="biz-card__actions-top">
+          <button
+            type="button"
+            className={`biz-card__fav-btn ${saved ? 'biz-card__fav-btn--active' : ''}`}
+            onClick={handleFavoriteClick}
+            disabled={saving}
+            aria-label={saved ? `Hiq ${name} nga të ruajturat` : `Ruaj ${name} në llogari`}
+            title={saved ? 'Hiq nga të ruajturat' : 'Ruaje biznesin'}
+          >
+            {saved ? '❤️' : '🤍'}
+          </button>
+
+          {/* Menuja me tri pika (kebab menu) */}
+          <div className="card-kebab-container" ref={menuRef}>
+            <button
+              type="button"
+              className="card-kebab-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
+              aria-expanded={menuOpen}
+              aria-haspopup="true"
+              aria-label={`Opsionet për ${name}`}
+              title="Më shumë opsione"
+            >
+              ⋮
+            </button>
+
+            {menuOpen && (
+              <div className="card-kebab-menu" role="menu">
+                <button
+                  type="button"
+                  className="card-kebab-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    if (onSelectBusiness) onSelectBusiness(slug);
+                  }}
+                  role="menuitem"
+                >
+                  👁️ Shiko profilin e plotë
+                </button>
+                <button
+                  type="button"
+                  className="card-kebab-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    handleFavoriteClick(e);
+                  }}
+                  role="menuitem"
+                >
+                  {saved ? '💔 Hiq nga të preferuarat' : '❤️ Ruaj në të preferuarat'}
+                </button>
+                {phone && (
+                  <a
+                    href={`tel:${phone}`}
+                    className="card-kebab-item"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                    }}
+                    role="menuitem"
+                  >
+                    📞 Telefono: {phone}
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="card-kebab-item"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMenuOpen(false);
+                    const link = `${window.location.origin}/catalog?business=${slug}`;
+                    navigator.clipboard?.writeText(link);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  role="menuitem"
+                >
+                  {copied ? '✓ U kopjua lidhja!' : '🔗 Kopjo lidhjen e biznesit'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Titulli dhe Emri */}
