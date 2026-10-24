@@ -367,14 +367,30 @@ dist/assets/index-D7jPjCOx.js   227.13 kB │ gzip: 70.81 kB
   - Testuar Admin Businesses: filtrim, kërkim, renditje, shikim, modali i arkivimit me mesazhin: "A jeni i sigurt që dëshironi ta arkivoni këtë biznes...".
   - Testuar rrjedhën e plotë CRUD të biznesit (Create 201, Update 200, Status patch 200, Delete 200, 404 pas fshirjes).
 - [x] **Testet e Automatizuara & Build:**
-  - `php artisan test`: **40 teste kaluese (1024 assertions, 0 failed)**.
+  - `php artisan test`: **59 teste kaluese (1092 assertions, 0 failed)**.
   - `npm run build`: Build i suksesshëm me Vite (0 gabime).
   - `npm run lint`: Lint i suksesshëm me Oxlint (0 gabime).
-  - `php artisan route:list --path=api`: 31 rrugë API aktive.
-- [x] **Siguria & Pastrimi:**
-  - Zero fjalëkalime apo sekrete në frontend.
-  - Zero `console.log` të panevojshme apo komente të vjetra.
-  - Zero `TODO` të mbetura nga Java 3.
+  - `php artisan route:list --path=api`: 63 rrugë API aktive.
+- [x] **Sistemi i Reklamave (Advertisements):**
+  - Migrimi: `2026_10_24_000001_create_advertisements_table`.
+  - Modeli `Advertisement` me rregulla kohore (`starts_at`, `ends_at`), status dinamik (`effective_status`), dhe `scopeActive()`.
+  - Kontrollerët `AdvertisementController` (publik, shfaqje e vlefshme, `trackClick`) dhe `AdminAdvertisementController` (CRUD, toggle).
+  - Pozicionet: `homepage_featured`, `sponsored_businesses`, `sidebar_banner`.
+  - Seeder me 4 reklama demo për bizneset ekzistuese të Lipjanit.
+  - 10 teste të automatizuara në `AdvertisementApiTest`.
+- [x] **Llogaritë e Përdoruesve & Ruajtja e Bizneseve (User Accounts & Favorites):**
+  - Migrimi: `2026_10_24_000002_create_user_favorites_table`.
+  - Endpoint-et: `/api/v1/auth/register`, `/api/v1/auth/user-login`, `/api/v1/auth/profile`, `/api/v1/auth/password`.
+  - Kontroll i rreptë i privilegjeve: pamundësi për marrjen e rolit `is_admin` gjatë regjistrimit.
+  - Moduli i të preferuarave: `UserFavoriteController` (`index`, `toggle`, `destroy`).
+  - 9 teste të automatizuara në `UserAccountApiTest`.
+- [x] **Redizajnimi Modern i Frontend-it:**
+  - `Navbar.jsx`: Brand modern, navigim i shpejtë, kërkim, menu mobile dhe profil llogarie.
+  - `HomePage.jsx`: Hero section tërheqës, search bar, kartela kategorie me numër real biznesesh, reklamë e spikatur (Featured), kartela të sponsorizuara, info section dhe footer.
+  - `BusinessCatalogPage.jsx`: Integrim i reklamës në sidebar dhe sinkronizim i plotë me URL params.
+  - `UserAuthModal.jsx` & `UserProfileModal.jsx`: Modale moderne për kyçje, regjistrim, ndryshim fjalëkalimi dhe lista e bizneseve të ruajtura.
+  - `AdminAdvertisementsTab.jsx` & `AdvertisementFormModal.jsx`: Administrim i plotë i reklamave nga Paneli Administrativ.
+  - `App.css`: Mbi 1,500 rreshta stilizim modern, paletë ngjyrash premium, animacione dhe responsive design.
 - [x] **Përmbyllja:** Java 3 mbyllet zyrtarisht me sukses të plotë 100% ✅.
 
 ---

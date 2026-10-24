@@ -9,22 +9,20 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
 
 ## Statusi i Projektit
 
-> **Statusi aktual:** Java 3 – Dita 5: **Java 3 e përfunduar 100% ✅**. Auditimi i plotë, stabilizimi i 60 bizneseve (50 Published, 4 Draft, 6 Archived), katalogu publik me 5 filtra dhe pagination (12 për faqe), profili me harta dhe fallbacks, paneli i plotë administrativ me autentikim Sanctum dhe CRUD, si dhe 40 teste automatike të kaluara me sukses.
+> **Statusi aktual:** Java 3 – Dita 5: **Përfundim i plotë i Javës 3 ✅**. Sistemi profesional i reklamave me rregulla kohore, regjistrimi dhe menaxhimi i llogarive të përdoruesve me ruajtjen e bizneseve (Favorites), ridizajnimi modern dhe premium i frontend-it me Navbar sticky, HomePage me Hero dhe Reklama, katalogu me 5 filtra, Admin Panel i avancuar për menaxhimin e bizneseve dhe reklamave, si dhe 59 teste automatike PHPUnit të kaluara me sukses (1092 assertions, 0 failed).
 
-* ✅ **Frontend (React 19 + Vite):** Ndërfaqe responsive me katalog publik, 5 filtra dinamikë (Kategori, Vendbanim, Shërbim, Website, Orar), faqosje (12 për faqe), profil biznesi me hartë Leaflet dhe Google Maps/OpenStreetMap, dhe Paneli i plotë Administrativ me Dashboard dhe CRUD.
-* ✅ **Autentikimi & Siguria (Laravel Sanctum):** Autentikim me Bearer token për administratorët (`/api/auth/login`, `logout`, `me`) dhe mbrojtja e rrugëve me middleware `auth:sanctum` dhe `admin` (401/403).
-* ✅ **Backend (Laravel 12):** REST API e plotë me 31 endpoint-e të mbrojtura dhe publike, kontrolle dhe validim të rreptë të të dhënave.
-* ✅ **Databaza (MySQL/MariaDB):** Integritet i plotë i 60 bizneseve me të dhëna të sakta, koordinata gjeografike brenda komunës së Lipjanit dhe marrëdhënie të plota:
-  * **50** biznese me status `published` (shfaqen në katalog)
-  * **4** biznese me status `draft`
-  * **6** biznese me status `archived`
-  * **6** kategori, **8** vendbanime, **6** shërbime të ndërlidhura.
-* ✅ **Kërkim & Filtrim në kohë reale:** Kërkim debounced (300ms) sipas emrit, shërbimit, përshkrimit dhe adresës; 5 filtra të kombinuar me ruajtje në URL dhe reset automatik të faqes.
-* ✅ **Pagination:** Faqëzim me 12 biznese për faqe (Page 1–4 me 12, Page 5 me 2 për 50 bizneset e publikuara).
-* ✅ **Paneli Administrativ:** Dashboard me statistika të sakta në kohë reale, kërkim dhe filtrim, krijim, redaktim, ndryshim statusi dhe arkivim të sigurt.
-* ✅ **Testet e automatizuara:** 40 teste PHPUnit të kaluara me sukses (1024 assertions, 0 failed).
+* ✅ **Sistemi i Reklamave (Advertisements):** Sistem i plotë promovimi me pozicione të kontrolluara (`homepage_featured`, `sponsored_businesses`, `sidebar_banner`), rregulla kohore strikte (`draft`, `scheduled`, `active`, `expired`, `disabled`), llogaritje dinamike e `effective_status`, lidhje me biznesin përkatës dhe gjurmim real i klikimeve (`trackClick`).
+* ✅ **Llogaritë e Përdoruesve & Autentikimi:** Regjistrim publik i sigurt (`/api/v1/auth/register`), kyçje e përdoruesve të thjeshtë (`/api/v1/auth/user-login`), modifikim profili dhe ndryshim fjalëkalimi, ruajtje e bizneseve të preferuara (`user_favorites`). Ndarje strikte e privilegjeve (përdoruesi nuk mund të marrë rolin `is_admin`).
+* ✅ **Frontend Modern & Redesign (React 19 + Vite):**
+  * **Navbar e re:** Sticky navigation me brand të Lipjanit, navigim Home / Katalogu / Zbuloni, kërkim të shpejtë, menaxhim sesioni për vizitorët dhe përdoruesit e kyçur, dhe lidhje të fshehtë vetëm për administratorët.
+  * **HomePage e re:** Hero section me mesazh të qartë dhe search bar të madh, karta promovuese të kategorive me numër real biznesesh, reklamë e spikatur (Featured Banner), rrjeti i bizneseve të sponsorizuara (Sponsored Ads), seksion informues për qytetarët dhe footer i pasur.
+  * **Katalogu Publik:** 5 filtra dinamikë (Kategori, Vendbanim, Shërbim, Website, Orar), faqosje (12 për faqe), integrim i reklamës në sidebar, skeleton loaders, error states dhe URL query params.
+  * **Profili i Biznesit:** Pamje profesionale me orare pune, shërbime, hartë Leaflet, lidhje drejtpërdrejt në Google Maps/OSM, dhe butoni "Ruaje biznesin" për përdoruesit e kyçur.
+* ✅ **Paneli Administrativ:** Dashboard me statistika të sakta nga MySQL, menaxhim i plotë CRUD i 60 bizneseve dhe menaxhim i ri i dedikuar i reklamave (AdminAdvertisementsTab) me krijim, ndryshim, aktivizim/çaktivizim me një klik dhe validim të datave.
+* ✅ **Backend & Siguria (Laravel 12 + Sanctum):** 63 REST API routes të mbrojtura me middleware `auth:sanctum` dhe `admin`.
+* ✅ **Testet e automatizuara:** 59 teste PHPUnit kaluese (1092 assertions, 0 failed).
 * ✅ **Production Build & Lint:** `npm run build` dhe `npm run lint` kalojnë me 0 gabime.
-* ✅ **Version Control:** Zhvillim i rregullt në degën `development` me commit-e përshkruese.
+* ✅ **Version Control:** Zhvillim vetëm në branch-in `development` me commit-e përshkruese.
 
 ---
 
@@ -61,43 +59,88 @@ Platforma u mundëson qytetarëve dhe vizitorëve të kërkojnë, filtrojnë dhe
   * *Loading state:* Indikator vizual gjatë ngarkimit të të dhënave.
   * *Error state:* Njoftim për gabim në rrjet me mundësi ritestimi ("Provo Sërish").
   * *Empty state:* Mesazhi "Nuk u gjet asnjë biznes." kur asnjë rezultat nuk përputhet me kriteret.
-
-### API Endpoints
+### API Endpoints (63 Routes)
 Backend-i ofron endpoint-et REST API të mëposhtme:
 
+#### Publike (Katalogu & Shërbimet)
 * `GET /api/health` — Verifikon gjendjen dhe disponueshmërinë e shërbimit API.
-* `GET /api/v1/businesses` — Kthen listën e bizneseve të publikuara.
-  * Parametrat mbështetës:
-    * `?search=` — Kërkon sipas fjalëve kyçe (emër, adresë, përshkrim).
-    * `?category=` — Filtron sipas slug-ut të kategorisë.
-    * `?settlement=` — Filtron sipas slug-ut të vendbanimit.
-    * `?featured=1` — Kthen vetëm bizneset e veçuara.
-* `GET /api/v1/businesses/{slug|id}` — Kthen detajet e plota të një biznesi sipas identifikuesit ose slug-ut.
-* `GET /api/v1/categories` — Kthen listën e kategorive aktive bashkë me numrin e bizneseve përkatëse.
-* `GET /api/v1/settlements` — Kthen listën e vendbanimeve aktive të komunës së Lipjanit.
-* `POST /api/v1/auth/login` — Autentikon administratorin dhe kthen token Sanctum.
-* `POST /api/v1/auth/logout` — Shkyç administratorin dhe shkatërron token-in aktual (Bearer token).
-* `GET /api/v1/auth/me` — Kthen profilin e administratorit aktual të autentikuar.
-* `GET /api/v1/admin/test` — Rrugë prove e mbrojtur nga `auth:sanctum` dhe `admin` middleware.
+* `GET /api/v1/businesses` — Kthen listën e bizneseve të publikuara (mbështet search, category, settlement, service, has_website, open_now, sort, per_page).
+* `GET /api/v1/businesses/{slug|id}` — Kthen detajet e plota të një biznesi.
+* `GET /api/v1/categories` — Kthen listën e kategorive aktive bashkë me numrin e bizneseve.
+* `GET /api/v1/settlements` — Kthen listën e vendbanimeve të Lipjanit.
+* `GET /api/v1/services` — Kthen listën e lehtësirave/shërbimeve.
+
+#### Sistemi i Reklamave (Publike)
+* `GET /api/v1/advertisements` — Kthen reklamat aktive sipas pozicionit (`position=homepage_featured|sponsored_businesses|sidebar_banner`).
+* `POST /api/v1/advertisements/{id}/click` — Regjistron një klikim real në reklamë.
+* `POST /api/v1/advertisements/{id}/impression` — Regjistron një shikim real të reklamës.
+
+#### Autentikimi i Përdoruesve & Administratorëve
+* `POST /api/v1/auth/register` — Regjistrim publik i llogarive të përdoruesve (roli `is_admin` refuzohet nga mbrojtja).
+* `POST /api/v1/auth/user-login` — Kyçje për përdoruesit e zakonshëm.
+* `POST /api/v1/auth/login` — Kyçje e dedikuar për administratorët.
+* `POST /api/v1/auth/logout` — Shkyçje dhe revokim i token-it Sanctum.
+* `GET /api/v1/auth/me` — Të dhënat e përdoruesit/administratorit të kyçur.
+* `PUT /api/v1/auth/profile` — Përditësimi i profilit (emri).
+* `PUT /api/v1/auth/password` — Ndryshimi i fjalëkalimit me verifikim të fjalëkalimit aktual.
+
+#### Bizneset e Ruajtura (Favorites - Përdorues i Kyçur)
+* `GET /api/v1/user/favorites` — Kthen listën e bizneseve të ruajtura nga përdoruesi.
+* `POST /api/v1/user/favorites/{businessId}` — Toggle ruajtjen / heqjen e biznesit nga të preferuarat.
+* `DELETE /api/v1/user/favorites/{businessId}` — Heq biznesin nga lista e të preferuarave.
+
+#### Paneli Administrativ (Mbrojtur me auth:sanctum dhe admin middleware)
+* `GET /api/v1/admin/businesses` — Menaxhimi i bizneseve me statistika, filtra statusi dhe faqosje.
+* `POST /api/v1/admin/businesses` — Krijimi i biznesit të ri.
+* `GET /api/v1/admin/businesses/{id}` — Detajet e plota të biznesit për redaktim.
+* `PUT /api/v1/admin/businesses/{id}` — Përditësimi i biznesit.
+* `DELETE /api/v1/admin/businesses/{id}` — Fshirja/arkivimi i biznesit.
+* `PATCH /api/v1/admin/businesses/{id}/status` — Ndryshimi i shpejtë i statusit (`published`, `draft`, `archived`).
+* `GET /api/v1/admin/advertisements` — Lista e të gjitha reklamave për administrim.
+* `POST /api/v1/admin/advertisements` — Krijimi i reklamës së re me rregulla kohore.
+* `GET /api/v1/admin/advertisements/{id}` — Detajet e reklamës për redaktim.
+* `PUT /api/v1/admin/advertisements/{id}` — Përditësimi i reklamës.
+* `DELETE /api/v1/admin/advertisements/{id}` — Fshirja e reklamës.
+* `PATCH /api/v1/admin/advertisements/{id}/toggle` — Aktivizimi / çaktivizimi i shpejtë i reklamës.
+
+---
+
+## Sistemi i Reklamave & Rregullat Kohore
+
+Reklamat ndjekin një cikël jete strikt kohor të llogaritur autoritativisht në Backend:
+
+| Statusi | Përshkrimi | Shfaqja Publike |
+|---------|------------|-----------------|
+| `draft` | Reklama është në përgatitje nga administratori | ❌ Jo |
+| `scheduled` | Reklama është planifikuar për një datë të ardhshme (`starts_at > now`) | ❌ Jo |
+| `active` | Reklama është brenda intervalit (`starts_at <= now <= ends_at`) dhe e aktivizuar | ✅ Po |
+| `expired` | Koha e reklamës ka përfunduar (`ends_at < now`) | ❌ Jo |
+| `disabled` | Administratori e ka çaktivizuar manualisht (`is_active = false`) | ❌ Jo |
+
+> **Rregullat e Sigurisë:** Reklama shfaqet publikisht VETËM nëse biznesi i lidhur ka statusin `published`. Data e përfundimit duhet të jetë pas datës së fillimit. Llogaritja bëhet në nivel query në backend përmes `scopeActive()` dhe accessor-it `effective_status`.
 
 ---
 
 ## Database
 
-Databaza e projektit përmban skemën relacionale të optimizuar për katalogun dhe autentikimin:
+Databaza e projektit përmban skemën relacionale të optimizuar për katalogun, autentikimin, reklamat dhe favoritet:
 
-* **`users`** — Përdoruesit e sistemit me kolonën `is_admin` për dallimin e rolit administrator.
+* **`users`** — Përdoruesit e sistemit me kolonën `is_admin` për ndarjen strikte të privilegjeve.
 * **`personal_access_tokens`** — Tabela e token-ave API të Laravel Sanctum.
 * **`categories`** — Kategoritë e bizneseve (emri, slug, përshkrimi, ikona).
 * **`settlements`** — Vendbanimet e komunës së Lipjanit (emri, slug, kodi postar).
 * **`businesses`** — Të dhënat kryesore të biznesit (emri, slug, adresa, telefoni, email, website, orari, statusi: `published`/`draft`/`archived`, `is_featured`, koordinatat gjeografike).
 * **`services`** — Shërbimet/lehtësirat shtesë (Wi-Fi, Parking, Teracë, etj.).
-* **`business_service`** — Tabela ndërlidhëse (pivot) shumë-me-shumë midis bizneseve dhe shërbimeve.
+* **`business_service`** — Tabela pivot shumë-me-shumë midis bizneseve dhe shërbimeve.
+* **`advertisements`** — Reklamat promovuese (`business_id`, `title`, `description`, `image_url`, `cta_text`, `cta_url`, `position`, `status`, `is_active`, `starts_at`, `ends_at`, `views_count`, `clicks_count`).
+* **`user_favorites`** — Tabela e lidhjes shumë-me-shumë midis përdoruesve dhe bizneseve të ruajtura (`user_id`, `business_id`).
 
 ### Marrëdhëniet Kryesore:
-* `Category` **1 → N** `Business` (Një kategori përmban shumë biznese).
-* `Settlement` **1 → N** `Business` (Një vendbanim përmban shumë biznese).
-* `Business` **N ↔ N** `Service` (Një biznes mund të ketë shumë shërbime dhe anasjelltas).
+* `Business` **1 → N** `Advertisement` (Një biznes mund të ketë disa fushata reklamuese).
+* `User` **N ↔ N** `Business` (Përmes `user_favorites` për ruajtjen e preferencave).
+* `Category` **1 → N** `Business`.
+* `Settlement` **1 → N** `Business`.
+* `Business` **N ↔ N** `Service`.
 
 ---
 
@@ -189,10 +232,12 @@ Projekti posedon teste të automatizuara dhe verifikim të rregullt të build-it
 cd backend
 php artisan test
 ```
-* **Rezultati aktual:** **40 teste të kaluara me sukses (1024 assertions, 0 failed)**
+* **Rezultati aktual:** **59 teste të kaluara me sukses (1092 assertions, 0 failed)**
   * `AdminBusinessApiTest` (12 teste: listim, filtrim, kërkim, CRUD, validim, status) ✓
-  * `AuthApiTest` (10 teste: login, token, logout, profil, siguri) ✓
+  * `AdvertisementApiTest` (10 teste: reklama aktive, draft/disabled/expired, planifikim, rregulla kohore, admin CRUD, click tracking) ✓
+  * `AuthApiTest` (10 teste: login admin, token Sanctum, logout, profil, refuzim i joadminëve) ✓
   * `BusinessApiTest` (16 teste: katalog, kërkim, 5 filtra, detaje, 404) ✓
+  * `UserAccountApiTest` (9 teste: regjistrim publik, parandalim admin role, login user, update profili, ndryshim passwordi, ruajtja e bizneseve) ✓
   * `ExampleTest` (Unit & Feature) ✓
 
 ### Build-i dhe Lint-i i Frontend-it

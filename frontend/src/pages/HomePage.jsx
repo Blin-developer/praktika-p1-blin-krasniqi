@@ -3,6 +3,8 @@ import SponsoredAdBanner from '../components/SponsoredAdBanner';
 import BusinessCard from '../components/BusinessCard';
 import { fetchAdvertisements, fetchCategories, fetchBusinesses } from '../services/api';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 export default function HomePage({
   onNavigateToCatalog,
   onSelectCategory,
@@ -356,7 +358,7 @@ export default function HomePage({
 
           <div className="site-footer__bottom">
             <p>
-              &copy; {new Date().getFullYear()} Komuna e Lipjanit &bull; Katalogu i Bizneseve Lokale. Të gjitha të drejtat të rezervuara.
+              &copy; {CURRENT_YEAR} Komuna e Lipjanit &bull; Katalogu i Bizneseve Lokale. Të gjitha të drejtat të rezervuara.
             </p>
           </div>
         </div>
