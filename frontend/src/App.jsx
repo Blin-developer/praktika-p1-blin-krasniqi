@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
+import CategoriesPage from './pages/CategoriesPage';
 import BusinessCatalogPage from './pages/BusinessCatalogPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminBusinessesPage from './pages/AdminBusinessesPage';
@@ -11,18 +13,21 @@ import { useAuth } from './hooks/useAuth';
 import './App.css';
 
 /**
- * AppContent – Menaxhon navigimin mes pamjeve: kreu, katalogu dhe zona administrative.
- * Përfshin Navbar-in global, modalet e autentikimit dhe logjikën e rrugëzimit SPA.
+ * AppContent – Menaxhon navigimin mes pamjeve: kreu, katalogu, kategoritë dhe zona administrative.
+ * Përfshin Navbar-in global, Footer-in e unifikuar, modalet e autentikimit dhe logjikën e rrugëzimit SPA.
  */
 function AppContent() {
   const { isAuthenticated, isAdmin, initialChecking } = useAuth();
 
-  // Pamja aktive: 'home' | 'catalog' | 'admin'
+  // Pamja aktive: 'home' | 'catalog' | 'categories' | 'admin'
   const [currentView, setCurrentView] = useState(() => {
     const path = window.location.pathname;
     const search = new URLSearchParams(window.location.search);
     if (path.startsWith('/admin') || search.get('page') === 'admin' || search.get('admin') === '1') {
       return 'admin';
+    }
+    if (path.startsWith('/categories') || search.get('page') === 'categories') {
+      return 'categories';
     }
     if (path.startsWith('/catalog') || search.get('page') === 'catalog') {
       return 'catalog';
@@ -50,6 +55,8 @@ function AppContent() {
       const search = new URLSearchParams(window.location.search);
       if (path.startsWith('/admin') || search.get('page') === 'admin' || search.get('admin') === '1') {
         setCurrentView('admin');
+      } else if (path.startsWith('/categories') || search.get('page') === 'categories') {
+        setCurrentView('categories');
       } else if (path === '/' || path === '') {
         setCurrentView('home');
       } else {
@@ -80,6 +87,11 @@ function AppContent() {
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+    } else if (view === 'categories') {
+      setCurrentView('categories');
+      setSelectedBusiness(null);
+      window.history.pushState(null, '', '/categories');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (view === 'catalog') {
       setCurrentView('catalog');
       setSelectedBusiness(null);
@@ -96,7 +108,7 @@ function AppContent() {
     }
   }, []);
 
-  // Kur zgjedh kategori nga faqja kryesore, shko në katalog me kategorinë e zgjedhur
+  // Kur zgjedh kategori nga cilado faqe, shko në katalog me kategorinë e zgjedhur
   const handleSelectCategory = useCallback((categorySlug) => {
     setCatalogInitialFilters({ category: categorySlug });
     setCurrentView('catalog');
@@ -125,10 +137,9 @@ function AppContent() {
     setProfileModalOpen(true);
   }, []);
 
-
   const isAdminView = currentView === 'admin';
 
-  // Loading shkrin gjatë verifikimit të sesionit administrativ
+  // Loading gjatë verifikimit të sesionit administrativ
   if (isAdminView && initialChecking) {
     return (
       <div className="admin-loading-screen" role="status" aria-live="polite">
@@ -138,15 +149,15 @@ function AppContent() {
     );
   }
 
-  // Admin panel – pa Navbar publik
+  // Admin panel – plotësisht i ndarë pa Navbar/Footer publik
   if (isAdminView) {
     if (!isAuthenticated || !isAdmin) {
-      return <AdminLoginPage onNavigateToCatalog={() => handleNavigate('home')} />;
+      return <AdminLoginPage onNavigateToCatalog={() => handleNavigate('catalog')} />;
     }
-    return <AdminBusinessesPage onNavigateToCatalog={() => handleNavigate('home')} />;
+    return <AdminBusinessesPage onNavigateToCatalog={() => handleNavigate('catalog')} />;
   }
 
-  // Pamja publike me Navbar
+  // Pamja publike me Navbar dhe Footer të unifikuar
   return (
     <div className="public-app">
       <Navbar
@@ -160,19 +171,30 @@ function AppContent() {
         {currentView === 'home' ? (
           <HomePage
             onNavigateToCatalog={(filters) => handleNavigate('catalog', filters)}
+            onNavigateToCategories={() => handleNavigate('categories')}
             onSelectCategory={handleSelectCategory}
             onSelectBusiness={handleSelectBusiness}
             onRequireAuth={handleRequireAuth}
           />
+        ) : currentView === 'categories' ? (
+          <CategoriesPage
+            onSelectCategory={handleSelectCategory}
+            onNavigateToCatalog={(filters) => handleNavigate('catalog', filters)}
+          />
         ) : (
           <BusinessCatalogPage
-            onNavigateToAdmin={() => handleNavigate('admin')}
             onRequireAuth={handleRequireAuth}
             initialFilters={catalogInitialFilters}
             initialBusiness={selectedBusiness}
           />
         )}
       </main>
+
+      {/* Footer i unifikuar në të gjitha pamjet publike */}
+      <Footer
+        onNavigate={handleNavigate}
+        onSelectCategory={handleSelectCategory}
+      />
 
       {/* Modal për Login / Regjistrim */}
       <UserAuthModal

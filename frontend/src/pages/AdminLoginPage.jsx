@@ -43,7 +43,7 @@ export default function AdminLoginPage({ onNavigateToCatalog }) {
             {isAuthenticated ? 'Statusi i Autentikimit' : 'Hyrja e Administratorit'}
           </h1>
           <p className="admin-auth-card__subtitle">
-            Katalogu i Bizneseve të Lipjanit • Java 3
+            Paneli Zyrtar i Menaxhimit • Komuna e Lipjanit
           </p>
         </div>
 

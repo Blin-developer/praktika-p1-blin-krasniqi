@@ -48,6 +48,30 @@ export default function AdminLayout({ children, activeTab = 'dashboard', onNavig
             </button>
             <button
               type="button"
+              className={`admin-nav-item ${activeTab === 'categories' ? 'is-active' : ''}`}
+              aria-current={activeTab === 'categories' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('categories')}
+            >
+              📁 Kategoritë
+            </button>
+            <button
+              type="button"
+              className={`admin-nav-item ${activeTab === 'settlements' ? 'is-active' : ''}`}
+              aria-current={activeTab === 'settlements' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('settlements')}
+            >
+              📍 Vendbanimet
+            </button>
+            <button
+              type="button"
+              className={`admin-nav-item ${activeTab === 'services' ? 'is-active' : ''}`}
+              aria-current={activeTab === 'services' ? 'page' : undefined}
+              onClick={() => onTabChange && onTabChange('services')}
+            >
+              🛠️ Shërbimet
+            </button>
+            <button
+              type="button"
               className="admin-nav-item admin-nav-item--link"
               onClick={onNavigateToCatalog}
               title="Shiko katalogun publik të qytetarëve"

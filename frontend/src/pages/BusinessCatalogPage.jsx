@@ -16,7 +16,6 @@ import {
  * ruajtje të plotë në URL, faqosje me 12 biznese për faqe dhe shfaqje të reklamave anësore.
  */
 function BusinessCatalogPage({
-  onNavigateToAdmin,
   onRequireAuth,
   initialFilters = {},
   initialBusiness: _initialBusiness = null,
@@ -253,19 +252,8 @@ function BusinessCatalogPage({
   return (
     <div className="catalog-page">
       <header className="catalog-header">
-        {onNavigateToAdmin && (
-          <div className="catalog-header__top-bar">
-            <button
-              type="button"
-              className="catalog-header__admin-btn"
-              onClick={onNavigateToAdmin}
-              aria-label="Hyrja në panelin administrativ"
-            >
-              🔐 Paneli Administrativ
-            </button>
-          </div>
-        )}
         <div className="catalog-header__content">
+          <span className="badge badge--gold">📋 Regjistri Publik i Bizneseve</span>
           <h1 className="catalog-header__title">
             Katalogu i Bizneseve
             <span className="catalog-header__subtitle"> – Komuna e Lipjanit</span>
@@ -288,6 +276,100 @@ function BusinessCatalogPage({
             <div className="catalog-content">
               {/* Shiriti i filtrave dhe kërkimit */}
               <section className="filter-bar" aria-label="Kërkimi dhe filtrat e katalogut">
+                {activeFiltersCount > 0 && (
+                  <div className="active-filters-chips">
+                    <span className="active-filters-label">Filtrat aktivë ({activeFiltersCount}):</span>
+                    {selectedCategory && (
+                      <span className="filter-chip">
+                        📁 {categories.find((c) => c.slug === selectedCategory)?.name || selectedCategory}
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedCategory('')}
+                          aria-label="Hiq filtrin e kategorisë"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {selectedSettlement && (
+                      <span className="filter-chip">
+                        📍 {settlements.find((s) => s.slug === selectedSettlement)?.name || selectedSettlement}
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedSettlement('')}
+                          aria-label="Hiq filtrin e vendbanimit"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {selectedService && (
+                      <span className="filter-chip">
+                        ✨ {services.find((srv) => srv.slug === selectedService)?.name || selectedService}
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedService('')}
+                          aria-label="Hiq filtrin e shërbimit"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {selectedWebsite && (
+                      <span className="filter-chip">
+                        🌐 {selectedWebsite === 'yes' ? 'Me Uebfaqe' : 'Pa Uebfaqe'}
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedWebsite('')}
+                          aria-label="Hiq filtrin e faqes"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {selectedSchedule && (
+                      <span className="filter-chip">
+                        🕒 {selectedSchedule === 'yes' ? 'Me Orar' : 'Pa Orar'}
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedSchedule('')}
+                          aria-label="Hiq filtrin e orarit"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {debouncedSearch && (
+                      <span className="filter-chip">
+                        🔍 «{debouncedSearch}»
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => {
+                            setSearch('');
+                            setDebouncedSearch('');
+                          }}
+                          aria-label="Hiq kërkimin"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      className="filter-chip filter-chip--clear-all"
+                      onClick={handleReset}
+                    >
+                      Pastro të gjithë
+                    </button>
+                  </div>
+                )}
+
                 <form
                   className="filter-bar__form"
                   onSubmit={handleSearchSubmit}

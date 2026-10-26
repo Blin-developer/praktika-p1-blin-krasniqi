@@ -2,12 +2,12 @@ import { useEffect } from 'react';
 import { trackAdClick, trackAdImpression } from '../services/api';
 
 /**
- * SponsoredAdBanner – Komponent për shfaqjen e reklamave të sponsorizuara
- * me identifikim të qartë ligjor "E sponsorizuar", klikime të gjurmuara dhe CTA funksionale.
+ * SponsoredAdBanner – Komponent premium për shfaqjen e reklamave të sponsorizuara
+ * me identifikim të qartë "E sponsorizuar", klikime të gjurmuara dhe dizajn elitar.
  */
 export default function SponsoredAdBanner({
   ad,
-  variant = 'featured', // 'featured' | 'sidebar' | 'inline'
+  variant = 'featured', // 'featured' | 'sidebar'
   onSelectBusiness,
 }) {
   useEffect(() => {
@@ -21,7 +21,6 @@ export default function SponsoredAdBanner({
   const handleCtaClick = (e) => {
     trackAdClick(ad.id);
     if (ad.cta_url) {
-      // Nëse ka URL të jashtme
       return;
     }
 
@@ -31,16 +30,22 @@ export default function SponsoredAdBanner({
     }
   };
 
-  const businessName = ad.business?.name || 'Biznes Lokal';
-  const ctaText = ad.cta_text || 'Shiko biznesin';
-  const imageUrl = ad.image_url || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80';
+  const businessName = ad.business?.name || 'Biznes i Lipjanit';
+  const ctaText = ad.cta_text || 'Zbulo më shumë';
+  const imageUrl =
+    ad.image_url ||
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80';
 
   if (variant === 'sidebar') {
     return (
-      <aside className="ad-card ad-card--sidebar" aria-label="Reklamë e sponsorizuar">
-        <div className="ad-card__badge-row">
-          <span className="ad-badge">★ E sponsorizuar</span>
+      <aside className="ad-card ad-card--sidebar" aria-label="Njoftim i sponsorizuar">
+        <div className="ad-card__header-bar">
+          <span className="ad-badge ad-badge--gold">✦ E sponsorizuar</span>
+          {ad.business?.settlement?.name && (
+            <span className="ad-card__loc">📍 {ad.business.settlement.name}</span>
+          )}
         </div>
+
         <div className="ad-card__image-wrap">
           <img
             src={imageUrl}
@@ -49,6 +54,7 @@ export default function SponsoredAdBanner({
             loading="lazy"
           />
         </div>
+
         <div className="ad-card__content">
           <span className="ad-card__business">{businessName}</span>
           <h4 className="ad-card__title">{ad.title}</h4>
@@ -56,7 +62,7 @@ export default function SponsoredAdBanner({
           <a
             href={ad.cta_url || `#business-${ad.business?.slug}`}
             onClick={handleCtaClick}
-            className="btn btn--ad-cta"
+            className="btn btn--primary btn--sm btn--block ad-card__btn"
             target={ad.cta_url ? '_blank' : '_self'}
             rel={ad.cta_url ? 'noopener noreferrer' : ''}
           >
@@ -67,24 +73,29 @@ export default function SponsoredAdBanner({
     );
   }
 
-  // Variant: Featured (Homepage / Hero)
+  // Variant: Featured (Homepage)
   return (
-    <article className="ad-featured-banner" aria-label="Njoftim i sponsorizuar">
-      <div className="ad-featured-banner__badge">
-        <span className="ad-badge ad-badge--gold">★ E sponsorizuar</span>
-      </div>
+    <article className="ad-featured-banner" aria-label="Biznes i veçuar i sponsorizuar">
       <div className="ad-featured-banner__grid">
         <div className="ad-featured-banner__text">
+          <div className="ad-featured-banner__badge-row">
+            <span className="ad-badge ad-badge--gold">✦ E sponsorizuar</span>
+            {ad.business?.category?.name && (
+              <span className="badge badge--category">{ad.business.category.name}</span>
+            )}
+          </div>
+
           <span className="ad-featured-banner__brand">{businessName}</span>
           <h2 className="ad-featured-banner__title">{ad.title}</h2>
           {ad.description && (
             <p className="ad-featured-banner__desc">{ad.description}</p>
           )}
+
           <div className="ad-featured-banner__actions">
             <a
               href={ad.cta_url || `#business-${ad.business?.slug}`}
               onClick={handleCtaClick}
-              className="btn btn--primary btn--lg"
+              className="btn btn--primary"
               target={ad.cta_url ? '_blank' : '_self'}
               rel={ad.cta_url ? 'noopener noreferrer' : ''}
             >
@@ -93,14 +104,15 @@ export default function SponsoredAdBanner({
             {ad.business?.slug && onSelectBusiness && (
               <button
                 type="button"
-                className="btn btn--outline-dark"
+                className="btn btn--secondary"
                 onClick={() => onSelectBusiness(ad.business.slug)}
               >
-                Profili i Biznesit
+                Shiko Profilin e Plotë
               </button>
             )}
           </div>
         </div>
+
         <div className="ad-featured-banner__media">
           <img
             src={imageUrl}

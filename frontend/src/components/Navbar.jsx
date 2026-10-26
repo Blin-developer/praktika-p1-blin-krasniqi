@@ -66,12 +66,6 @@ export default function Navbar({
     handleNav('catalog', { category: slug });
   };
 
-  const handleCategoriesSectionClick = () => {
-    setCategoryDropdownOpen(false);
-    setMobileMenuOpen(false);
-    handleNav('home', { scrollTo: 'categories' });
-  };
-
   const handleSponsoredSectionClick = () => {
     setMobileMenuOpen(false);
     setUserDropdownOpen(false);
@@ -124,7 +118,7 @@ export default function Navbar({
             <li className="nav-dropdown-item" ref={categoryMenuRef}>
               <button
                 type="button"
-                className={`site-nav__link nav-dropdown-trigger ${categoryDropdownOpen ? 'site-nav__link--active' : ''}`}
+                className={`site-nav__link nav-dropdown-trigger ${activeView === 'categories' || categoryDropdownOpen ? 'site-nav__link--active' : ''}`}
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 aria-expanded={categoryDropdownOpen}
                 aria-haspopup="true"
@@ -136,6 +130,13 @@ export default function Navbar({
                 <div className="nav-dropdown-menu" role="menu" aria-label="Lista e kategorive">
                   <div className="nav-dropdown-header">
                     <span>Zbuloni sipas sektorit</span>
+                    <button
+                      type="button"
+                      className="nav-dropdown-header-all"
+                      onClick={() => handleNav('categories')}
+                    >
+                      Faqja e Plotë ↗
+                    </button>
                   </div>
                   <div className="nav-dropdown-grid">
                     {PRESET_CATEGORIES.map((cat) => (
@@ -155,9 +156,9 @@ export default function Navbar({
                     <button
                       type="button"
                       className="nav-dropdown-footer-link"
-                      onClick={handleCategoriesSectionClick}
+                      onClick={() => handleNav('categories')}
                     >
-                      📍 Shiko të gjitha në Faqen Kryesore →
+                      📁 Shiko të Gjitha Kategoritë e Lipjanit →
                     </button>
                   </div>
                 </div>
@@ -338,10 +339,10 @@ export default function Navbar({
             <li>
               <button
                 type="button"
-                className="mobile-drawer__link"
-                onClick={handleCategoriesSectionClick}
+                className={`mobile-drawer__link ${activeView === 'categories' ? 'mobile-drawer__link--active' : ''}`}
+                onClick={() => handleNav('categories')}
               >
-                🏷️ Kategoritë e Bizneseve
+                📁 Kategoritë e Bizneseve
               </button>
             </li>
             <li>

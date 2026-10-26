@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import SponsoredAdBanner from '../components/SponsoredAdBanner';
 import BusinessCard from '../components/BusinessCard';
-import { fetchAdvertisements, fetchCategories, fetchBusinesses } from '../services/api';
-
-const CURRENT_YEAR = new Date().getFullYear();
+import {
+  fetchAdvertisements,
+  fetchCategories,
+  fetchBusinesses,
+  trackAdClick,
+  trackAdImpression,
+} from '../services/api';
 
 export default function HomePage({
   onNavigateToCatalog,
+  onNavigateToCategories,
   onSelectCategory,
   onSelectBusiness,
   onRequireAuth,
@@ -34,7 +39,9 @@ export default function HomePage({
         if (featuredRes.data && featuredRes.data.length > 0) {
           setFeaturedAd(featuredRes.data[0]);
         }
-        setSponsoredAds(sponsoredRes.data || []);
+        const sAds = sponsoredRes.data || [];
+        setSponsoredAds(sAds);
+        sAds.forEach((ad) => trackAdImpression(ad.id));
         setCategories(catRes.data || []);
         setPopularBusinesses((bizRes.data || []).slice(0, 6));
       } finally {
@@ -128,13 +135,22 @@ export default function HomePage({
               <span className="section-eyebrow">Zbuloni sipas sektorit</span>
               <h2 id="cat-heading" className="section-title">Kategoritë e Bizneseve</h2>
             </div>
-            <button
-              type="button"
-              className="btn btn--link"
-              onClick={() => onNavigateToCatalog()}
-            >
-              Shiko të gjitha bizneset →
-            </button>
+            <div className="section-header__actions">
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={() => onNavigateToCategories ? onNavigateToCategories() : onNavigateToCatalog()}
+              >
+                📁 Të Gjitha Kategoritë
+              </button>
+              <button
+                type="button"
+                className="btn btn--link"
+                onClick={() => onNavigateToCatalog()}
+              >
+                Katalogu i Plotë →
+              </button>
+            </div>
           </div>
 
           <div className="category-grid">
@@ -183,10 +199,13 @@ export default function HomePage({
           <div className="section-header">
             <div>
               <span className="section-eyebrow">Biznese të spikatura</span>
-              <h2 id="sponsored-heading" className="section-title">Të Sponsorizuara</h2>
+              <h2 id="sponsored-heading" className="section-title">Biznese të Sponsorizuara</h2>
+              <p className="section-subtitle">
+                Biznese të veçuara dhe partnerë lokalë që ofrojnë produkte e shërbime cilësore në Komunën e Lipjanit.
+              </p>
             </div>
             <span className="sponsored-info-pill">
-              ★ {sponsoredAds.length > 0 ? 'Promovime Aktive' : 'Sistemi i Reklamave'}
+              ✦ {sponsoredAds.length > 0 ? `${sponsoredAds.length} Promovime Aktive` : 'Sistemi i Reklamave'}
             </span>
           </div>
 
@@ -200,22 +219,35 @@ export default function HomePage({
                       alt={ad.title}
                       loading="lazy"
                     />
-                    <span className="ad-badge ad-badge--gold">★ E sponsorizuar</span>
+                    <div className="sponsored-card__badges-overlay">
+                      <span className="ad-badge ad-badge--gold">✦ E sponsorizuar</span>
+                      {ad.business?.settlement?.name && (
+                        <span className="ad-badge ad-badge--location">📍 {ad.business.settlement.name}</span>
+                      )}
+                    </div>
                   </div>
                   <div className="sponsored-card__content">
-                    <span className="sponsored-card__brand">
-                      {ad.business?.name || 'Biznes i Lipjanit'}
-                    </span>
+                    <div className="sponsored-card__brand-row">
+                      <span className="sponsored-card__brand">
+                        {ad.business?.name || 'Biznes i Lipjanit'}
+                      </span>
+                      {ad.business?.category?.name && (
+                        <span className="badge badge--category">{ad.business.category.name}</span>
+                      )}
+                    </div>
                     <h3 className="sponsored-card__title">{ad.title}</h3>
                     <p className="sponsored-card__desc">{ad.description}</p>
                     <div className="sponsored-card__footer">
                       {ad.business?.slug && (
                         <button
                           type="button"
-                          className="btn btn--outline-primary btn--sm"
-                          onClick={() => onSelectBusiness(ad.business.slug)}
+                          className="btn btn--primary btn--sm btn--block sponsored-card__cta"
+                          onClick={() => {
+                            trackAdClick(ad.id);
+                            onSelectBusiness(ad.business.slug);
+                          }}
                         >
-                          {ad.cta_text || 'Shiko profilin'} →
+                          {ad.cta_text || 'Shiko Profilin'} →
                         </button>
                       )}
                     </div>
@@ -314,73 +346,6 @@ export default function HomePage({
           </div>
         </div>
       </section>
-
-      {/* 7. FOOTER */}
-      <footer className="site-footer">
-        <div className="site-container">
-          <div className="site-footer__grid">
-            <div className="site-footer__col site-footer__col--brand">
-              <div className="footer-brand">
-                <span className="footer-brand__crest">🏛️</span>
-                <div>
-                  <h3 className="footer-brand__title">Katalogu i Bizneseve</h3>
-                  <span className="footer-brand__sub">Komuna e Lipjanit</span>
-                </div>
-              </div>
-              <p className="site-footer__text">
-                Portali zyrtar për prezantimin, promovimin dhe mbështetjen e bizneseve dhe ndërmarrësisë lokale në territorin e Lipjanit.
-              </p>
-            </div>
-
-            <div className="site-footer__col">
-              <h4 className="site-footer__heading">Lidhje të Shpejta</h4>
-              <ul className="site-footer__links">
-                <li>
-                  <button type="button" onClick={() => onNavigateToCatalog()}>
-                    Katalogu i Plotë
-                  </button>
-                </li>
-                <li>
-                  <button type="button" onClick={() => onSelectCategory('gastronomi')}>
-                    Restorante &amp; Kafene
-                  </button>
-                </li>
-                <li>
-                  <button type="button" onClick={() => onSelectCategory('shendetesi')}>
-                    Farmaci &amp; Mjekësi
-                  </button>
-                </li>
-                <li>
-                  <button type="button" onClick={() => onSelectCategory('tregti')}>
-                    Supermarkete &amp; Tregti
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            <div className="site-footer__col">
-              <h4 className="site-footer__heading">Për Ndërmarrësit</h4>
-              <ul className="site-footer__links">
-                <li>
-                  <span>Promovoni biznesin tuaj me reklama të synuara</span>
-                </li>
-                <li>
-                  <span>Vendndodhje të verifikuara në hartë</span>
-                </li>
-                <li>
-                  <span>Lidhje direkte me qytetarët lokalë</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="site-footer__bottom">
-            <p>
-              &copy; {CURRENT_YEAR} Komuna e Lipjanit &bull; Katalogu i Bizneseve Lokale. Të gjitha të drejtat të rezervuara.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

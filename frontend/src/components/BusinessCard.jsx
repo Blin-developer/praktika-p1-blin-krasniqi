@@ -86,21 +86,22 @@ function BusinessCard({
   };
 
   const catIcon = getCategoryIcon(category?.slug || '');
+  const effectiveSponsored = isSponsored || Boolean(business.is_sponsored);
 
   return (
     <article
-      className={`biz-card ${isSponsored ? 'biz-card--sponsored' : ''} ${is_featured ? 'biz-card--featured' : ''}`}
+      className={`biz-card ${effectiveSponsored ? 'biz-card--sponsored' : ''} ${is_featured && !effectiveSponsored ? 'biz-card--featured' : ''}`}
       aria-label={`Biznesi: ${name}`}
     >
       {/* Header me badget, butonin e ruajtjes dhe menunë me tri pika */}
       <div className="biz-card__top">
         <div className="biz-card__badges">
-          {isSponsored && (
+          {effectiveSponsored && (
             <span className="badge badge--sponsored">
-              ★ E sponsorizuar
+              ✦ E sponsorizuar
             </span>
           )}
-          {is_featured && !isSponsored && (
+          {is_featured && !effectiveSponsored && (
             <span className="badge badge--featured">
               ★ I Veçuar
             </span>

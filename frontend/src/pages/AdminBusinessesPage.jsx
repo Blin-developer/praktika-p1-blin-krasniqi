@@ -3,6 +3,9 @@ import AdminLayout from '../layouts/AdminLayout';
 import BusinessFormModal from '../components/admin/BusinessFormModal';
 import DeleteConfirmModal from '../components/admin/DeleteConfirmModal';
 import AdminAdvertisementsTab from '../components/admin/AdminAdvertisementsTab';
+import AdminCategoriesTab from '../components/admin/AdminCategoriesTab';
+import AdminSettlementsTab from '../components/admin/AdminSettlementsTab';
+import AdminServicesTab from '../components/admin/AdminServicesTab';
 import {
   fetchAdminBusinesses,
   updateAdminBusinessStatus,
@@ -401,6 +404,30 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 <button
                   type="button"
                   className="admin-quick-action-card"
+                  onClick={() => { setActiveView('categories'); }}
+                >
+                  <span className="admin-quick-action-card__icon">📁</span>
+                  <span className="admin-quick-action-card__label">Kategoritë</span>
+                </button>
+                <button
+                  type="button"
+                  className="admin-quick-action-card"
+                  onClick={() => { setActiveView('settlements'); }}
+                >
+                  <span className="admin-quick-action-card__icon">📍</span>
+                  <span className="admin-quick-action-card__label">Vendbanimet</span>
+                </button>
+                <button
+                  type="button"
+                  className="admin-quick-action-card"
+                  onClick={() => { setActiveView('services'); }}
+                >
+                  <span className="admin-quick-action-card__icon">🛠️</span>
+                  <span className="admin-quick-action-card__label">Shërbimet</span>
+                </button>
+                <button
+                  type="button"
+                  className="admin-quick-action-card"
                   onClick={onNavigateToCatalog}
                 >
                   <span className="admin-quick-action-card__icon">🌐</span>
@@ -412,6 +439,15 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
         ) : activeView === 'advertisements' ? (
           /* ======================= ADVERTISEMENTS ======================= */
           <AdminAdvertisementsTab />
+        ) : activeView === 'categories' ? (
+          /* ======================= CATEGORIES ======================= */
+          <AdminCategoriesTab />
+        ) : activeView === 'settlements' ? (
+          /* ======================= SETTLEMENTS ======================= */
+          <AdminSettlementsTab />
+        ) : activeView === 'services' ? (
+          /* ======================= SERVICES ======================= */
+          <AdminServicesTab />
         ) : (
           /* ======================= BUSINESSES LIST ======================= */
           <>
