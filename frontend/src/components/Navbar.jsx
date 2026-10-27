@@ -182,27 +182,32 @@ export default function Navbar({
             <div className="admin-nav-logged-wrap">
               <button
                 type="button"
-                className="btn btn--admin-badge"
+                className="btn btn--admin-nav"
                 onClick={() => handleNav('admin')}
                 title="Hyr në Panelin Administrativ"
+                id="navbar-admin-panel-btn"
               >
                 🔐 Paneli Admin
               </button>
 
-              <div className="admin-nav-user-pill">
+              <div
+                className="admin-nav-user-pill"
+                title={`Sesioni aktiv: ${user?.email || 'admin@lipjani.gov'}`}
+              >
                 <span className="admin-nav-user-avatar" aria-hidden="true">
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
                 </span>
                 <span className="admin-nav-user-name">
-                  {user?.name?.split(' ')[0] || 'Admin'}
+                  {user?.name || 'Administrator'}
                 </span>
               </div>
 
               <button
                 type="button"
-                className="btn btn--sm btn--danger-outline"
+                className="btn btn--admin-logout"
                 onClick={logout}
-                title="Shkyçu nga llogaria administrative"
+                title="Dil nga llogaria administrative"
+                id="navbar-admin-logout-btn"
               >
                 🚪 Dil
               </button>
@@ -210,9 +215,10 @@ export default function Navbar({
           ) : (
             <button
               type="button"
-              className="btn btn--primary btn--sm admin-entry-btn"
+              className="btn btn--admin-entry"
               onClick={() => handleNav('admin')}
               title="Qasja e Mbrojtur në Panelin Administrativ"
+              id="navbar-admin-login-entry-btn"
             >
               🔐 Paneli Admin
             </button>
@@ -274,27 +280,49 @@ export default function Navbar({
 
             <li className="mobile-drawer__divider" aria-hidden="true" />
 
-            <li>
-              <button
-                type="button"
-                className="mobile-drawer__link mobile-drawer__link--admin"
-                onClick={() => handleNav('admin')}
-              >
-                🔐 Paneli Administrativ
-              </button>
-            </li>
+            {isAuthenticated && isAdmin ? (
+              <>
+                <li className="mobile-drawer__admin-card">
+                  <div className="mobile-drawer__avatar" aria-hidden="true">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                  </div>
+                  <div className="mobile-drawer__admin-info">
+                    <span className="mobile-drawer__admin-name">{user?.name || 'Administrator'}</span>
+                    <span className="mobile-drawer__admin-role">Administrator Zyrtar</span>
+                  </div>
+                </li>
 
-            {isAuthenticated && (
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-drawer__link mobile-drawer__link--admin"
+                    onClick={() => handleNav('admin')}
+                  >
+                    🔐 Paneli Administrativ
+                  </button>
+                </li>
+
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-drawer__link mobile-drawer__link--logout"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      logout();
+                    }}
+                  >
+                    🚪 Dil nga Paneli
+                  </button>
+                </li>
+              </>
+            ) : (
               <li>
                 <button
                   type="button"
-                  className="mobile-drawer__link mobile-drawer__link--logout"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    logout();
-                  }}
+                  className="mobile-drawer__link mobile-drawer__link--admin"
+                  onClick={() => handleNav('admin')}
                 >
-                  🚪 Dil nga Paneli
+                  🔐 Paneli Administrativ (Hyrja)
                 </button>
               </li>
             )}
