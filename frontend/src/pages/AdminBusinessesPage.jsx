@@ -317,7 +317,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('all'), setActiveView('businesses'))}
                 title="Kliko për të parë të gjitha bizneset"
               >
-                <div className="admin-stat-card__icon">🏢</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">🏢</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{counts.all}</span>
                   <span className="admin-stat-card__label">Gjithsej Biznese</span>
@@ -332,7 +335,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('published'), setActiveView('businesses'))}
                 title="Kliko për të filtruar vetëm bizneset e publikuara"
               >
-                <div className="admin-stat-card__icon">✅</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">✅</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{counts.published}</span>
                   <span className="admin-stat-card__label">Published</span>
@@ -353,7 +359,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('draft'), setActiveView('businesses'))}
                 title="Kliko për të filtruar bizneset në draft"
               >
-                <div className="admin-stat-card__icon">📝</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">📝</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{counts.draft}</span>
                   <span className="admin-stat-card__label">Draft</span>
@@ -374,7 +383,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('archived'), setActiveView('businesses'))}
                 title="Kliko për të filtruar bizneset e arkivuara"
               >
-                <div className="admin-stat-card__icon">📦</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">📦</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{counts.archived}</span>
                   <span className="admin-stat-card__label">Archived</span>
@@ -395,7 +407,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && setActiveView('categories')}
                 title="Kliko për të menaxhuar kategoritë"
               >
-                <div className="admin-stat-card__icon">📁</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">📁</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{categories.length}</span>
                   <span className="admin-stat-card__label">Kategoritë</span>
@@ -410,7 +425,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && setActiveView('settlements')}
                 title="Kliko për të parë vendbanimet"
               >
-                <div className="admin-stat-card__icon">📍</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">📍</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{settlements.length}</span>
                   <span className="admin-stat-card__label">Vendbanimet</span>
@@ -425,7 +443,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && setActiveView('services')}
                 title="Kliko për të parë shërbimet"
               >
-                <div className="admin-stat-card__icon">🛠️</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">🛠️</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{services.length}</span>
                   <span className="admin-stat-card__label">Shërbimet</span>
@@ -440,7 +461,10 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 onKeyDown={(e) => e.key === 'Enter' && setActiveView('advertisements')}
                 title="Kliko për të menaxhuar reklamat aktive"
               >
-                <div className="admin-stat-card__icon">📢</div>
+                <div className="admin-stat-card__top">
+                  <div className="admin-stat-card__icon">📢</div>
+                  <span className="admin-stat-card__arrow">↗</span>
+                </div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{adCounts.active}</span>
                   <span className="admin-stat-card__label">Reklama Aktive</span>
@@ -448,73 +472,119 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
               </div>
             </div>
 
-            {/* Veprime të shpejta */}
+            {/* Veprime të shpejta - Grid i rregullt me madhësi të njëjta dhe informacion të qartë */}
             <div className="admin-quick-actions">
-              <h3 className="admin-quick-actions__title">Veprime të Shpejta Administrative</h3>
+              <div className="admin-quick-actions__header">
+                <div>
+                  <h3 className="admin-quick-actions__title">⚡ Veprime të Shpejta Administrative</h3>
+                  <p className="admin-quick-actions__subtitle">
+                    Qasje e drejtpërdrejtë në funksionet kryesore të menaxhimit të katalogut.
+                  </p>
+                </div>
+              </div>
               <div className="admin-quick-actions__grid">
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={handleOpenCreate}
                 >
-                  <span className="admin-quick-action-card__icon">➕</span>
-                  <span className="admin-quick-action-card__label">Shto Biznes të Ri</span>
+                  <div className="admin-quick-action-card__icon-box">➕</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Shto Biznes të Ri</span>
+                    <span className="admin-quick-action-card__desc">Regjistro një subjekt të ri me orare e të dhëna</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('businesses'); }}
                 >
-                  <span className="admin-quick-action-card__icon">📋</span>
-                  <span className="admin-quick-action-card__label">Lista e Plotë e Bizneseve</span>
+                  <div className="admin-quick-action-card__icon-box">🏢</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Të Gjitha Bizneset</span>
+                    <span className="admin-quick-action-card__desc">Kërko, filtro dhe modifiko regjistrat ekzistues</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('advertisements'); }}
                 >
-                  <span className="admin-quick-action-card__icon">📢</span>
-                  <span className="admin-quick-action-card__label">Menaxho Reklamat</span>
+                  <div className="admin-quick-action-card__icon-box">📢</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Menaxho Reklamat</span>
+                    <span className="admin-quick-action-card__desc">Fushata promovuese, data skadimi dhe klikime</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('categories'); }}
                 >
-                  <span className="admin-quick-action-card__icon">📁</span>
-                  <span className="admin-quick-action-card__label">Kategoritë</span>
+                  <div className="admin-quick-action-card__icon-box">📁</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Kategoritë Zyrtare</span>
+                    <span className="admin-quick-action-card__desc">Sektorët ekonomikë dhe numri i bizneseve</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('settlements'); }}
                 >
-                  <span className="admin-quick-action-card__icon">📍</span>
-                  <span className="admin-quick-action-card__label">Vendbanimet</span>
+                  <div className="admin-quick-action-card__icon-box">📍</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Vendbanimet</span>
+                    <span className="admin-quick-action-card__desc">Fshatrat dhe zonat e territorit të Lipjanit</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('services'); }}
                 >
-                  <span className="admin-quick-action-card__icon">🛠️</span>
-                  <span className="admin-quick-action-card__label">Shërbimet</span>
+                  <div className="admin-quick-action-card__icon-box">🛠️</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Shërbimet</span>
+                    <span className="admin-quick-action-card__desc">Katalogu i shërbimeve të ofruara nga bizneset</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={() => { setActiveView('account'); }}
                 >
-                  <span className="admin-quick-action-card__icon">👤</span>
-                  <span className="admin-quick-action-card__label">Llogaria Ime</span>
+                  <div className="admin-quick-action-card__icon-box">👤</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Llogaria Ime</span>
+                    <span className="admin-quick-action-card__desc">Përditëso profilin dhe fjalëkalimin e administratorit</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
+
                 <button
                   type="button"
                   className="admin-quick-action-card"
                   onClick={onNavigateToCatalog}
                 >
-                  <span className="admin-quick-action-card__icon">🌐</span>
-                  <span className="admin-quick-action-card__label">Shiko Katalogun Publik</span>
+                  <div className="admin-quick-action-card__icon-box">🌐</div>
+                  <div className="admin-quick-action-card__content">
+                    <span className="admin-quick-action-card__title">Katalogu Publik</span>
+                    <span className="admin-quick-action-card__desc">Hap faqen kryesore të katalogut publik</span>
+                  </div>
+                  <span className="admin-quick-action-card__arrow">→</span>
                 </button>
               </div>
             </div>
