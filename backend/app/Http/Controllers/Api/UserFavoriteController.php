@@ -17,6 +17,7 @@ class UserFavoriteController extends Controller
         $user = $request->user();
 
         $favorites = $user->favoriteBusinesses()
+            ->where('businesses.status', '!=', 'archived')
             ->with(['category:id,name,slug', 'settlement:id,name,slug', 'services:id,name,slug'])
             ->orderBy('user_favorites.created_at', 'desc')
             ->get();
@@ -25,6 +26,21 @@ class UserFavoriteController extends Controller
             'status' => 'success',
             'count' => $favorites->count(),
             'data' => $favorites,
+        ]);
+    }
+
+    /**
+     * Kontrollon nëse një biznes është në listën e ruajtur të përdoruesit.
+     */
+    public function status(Request $request, int $businessId): JsonResponse
+    {
+        $user = $request->user();
+        $isFavorited = $user->favoriteBusinesses()->where('business_id', $businessId)->exists();
+
+        return response()->json([
+            'status' => 'success',
+            'business_id' => $businessId,
+            'is_saved' => $isFavorited,
         ]);
     }
 
@@ -42,6 +58,13 @@ class UserFavoriteController extends Controller
             ], 404);
         }
 
+        if ($business->status === 'archived') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ky biznes është i arkivuar dhe nuk mund të ruhet te të preferuarat.',
+            ], 422);
+        }
+
         $user = $request->user();
         $isFavorited = $user->favoriteBusinesses()->where('business_id', $businessId)->exists();
 
@@ -50,7 +73,7 @@ class UserFavoriteController extends Controller
             $saved = false;
             $message = "Biznesi '{$business->name}' u hoq nga lista e ruajtur.";
         } else {
-            $user->favoriteBusinesses()->attach($businessId);
+            $user->favoriteBusinesses()->syncWithoutDetaching([$businessId]);
             $saved = true;
             $message = "Biznesi '{$business->name}' u ruajt me sukses.";
         }

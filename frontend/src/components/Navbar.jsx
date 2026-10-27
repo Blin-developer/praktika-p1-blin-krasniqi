@@ -10,26 +10,23 @@ const PRESET_CATEGORIES = [
   { slug: 'edukim', name: 'Edukim & Trajnime', icon: '🎓' },
 ];
 
+/**
+ * Navbar – Shirit lundrimi modern dhe me kontrast të lartë për portalin publik të Komunës së Lipjanit.
+ * Ofron lundrim mes faqeve kryesore, dropdown të pasur të kategorive dhe qasje të drejtpërdrejtë në Panelin Administrativ.
+ */
 export default function Navbar({
-  activeView = 'home', // 'home' | 'catalog' | 'admin'
+  activeView = 'home', // 'home' | 'catalog' | 'categories' | 'admin'
   onNavigate,
-  onOpenAuth,
-  onOpenProfile,
 }) {
-  const { user, isAuthenticated, isAdmin, favoritesCount, logout } = useContext(AuthContext);
+  const { user, isAuthenticated, isAdmin, logout } = useContext(AuthContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
 
-  const userMenuRef = useRef(null);
   const categoryMenuRef = useRef(null);
 
   // Mbyll dropdowns kur klikohet jashtë ose shtypet Escape
   useEffect(() => {
     function handleClickOutside(e) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setUserDropdownOpen(false);
-      }
       if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target)) {
         setCategoryDropdownOpen(false);
       }
@@ -37,7 +34,6 @@ export default function Navbar({
 
     function handleKeyDown(e) {
       if (e.key === 'Escape') {
-        setUserDropdownOpen(false);
         setCategoryDropdownOpen(false);
         setMobileMenuOpen(false);
       }
@@ -53,7 +49,6 @@ export default function Navbar({
 
   const handleNav = (view, extra = null) => {
     setMobileMenuOpen(false);
-    setUserDropdownOpen(false);
     setCategoryDropdownOpen(false);
     if (onNavigate) {
       onNavigate(view, extra);
@@ -68,7 +63,6 @@ export default function Navbar({
 
   const handleSponsoredSectionClick = () => {
     setMobileMenuOpen(false);
-    setUserDropdownOpen(false);
     setCategoryDropdownOpen(false);
     handleNav('home', { scrollTo: 'sponsored' });
   };
@@ -118,7 +112,9 @@ export default function Navbar({
             <li className="nav-dropdown-item" ref={categoryMenuRef}>
               <button
                 type="button"
-                className={`site-nav__link nav-dropdown-trigger ${activeView === 'categories' || categoryDropdownOpen ? 'site-nav__link--active' : ''}`}
+                className={`site-nav__link nav-dropdown-trigger ${
+                  activeView === 'categories' || categoryDropdownOpen ? 'site-nav__link--active' : ''
+                }`}
                 onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
                 aria-expanded={categoryDropdownOpen}
                 aria-haspopup="true"
@@ -138,6 +134,7 @@ export default function Navbar({
                       Faqja e Plotë ↗
                     </button>
                   </div>
+
                   <div className="nav-dropdown-grid">
                     {PRESET_CATEGORIES.map((cat) => (
                       <button
@@ -152,6 +149,7 @@ export default function Navbar({
                       </button>
                     ))}
                   </div>
+
                   <div className="nav-dropdown-footer">
                     <button
                       type="button"
@@ -178,127 +176,46 @@ export default function Navbar({
           </ul>
         </nav>
 
-        {/* Actions & User Controls */}
+        {/* Actions & Admin Access */}
         <div className="site-header__actions">
-          {/* Butoni i të ruajturave */}
-          {isAuthenticated && (
-            <button
-              type="button"
-              className="action-pill action-pill--saved"
-              onClick={() => onOpenProfile('saved')}
-              title="Bizneset e ruajtura"
-              aria-label={`Bizneset e ruajtura (${favoritesCount})`}
-            >
-              ❤️ <span className="action-pill__label">Ruajtur</span>
-              {favoritesCount > 0 && (
-                <span className="action-pill__badge">{favoritesCount}</span>
-              )}
-            </button>
-          )}
-
-          {/* Admin panel link - ONLY if admin! */}
-          {isAdmin && (
-            <button
-              type="button"
-              className="btn btn--admin-badge"
-              onClick={() => handleNav('admin')}
-              title="Hyr në Panelin Administrativ"
-            >
-              🔐 Paneli Admin
-            </button>
-          )}
-
-          {/* Guest Auth Buttons */}
-          {!isAuthenticated ? (
-            <div className="auth-buttons">
+          {isAuthenticated && isAdmin ? (
+            <div className="admin-nav-logged-wrap">
               <button
                 type="button"
-                className="btn btn--ghost"
-                onClick={() => onOpenAuth('login')}
+                className="btn btn--admin-badge"
+                onClick={() => handleNav('admin')}
+                title="Hyr në Panelin Administrativ"
               >
-                Kyçu
+                🔐 Paneli Admin
               </button>
+
+              <div className="admin-nav-user-pill">
+                <span className="admin-nav-user-avatar" aria-hidden="true">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                </span>
+                <span className="admin-nav-user-name">
+                  {user?.name?.split(' ')[0] || 'Admin'}
+                </span>
+              </div>
+
               <button
                 type="button"
-                className="btn btn--primary"
-                onClick={() => onOpenAuth('register')}
+                className="btn btn--sm btn--danger-outline"
+                onClick={logout}
+                title="Shkyçu nga llogaria administrative"
               >
-                Regjistrohu
+                🚪 Dil
               </button>
             </div>
           ) : (
-            /* Logged in User Menu (me tri pika ⋮ / user dropdown) */
-            <div className="user-menu-container" ref={userMenuRef}>
-              <button
-                type="button"
-                className="user-menu-btn"
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                aria-expanded={userDropdownOpen}
-                aria-haspopup="true"
-                aria-label="Opsionet e përdoruesit"
-              >
-                <div className="user-avatar-pill" aria-hidden="true">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <span className="user-menu-name">{user.name?.split(' ')[0]}</span>
-                <span className="user-menu-dots" aria-hidden="true">⋮</span>
-              </button>
-
-              {userDropdownOpen && (
-                <div className="user-dropdown-menu" role="menu" aria-label="Menuja e llogarisë">
-                  <div className="user-dropdown-header">
-                    <strong className="user-dropdown-name">{user.name}</strong>
-                    <span className="user-dropdown-email">{user.email}</span>
-                    {isAdmin && <span className="admin-tag">Administrator</span>}
-                  </div>
-                  <div className="user-dropdown-divider"></div>
-                  <button
-                    type="button"
-                    className="user-dropdown-item"
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      onOpenProfile('profile');
-                    }}
-                    role="menuitem"
-                  >
-                    👤 Llogaria Ime
-                  </button>
-                  <button
-                    type="button"
-                    className="user-dropdown-item"
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      onOpenProfile('saved');
-                    }}
-                    role="menuitem"
-                  >
-                    ❤️ Bizneset e Ruajtura ({favoritesCount})
-                  </button>
-                  {isAdmin && (
-                    <button
-                      type="button"
-                      className="user-dropdown-item user-dropdown-item--admin"
-                      onClick={() => handleNav('admin')}
-                      role="menuitem"
-                    >
-                      🔐 Paneli Administrativ
-                    </button>
-                  )}
-                  <div className="user-dropdown-divider"></div>
-                  <button
-                    type="button"
-                    className="user-dropdown-item user-dropdown-item--danger"
-                    onClick={() => {
-                      setUserDropdownOpen(false);
-                      logout();
-                    }}
-                    role="menuitem"
-                  >
-                    🚪 Dil nga Llogaria
-                  </button>
-                </div>
-              )}
-            </div>
+            <button
+              type="button"
+              className="btn btn--primary btn--sm admin-entry-btn"
+              onClick={() => handleNav('admin')}
+              title="Qasja e Mbrojtur në Panelin Administrativ"
+            >
+              🔐 Paneli Admin
+            </button>
           )}
 
           {/* Mobile menu hamburger toggle */}
@@ -355,85 +272,33 @@ export default function Navbar({
               </button>
             </li>
 
-            {isAuthenticated && (
-              <>
-                <li>
-                  <button
-                    type="button"
-                    className="mobile-drawer__link"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenProfile('profile');
-                    }}
-                  >
-                    👤 Llogaria Ime
-                  </button>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    className="mobile-drawer__link"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      onOpenProfile('saved');
-                    }}
-                  >
-                    ❤️ Bizneset e Ruajtura ({favoritesCount})
-                  </button>
-                </li>
-              </>
-            )}
+            <li className="mobile-drawer__divider" aria-hidden="true" />
 
-            {isAdmin && (
+            <li>
+              <button
+                type="button"
+                className="mobile-drawer__link mobile-drawer__link--admin"
+                onClick={() => handleNav('admin')}
+              >
+                🔐 Paneli Administrativ
+              </button>
+            </li>
+
+            {isAuthenticated && (
               <li>
                 <button
                   type="button"
-                  className="mobile-drawer__link mobile-drawer__link--admin"
-                  onClick={() => handleNav('admin')}
+                  className="mobile-drawer__link mobile-drawer__link--logout"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout();
+                  }}
                 >
-                  🔐 Paneli Administrativ
+                  🚪 Dil nga Paneli
                 </button>
               </li>
             )}
           </ul>
-
-          <div className="mobile-drawer__auth">
-            {!isAuthenticated ? (
-              <div className="mobile-auth-grid">
-                <button
-                  type="button"
-                  className="btn btn--block btn--secondary"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenAuth('login');
-                  }}
-                >
-                  Kyçu
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--block btn--primary"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenAuth('register');
-                  }}
-                >
-                  Regjistrohu
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                className="btn btn--block btn--danger-outline"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  logout();
-                }}
-              >
-                Dil nga Llogaria
-              </button>
-            )}
-          </div>
         </div>
       )}
     </header>

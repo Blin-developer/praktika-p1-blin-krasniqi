@@ -6,15 +6,13 @@ import CategoriesPage from './pages/CategoriesPage';
 import BusinessCatalogPage from './pages/BusinessCatalogPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminBusinessesPage from './pages/AdminBusinessesPage';
-import UserAuthModal from './components/UserAuthModal';
-import UserProfileModal from './components/UserProfileModal';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import './App.css';
 
 /**
  * AppContent – Menaxhon navigimin mes pamjeve: kreu, katalogu, kategoritë dhe zona administrative.
- * Përfshin Navbar-in global, Footer-in e unifikuar, modalet e autentikimit dhe logjikën e rrugëzimit SPA.
+ * Përfshin Navbar-in global, Footer-in e unifikuar dhe logjikën e rrugëzimit SPA.
  */
 function AppContent() {
   const { isAuthenticated, isAdmin, initialChecking } = useAuth();
@@ -40,13 +38,6 @@ function AppContent() {
 
   // Biznesi i zgjedhur për profil
   const [selectedBusiness, setSelectedBusiness] = useState(null);
-
-  // Modalet e autentikimit
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState('login');
-  const [authNoticeMessage, setAuthNoticeMessage] = useState(null);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const [profileInitialTab, setProfileInitialTab] = useState('profile');
 
   // Sinkronizo URL me pamjen aktive
   useEffect(() => {
@@ -124,19 +115,6 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Hap modalin e autentikimit
-  const handleRequireAuth = useCallback((tab = 'login', notice = null) => {
-    setAuthNoticeMessage(notice);
-    setAuthModalTab(tab);
-    setAuthModalOpen(true);
-  }, []);
-
-  // Hap modalin e profilit
-  const handleOpenProfile = useCallback((tab = 'profile') => {
-    setProfileInitialTab(tab);
-    setProfileModalOpen(true);
-  }, []);
-
   const isAdminView = currentView === 'admin';
 
   // Loading gjatë verifikimit të sesionit administrativ
@@ -163,8 +141,6 @@ function AppContent() {
       <Navbar
         activeView={currentView}
         onNavigate={handleNavigate}
-        onOpenAuth={handleRequireAuth}
-        onOpenProfile={handleOpenProfile}
       />
 
       <main className="public-main">
@@ -174,7 +150,6 @@ function AppContent() {
             onNavigateToCategories={() => handleNavigate('categories')}
             onSelectCategory={handleSelectCategory}
             onSelectBusiness={handleSelectBusiness}
-            onRequireAuth={handleRequireAuth}
           />
         ) : currentView === 'categories' ? (
           <CategoriesPage
@@ -183,7 +158,6 @@ function AppContent() {
           />
         ) : (
           <BusinessCatalogPage
-            onRequireAuth={handleRequireAuth}
             initialFilters={catalogInitialFilters}
             initialBusiness={selectedBusiness}
           />
@@ -194,31 +168,6 @@ function AppContent() {
       <Footer
         onNavigate={handleNavigate}
         onSelectCategory={handleSelectCategory}
-      />
-
-      {/* Modal për Login / Regjistrim */}
-      <UserAuthModal
-        isOpen={authModalOpen}
-        initialMode={authModalTab}
-        noticeMessage={authNoticeMessage}
-        onClose={() => {
-          setAuthModalOpen(false);
-          setAuthNoticeMessage(null);
-        }}
-      />
-
-      {/* Modal për Profilin e Përdoruesit */}
-      <UserProfileModal
-        isOpen={profileModalOpen}
-        initialTab={profileInitialTab}
-        onClose={() => setProfileModalOpen(false)}
-        onSelectBusiness={(businessSlug) => {
-          setProfileModalOpen(false);
-          handleNavigate('catalog');
-          setTimeout(() => {
-            handleSelectBusiness(businessSlug);
-          }, 50);
-        }}
       />
     </div>
   );

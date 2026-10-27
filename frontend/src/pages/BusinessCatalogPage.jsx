@@ -16,7 +16,6 @@ import {
  * ruajtje të plotë në URL, faqosje me 12 biznese për faqe dhe shfaqje të reklamave anësore.
  */
 function BusinessCatalogPage({
-  onRequireAuth,
   initialFilters = {},
   initialBusiness: _initialBusiness = null,
 }) {
@@ -269,7 +268,6 @@ function BusinessCatalogPage({
           <BusinessProfile
             slug={selectedBusinessSlug}
             onBack={() => handleSelectBusiness('')}
-            onRequireAuth={onRequireAuth}
           />
         ) : (
           <div className="catalog-layout">
@@ -513,7 +511,6 @@ function BusinessCatalogPage({
                 onRetry={reload}
                 onReset={handleReset}
                 onSelectBusiness={handleSelectBusiness}
-                onRequireAuth={onRequireAuth}
                 currentPage={currentPage}
                 onPageChange={handlePageChange}
               />

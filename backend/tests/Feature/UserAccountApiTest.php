@@ -243,7 +243,18 @@ class UserAccountApiTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $business->id);
 
-        // 3. Remove favorite (toggle off)
+        // 3. Status check endpoint
+        $statusRes = $this->actingAs($user)
+            ->getJson("/api/v1/user/favorites/{$business->id}");
+
+        $statusRes->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'business_id' => $business->id,
+                'is_saved' => true,
+            ]);
+
+        // 4. Remove favorite (toggle off)
         $toggleRes2 = $this->actingAs($user)
             ->postJson("/api/v1/user/favorites/{$business->id}");
 
@@ -254,5 +265,37 @@ class UserAccountApiTest extends TestCase
             'user_id' => $user->id,
             'business_id' => $business->id,
         ]);
+    }
+
+    /**
+     * Biznesi i arkivuar nuk lejohet të ruhet te të preferuarat.
+     */
+    public function test_archived_business_cannot_be_favorited(): void
+    {
+        $user = User::factory()->create(['is_admin' => false]);
+        $business = $this->createPublishedBusiness();
+        $business->status = 'archived';
+        $business->save();
+
+        $res = $this->actingAs($user)
+            ->postJson("/api/v1/user/favorites/{$business->id}");
+
+        $res->assertStatus(422)
+            ->assertJson([
+                'status' => 'error',
+                'message' => 'Ky biznes është i arkivuar dhe nuk mund të ruhet te të preferuarat.',
+            ]);
+    }
+
+    /**
+     * Përdoruesi i pakyçur nuk mund të lexojë apo ndryshojë favorites.
+     */
+    public function test_guest_cannot_access_favorites(): void
+    {
+        $res = $this->getJson('/api/v1/user/favorites');
+        $res->assertStatus(401);
+
+        $res2 = $this->postJson('/api/v1/user/favorites/1');
+        $res2->assertStatus(401);
     }
 }

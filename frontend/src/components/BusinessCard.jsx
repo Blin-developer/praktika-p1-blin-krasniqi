@@ -1,5 +1,4 @@
-import { useContext, useState, useEffect, useRef } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * Merr një ikonë të përshtatshme për kategorinë.
@@ -17,16 +16,14 @@ function getCategoryIcon(slug = '') {
 
 /**
  * BusinessCard – Kartelë moderne dhe profesionale e biznesit
- * me ruajtje në të favorizuara, meta-të dhëna të qarta dhe dizajn premium.
+ * me meta-të dhëna të qarta, orare, kategori dhe dizajn premium.
  */
 function BusinessCard({
   business,
   onSelectBusiness,
-  onRequireAuth,
   isSponsored = false,
 }) {
   const {
-    id,
     slug,
     name,
     short_description,
@@ -38,11 +35,8 @@ function BusinessCard({
     services = [],
   } = business;
 
-  const { isAuthenticated, isFavorite, toggleFavorite } = useContext(AuthContext);
-  const [saving, setSaving] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const saved = isFavorite(id);
   const menuRef = useRef(null);
 
   // Mbyll menunë e kartelës kur klikohet jashtë ose shtypet Escape
@@ -66,25 +60,6 @@ function BusinessCard({
     };
   }, [menuOpen]);
 
-  const handleFavoriteClick = async (e) => {
-    e.stopPropagation();
-    if (!isAuthenticated) {
-      if (onRequireAuth) {
-        onRequireAuth('login', 'Për të ruajtur këtë biznes, ju lutem kyçuni ose regjistrohuni.');
-      }
-      return;
-    }
-
-    try {
-      setSaving(true);
-      await toggleFavorite(id);
-    } catch {
-      // Handled in context
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const catIcon = getCategoryIcon(category?.slug || '');
   const effectiveSponsored = isSponsored || Boolean(business.is_sponsored);
 
@@ -93,7 +68,7 @@ function BusinessCard({
       className={`biz-card ${effectiveSponsored ? 'biz-card--sponsored' : ''} ${is_featured && !effectiveSponsored ? 'biz-card--featured' : ''}`}
       aria-label={`Biznesi: ${name}`}
     >
-      {/* Header me badget, butonin e ruajtjes dhe menunë me tri pika */}
+      {/* Header me badget dhe menunë me tri pika */}
       <div className="biz-card__top">
         <div className="biz-card__badges">
           {effectiveSponsored && (
@@ -113,16 +88,6 @@ function BusinessCard({
         </div>
 
         <div className="biz-card__actions-top">
-          <button
-            type="button"
-            className={`biz-card__fav-btn ${saved ? 'biz-card__fav-btn--active' : ''}`}
-            onClick={handleFavoriteClick}
-            disabled={saving}
-            aria-label={saved ? `Hiq ${name} nga të ruajturat` : `Ruaj ${name} në llogari`}
-            title={saved ? 'Hiq nga të ruajturat' : 'Ruaje biznesin'}
-          >
-            {saved ? '❤️' : '🤍'}
-          </button>
 
           {/* Menuja me tri pika (kebab menu) */}
           <div className="card-kebab-container" ref={menuRef}>

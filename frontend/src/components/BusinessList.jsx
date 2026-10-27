@@ -59,7 +59,6 @@ function BusinessList({
   onRetry,
   onReset,
   onSelectBusiness,
-  onRequireAuth,
   currentPage = 1,
   onPageChange,
 }) {
@@ -104,7 +103,6 @@ function BusinessList({
             key={biz.id || biz.slug}
             business={biz}
             onSelectBusiness={onSelectBusiness}
-            onRequireAuth={onRequireAuth}
           />
         ))}
       </div>

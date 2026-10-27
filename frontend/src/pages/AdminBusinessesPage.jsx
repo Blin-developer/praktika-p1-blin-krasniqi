@@ -6,6 +6,7 @@ import AdminAdvertisementsTab from '../components/admin/AdminAdvertisementsTab';
 import AdminCategoriesTab from '../components/admin/AdminCategoriesTab';
 import AdminSettlementsTab from '../components/admin/AdminSettlementsTab';
 import AdminServicesTab from '../components/admin/AdminServicesTab';
+import AdminAccountTab from '../components/admin/AdminAccountTab';
 import {
   fetchAdminBusinesses,
   updateAdminBusinessStatus,
@@ -13,6 +14,7 @@ import {
   fetchCategories,
   fetchSettlements,
   fetchServices,
+  fetchAdminAdvertisements,
 } from '../services/api';
 
 /**
@@ -47,6 +49,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
   const [categories, setCategories] = useState([]);
   const [settlements, setSettlements] = useState([]);
   const [services, setServices] = useState([]);
+  const [adCounts, setAdCounts] = useState({ all: 0, active: 0, scheduled: 0, expired: 0 });
 
   // Njoftimet (Feedback alerts)
   const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message: string }
@@ -72,13 +75,21 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Ngarko kategoritë, vendbanimet dhe shërbimet
+  // Ngarko kategoritë, vendbanimet, shërbimet dhe statistikat e reklamave
   useEffect(() => {
-    Promise.all([fetchCategories(), fetchSettlements(), fetchServices()])
-      .then(([catRes, setRes, srvRes]) => {
+    Promise.all([
+      fetchCategories(),
+      fetchSettlements(),
+      fetchServices(),
+      fetchAdminAdvertisements({ per_page: 1 }).catch(() => ({ counts: { all: 0, active: 0 } })),
+    ])
+      .then(([catRes, setRes, srvRes, adRes]) => {
         setCategories(catRes.data || []);
         setSettlements(setRes.data || []);
         setServices(srvRes.data || []);
+        if (adRes?.counts) {
+          setAdCounts(adRes.counts);
+        }
       })
       .catch((err) => {
         console.error('Gabim gjatë ngarkimit të meta-të dhënave:', err);
@@ -296,7 +307,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
               </button>
             </div>
 
-            {/* Stats Cards */}
+            {/* Stats Cards - Të 8 statistikat reale nga backend-i */}
             <div className="admin-stats-grid">
               <div
                 className="admin-stat-card admin-stat-card--total"
@@ -304,11 +315,12 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 tabIndex={0}
                 onClick={() => { setStatusFilter('all'); setActiveView('businesses'); }}
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('all'), setActiveView('businesses'))}
+                title="Kliko për të parë të gjitha bizneset"
               >
                 <div className="admin-stat-card__icon">🏢</div>
                 <div className="admin-stat-card__content">
                   <span className="admin-stat-card__number">{counts.all}</span>
-                  <span className="admin-stat-card__label">Total Biznese</span>
+                  <span className="admin-stat-card__label">Gjithsej Biznese</span>
                 </div>
               </div>
 
@@ -318,6 +330,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 tabIndex={0}
                 onClick={() => { setStatusFilter('published'); setActiveView('businesses'); }}
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('published'), setActiveView('businesses'))}
+                title="Kliko për të filtruar vetëm bizneset e publikuara"
               >
                 <div className="admin-stat-card__icon">✅</div>
                 <div className="admin-stat-card__content">
@@ -338,6 +351,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 tabIndex={0}
                 onClick={() => { setStatusFilter('draft'); setActiveView('businesses'); }}
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('draft'), setActiveView('businesses'))}
+                title="Kliko për të filtruar bizneset në draft"
               >
                 <div className="admin-stat-card__icon">📝</div>
                 <div className="admin-stat-card__content">
@@ -358,6 +372,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 tabIndex={0}
                 onClick={() => { setStatusFilter('archived'); setActiveView('businesses'); }}
                 onKeyDown={(e) => e.key === 'Enter' && (setStatusFilter('archived'), setActiveView('businesses'))}
+                title="Kliko për të filtruar bizneset e arkivuara"
               >
                 <div className="admin-stat-card__icon">📦</div>
                 <div className="admin-stat-card__content">
@@ -371,11 +386,71 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                   />
                 </div>
               </div>
+
+              <div
+                className="admin-stat-card admin-stat-card--categories"
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveView('categories')}
+                onKeyDown={(e) => e.key === 'Enter' && setActiveView('categories')}
+                title="Kliko për të menaxhuar kategoritë"
+              >
+                <div className="admin-stat-card__icon">📁</div>
+                <div className="admin-stat-card__content">
+                  <span className="admin-stat-card__number">{categories.length}</span>
+                  <span className="admin-stat-card__label">Kategoritë</span>
+                </div>
+              </div>
+
+              <div
+                className="admin-stat-card admin-stat-card--settlements"
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveView('settlements')}
+                onKeyDown={(e) => e.key === 'Enter' && setActiveView('settlements')}
+                title="Kliko për të parë vendbanimet"
+              >
+                <div className="admin-stat-card__icon">📍</div>
+                <div className="admin-stat-card__content">
+                  <span className="admin-stat-card__number">{settlements.length}</span>
+                  <span className="admin-stat-card__label">Vendbanimet</span>
+                </div>
+              </div>
+
+              <div
+                className="admin-stat-card admin-stat-card--services"
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveView('services')}
+                onKeyDown={(e) => e.key === 'Enter' && setActiveView('services')}
+                title="Kliko për të parë shërbimet"
+              >
+                <div className="admin-stat-card__icon">🛠️</div>
+                <div className="admin-stat-card__content">
+                  <span className="admin-stat-card__number">{services.length}</span>
+                  <span className="admin-stat-card__label">Shërbimet</span>
+                </div>
+              </div>
+
+              <div
+                className="admin-stat-card admin-stat-card--ads"
+                role="button"
+                tabIndex={0}
+                onClick={() => setActiveView('advertisements')}
+                onKeyDown={(e) => e.key === 'Enter' && setActiveView('advertisements')}
+                title="Kliko për të menaxhuar reklamat aktive"
+              >
+                <div className="admin-stat-card__icon">📢</div>
+                <div className="admin-stat-card__content">
+                  <span className="admin-stat-card__number">{adCounts.active}</span>
+                  <span className="admin-stat-card__label">Reklama Aktive</span>
+                </div>
+              </div>
             </div>
 
             {/* Veprime të shpejta */}
             <div className="admin-quick-actions">
-              <h3 className="admin-quick-actions__title">Veprime të Shpejta</h3>
+              <h3 className="admin-quick-actions__title">Veprime të Shpejta Administrative</h3>
               <div className="admin-quick-actions__grid">
                 <button
                   type="button"
@@ -391,7 +466,7 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                   onClick={() => { setActiveView('businesses'); }}
                 >
                   <span className="admin-quick-action-card__icon">📋</span>
-                  <span className="admin-quick-action-card__label">Shiko Listën e Plotë</span>
+                  <span className="admin-quick-action-card__label">Lista e Plotë e Bizneseve</span>
                 </button>
                 <button
                   type="button"
@@ -428,11 +503,116 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
                 <button
                   type="button"
                   className="admin-quick-action-card"
+                  onClick={() => { setActiveView('account'); }}
+                >
+                  <span className="admin-quick-action-card__icon">👤</span>
+                  <span className="admin-quick-action-card__label">Llogaria Ime</span>
+                </button>
+                <button
+                  type="button"
+                  className="admin-quick-action-card"
                   onClick={onNavigateToCatalog}
                 >
                   <span className="admin-quick-action-card__icon">🌐</span>
                   <span className="admin-quick-action-card__label">Shiko Katalogun Publik</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Përmbledhja e bizneseve më të fundit në Dashboard */}
+            <div className="admin-recent-businesses-section">
+              <div className="admin-section-header">
+                <div>
+                  <h3 className="admin-section-header__title">Bizneset e Regjistruara së Fundmi</h3>
+                  <p className="admin-section-header__subtitle">
+                    Regjistrimet më të fundit në bazën e të dhënave të Komunës së Lipjanit.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="btn btn--outline btn--sm"
+                  onClick={() => setActiveView('businesses')}
+                >
+                  Shiko të Gjitha ({counts.all}) →
+                </button>
+              </div>
+
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: '60px' }}>ID</th>
+                      <th>Emri i Biznesit</th>
+                      <th>Kategoria</th>
+                      <th>Vendbanimi</th>
+                      <th style={{ width: '130px', textAlign: 'center' }}>Statusi</th>
+                      <th style={{ width: '160px', textAlign: 'right' }}>Veprime</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {businesses.slice(0, 5).map((biz) => (
+                      <tr key={biz.id}>
+                        <td>
+                          <span className="admin-id-badge">#{biz.id}</span>
+                        </td>
+                        <td>
+                          <div className="admin-biz-cell">
+                            <strong className="admin-biz-name">{biz.name}</strong>
+                            {biz.is_featured ? (
+                              <span className="admin-featured-star" title="Biznes i sponsorizuar / i veçuar">
+                                ★
+                              </span>
+                            ) : null}
+                          </div>
+                        </td>
+                        <td>
+                          <span className="badge badge--category">
+                            {biz.category?.name || '—'}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="admin-cell-text">
+                            📍 {biz.settlement?.name || 'Lipjan'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'center' }}>
+                          <span className={`admin-status-badge admin-status-badge--${biz.status}`}>
+                            {biz.status === 'published' ? '● Published' : biz.status === 'draft' ? '● Draft' : '● Archived'}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div className="admin-row-actions">
+                            <button
+                              type="button"
+                              className="btn btn--sm btn--secondary"
+                              onClick={() => handleOpenEdit(biz)}
+                              title="Modifiko të dhënat e biznesit"
+                            >
+                              ✏️ Edito
+                            </button>
+                            {biz.status === 'published' && (
+                              <button
+                                type="button"
+                                className="btn btn--sm btn--outline"
+                                onClick={() => handleViewPublic(biz)}
+                                title="Shiko në katalogun publik"
+                              >
+                                👁️
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {businesses.length === 0 && (
+                      <tr>
+                        <td colSpan="6" className="admin-table-empty">
+                          Nuk ka ende biznese të regjistruara.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -448,6 +628,9 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
         ) : activeView === 'services' ? (
           /* ======================= SERVICES ======================= */
           <AdminServicesTab />
+        ) : activeView === 'account' ? (
+          /* ======================= LLOGARIA IME ======================= */
+          <AdminAccountTab />
         ) : (
           /* ======================= BUSINESSES LIST ======================= */
           <>

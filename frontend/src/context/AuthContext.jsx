@@ -12,7 +12,7 @@ import {
   changeUserPassword as apiChangePassword,
   testAdminRoute,
 } from '../services/auth';
-import { fetchUserFavorites, toggleUserFavorite } from '../services/api';
+import { fetchUserFavorites, toggleUserFavorite, removeUserFavorite } from '../services/api';
 
 export { AuthContext };
 
@@ -170,8 +170,14 @@ export function AuthProvider({ children }) {
       throw new Error('Duhet të jeni të kyçur për të ruajtur bizneset.');
     }
     const res = await toggleUserFavorite(businessId);
-    loadFavorites();
+    await loadFavorites();
     return res;
+  }, [token, loadFavorites]);
+
+  const removeFavorite = useCallback(async (businessId) => {
+    if (!token) return;
+    await removeUserFavorite(businessId);
+    await loadFavorites();
   }, [token, loadFavorites]);
 
   const isFavorite = useCallback((businessId) => {
@@ -200,6 +206,7 @@ export function AuthProvider({ children }) {
     updateProfile,
     changePassword,
     toggleFavorite,
+    removeFavorite,
     isFavorite,
     reloadFavorites: loadFavorites,
     testAccess,

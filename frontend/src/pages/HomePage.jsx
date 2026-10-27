@@ -14,7 +14,6 @@ export default function HomePage({
   onNavigateToCategories,
   onSelectCategory,
   onSelectBusiness,
-  onRequireAuth,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [featuredAd, setFeaturedAd] = useState(null);
@@ -298,7 +297,6 @@ export default function HomePage({
                   key={biz.id}
                   business={biz}
                   onSelectBusiness={onSelectBusiness}
-                  onRequireAuth={onRequireAuth}
                 />
               ))}
             </div>

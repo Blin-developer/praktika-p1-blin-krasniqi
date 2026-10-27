@@ -286,6 +286,14 @@ export async function removeUserFavorite(businessId) {
   });
 }
 
+/**
+ * Kontrollon statusin e një biznesi nëse është i ruajtur nga përdoruesi.
+ * @param {number|string} businessId
+ */
+export async function checkUserFavorite(businessId) {
+  return authRequest(`/v1/user/favorites/${businessId}`);
+}
+
 // ==========================================
 // BIZNESET - ADMINISTRATOR
 // ==========================================

@@ -57,6 +57,7 @@ Route::prefix('v1')->group(function () {
     // Zona e përdoruesit të autentikuar (Bizneset e ruajtura / Favorites)
     Route::middleware('auth:sanctum')->prefix('user')->group(function () {
         Route::get('/favorites', [UserFavoriteController::class, 'index']);
+        Route::get('/favorites/{businessId}', [UserFavoriteController::class, 'status']);
         Route::post('/favorites/{businessId}', [UserFavoriteController::class, 'toggle']);
         Route::delete('/favorites/{businessId}', [UserFavoriteController::class, 'destroy']);
     });
@@ -120,6 +121,7 @@ Route::prefix('auth')->group(function () {
 
 Route::middleware('auth:sanctum')->prefix('user')->group(function () {
     Route::get('/favorites', [UserFavoriteController::class, 'index']);
+    Route::get('/favorites/{businessId}', [UserFavoriteController::class, 'status']);
     Route::post('/favorites/{businessId}', [UserFavoriteController::class, 'toggle']);
     Route::delete('/favorites/{businessId}', [UserFavoriteController::class, 'destroy']);
 });
