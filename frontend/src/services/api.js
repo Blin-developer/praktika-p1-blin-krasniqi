@@ -307,12 +307,12 @@ export async function fetchAdminBusinesses(params = {}) {
 
   if (params.search) query.set('search', params.search);
   if (params.status && params.status !== 'all') query.set('status', params.status);
-  if (params.category) query.set('category', params.category);
-  if (params.settlement) query.set('settlement', params.settlement);
+  if (params.category_id) query.set('category_id', params.category_id);
+  if (params.settlement_id) query.set('settlement_id', params.settlement_id);
   if (params.page) query.set('page', String(params.page));
   if (params.per_page) query.set('per_page', String(params.per_page));
-  if (params.sort) query.set('sort', params.sort);
-  if (params.direction) query.set('direction', params.direction);
+  if (params.sort_by) query.set('sort_by', params.sort_by);
+  if (params.sort_order) query.set('sort_order', params.sort_order);
 
   const qs = query.toString();
   return adminRequest(`/v1/admin/businesses${qs ? `?${qs}` : ''}`);

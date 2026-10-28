@@ -107,11 +107,16 @@ function AppContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Kur zgjedh biznes nga faqja kryesore, shko në katalog dhe hap profilin
+  // Kur zgjedh biznes nga faqja kryesore ose nga reklamat, shko në katalog dhe hap profilin
   const handleSelectBusiness = useCallback((business) => {
-    setSelectedBusiness(business);
+    const slug = typeof business === 'string' ? business : business?.slug;
+    setSelectedBusiness(slug);
     setCurrentView('catalog');
-    window.history.pushState(null, '', '/catalog');
+    if (slug) {
+      window.history.pushState(null, '', `/catalog?business=${slug}`);
+    } else {
+      window.history.pushState(null, '', '/catalog');
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 

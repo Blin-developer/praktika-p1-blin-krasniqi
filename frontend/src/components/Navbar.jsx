@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import UserAuthModal from './UserAuthModal';
 
 const PRESET_CATEGORIES = [
   { slug: 'gastronomi', name: 'Gastronomi', icon: '🍽️' },
@@ -12,7 +13,7 @@ const PRESET_CATEGORIES = [
 
 /**
  * Navbar – Shirit lundrimi modern dhe me kontrast të lartë për portalin publik të Komunës së Lipjanit.
- * Ofron lundrim mes faqeve kryesore, dropdown të pasur të kategorive dhe qasje të drejtpërdrejtë në Panelin Administrativ.
+ * Ofron lundrim mes faqeve kryesore, dropdown të pasur të kategorive, autentikim sipas roleve (vizitor, përdorues normal, admin).
  */
 export default function Navbar({
   activeView = 'home', // 'home' | 'catalog' | 'categories' | 'admin'
@@ -21,6 +22,8 @@ export default function Navbar({
   const { user, isAuthenticated, isAdmin, logout } = useContext(AuthContext);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login'); // 'login' | 'register'
 
   const categoryMenuRef = useRef(null);
 
@@ -65,6 +68,13 @@ export default function Navbar({
     setMobileMenuOpen(false);
     setCategoryDropdownOpen(false);
     handleNav('home', { scrollTo: 'sponsored' });
+  };
+
+  const handleOpenAuthModal = (mode = 'login') => {
+    setMobileMenuOpen(false);
+    setCategoryDropdownOpen(false);
+    setAuthModalMode(mode);
+    setAuthModalOpen(true);
   };
 
   return (
@@ -176,52 +186,92 @@ export default function Navbar({
           </ul>
         </nav>
 
-        {/* Actions & Admin Access */}
+        {/* Actions & User/Admin Controls */}
         <div className="site-header__actions">
-          {isAuthenticated && isAdmin ? (
-            <div className="admin-nav-logged-wrap">
-              <button
-                type="button"
-                className="btn btn--admin-nav"
-                onClick={() => handleNav('admin')}
-                title="Hyr në Panelin Administrativ"
-                id="navbar-admin-panel-btn"
-              >
-                🔐 Paneli Admin
-              </button>
+          {isAuthenticated ? (
+            isAdmin ? (
+              /* Rasti 3: Administrator i kyçur me kredenciale administrative */
+              <div className="admin-nav-logged-wrap">
+                <button
+                  type="button"
+                  className="btn btn--admin-nav"
+                  onClick={() => handleNav('admin')}
+                  title="Hyr në Panelin Administrativ"
+                  id="navbar-admin-panel-btn"
+                >
+                  🔐 Paneli Admin
+                </button>
 
-              <div
-                className="admin-nav-user-pill"
-                title={`Sesioni aktiv: ${user?.email || 'admin@lipjani.gov'}`}
-              >
-                <span className="admin-nav-user-avatar" aria-hidden="true">
-                  {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-                </span>
-                <span className="admin-nav-user-name">
-                  {user?.name || 'Administrator'}
-                </span>
+                <div
+                  className="admin-nav-user-pill"
+                  title={`Sesioni aktiv i administratorit: ${user?.email || 'admin@lipjani.gov'}`}
+                >
+                  <span className="admin-nav-user-avatar" aria-hidden="true">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                  </span>
+                  <span className="admin-nav-user-name">
+                    {user?.name || 'Administrator'}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn btn--admin-logout"
+                  onClick={logout}
+                  title="Dil nga llogaria administrative"
+                  id="navbar-admin-logout-btn"
+                >
+                  🚪 Dil
+                </button>
               </div>
+            ) : (
+              /* Rasti 2: Përdorues normal i kyçur (pa Paneli Admin) */
+              <div className="user-nav-logged-wrap">
+                <div
+                  className="user-nav-user-pill"
+                  title={`Përdorues i kyçur: ${user?.email}`}
+                >
+                  <span className="user-nav-user-avatar" aria-hidden="true">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                  <span className="user-nav-user-name">
+                    {user?.name || 'Përdorues'}
+                  </span>
+                </div>
 
+                <button
+                  type="button"
+                  className="btn btn--user-logout"
+                  onClick={logout}
+                  title="Dil nga llogaria"
+                  id="navbar-user-logout-btn"
+                >
+                  🚪 Dil
+                </button>
+              </div>
+            )
+          ) : (
+            /* Rasti 1: Vizitor i pakyçur (Regjistrohu dhe Kyçu, pa Paneli Admin) */
+            <div className="guest-nav-actions">
               <button
                 type="button"
-                className="btn btn--admin-logout"
-                onClick={logout}
-                title="Dil nga llogaria administrative"
-                id="navbar-admin-logout-btn"
+                className="btn btn--guest-register"
+                onClick={() => handleOpenAuthModal('register')}
+                id="navbar-register-btn"
+                title="Krijo llogari të re"
               >
-                🚪 Dil
+                ✨ Regjistrohu
+              </button>
+              <button
+                type="button"
+                className="btn btn--guest-login"
+                onClick={() => handleOpenAuthModal('login')}
+                id="navbar-login-btn"
+                title="Kyçu në llogari"
+              >
+                🔑 Kyçu
               </button>
             </div>
-          ) : (
-            <button
-              type="button"
-              className="btn btn--admin-entry"
-              onClick={() => handleNav('admin')}
-              title="Qasja e Mbrojtur në Panelin Administrativ"
-              id="navbar-admin-login-entry-btn"
-            >
-              🔐 Paneli Admin
-            </button>
           )}
 
           {/* Mobile menu hamburger toggle */}
@@ -280,55 +330,108 @@ export default function Navbar({
 
             <li className="mobile-drawer__divider" aria-hidden="true" />
 
-            {isAuthenticated && isAdmin ? (
-              <>
-                <li className="mobile-drawer__admin-card">
-                  <div className="mobile-drawer__avatar" aria-hidden="true">
-                    {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-                  </div>
-                  <div className="mobile-drawer__admin-info">
-                    <span className="mobile-drawer__admin-name">{user?.name || 'Administrator'}</span>
-                    <span className="mobile-drawer__admin-role">Administrator Zyrtar</span>
-                  </div>
-                </li>
+            {isAuthenticated ? (
+              isAdmin ? (
+                /* Rasti 3 (Mobile): Administrator */
+                <>
+                  <li className="mobile-drawer__admin-card">
+                    <div className="mobile-drawer__avatar" aria-hidden="true">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
+                    </div>
+                    <div className="mobile-drawer__admin-info">
+                      <span className="mobile-drawer__admin-name">{user?.name || 'Administrator'}</span>
+                      <span className="mobile-drawer__admin-role">Administrator Zyrtar</span>
+                    </div>
+                  </li>
 
+                  <li>
+                    <button
+                      type="button"
+                      className="mobile-drawer__link mobile-drawer__link--admin"
+                      onClick={() => handleNav('admin')}
+                      id="mobile-drawer-admin-panel-btn"
+                    >
+                      🔐 Paneli Administrativ
+                    </button>
+                  </li>
+
+                  <li>
+                    <button
+                      type="button"
+                      className="mobile-drawer__link mobile-drawer__link--logout"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        logout();
+                      }}
+                      id="mobile-drawer-admin-logout-btn"
+                    >
+                      🚪 Dil nga Paneli
+                    </button>
+                  </li>
+                </>
+              ) : (
+                /* Rasti 2 (Mobile): Përdorues normal (pa Paneli Admin) */
+                <>
+                  <li className="mobile-drawer__user-card">
+                    <div className="mobile-drawer__avatar mobile-drawer__avatar--user" aria-hidden="true">
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                    <div className="mobile-drawer__user-info">
+                      <span className="mobile-drawer__user-name">{user?.name || 'Përdorues'}</span>
+                      <span className="mobile-drawer__user-role">Përdorues i Regjistruar</span>
+                    </div>
+                  </li>
+
+                  <li>
+                    <button
+                      type="button"
+                      className="mobile-drawer__link mobile-drawer__link--logout"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        logout();
+                      }}
+                      id="mobile-drawer-user-logout-btn"
+                    >
+                      🚪 Dil nga Llogaria
+                    </button>
+                  </li>
+                </>
+              )
+            ) : (
+              /* Rasti 1 (Mobile): Vizitor (Regjistrohu & Kyçu) */
+              <>
                 <li>
                   <button
                     type="button"
-                    className="mobile-drawer__link mobile-drawer__link--admin"
-                    onClick={() => handleNav('admin')}
+                    className="mobile-drawer__link mobile-drawer__link--auth-login"
+                    onClick={() => handleOpenAuthModal('login')}
+                    id="mobile-drawer-login-btn"
                   >
-                    🔐 Paneli Administrativ
+                    🔑 Kyçu
                   </button>
                 </li>
-
                 <li>
                   <button
                     type="button"
-                    className="mobile-drawer__link mobile-drawer__link--logout"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      logout();
-                    }}
+                    className="mobile-drawer__link mobile-drawer__link--auth-register"
+                    onClick={() => handleOpenAuthModal('register')}
+                    id="mobile-drawer-register-btn"
                   >
-                    🚪 Dil nga Paneli
+                    ✨ Regjistrohu
                   </button>
                 </li>
               </>
-            ) : (
-              <li>
-                <button
-                  type="button"
-                  className="mobile-drawer__link mobile-drawer__link--admin"
-                  onClick={() => handleNav('admin')}
-                >
-                  🔐 Paneli Administrativ (Hyrja)
-                </button>
-              </li>
             )}
           </ul>
         </div>
       )}
+
+      {/* Modal i Kyçjes dhe Regjistrimit të Përdoruesit */}
+      <UserAuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialMode={authModalMode}
+      />
     </header>
   );
 }

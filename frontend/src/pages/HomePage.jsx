@@ -16,31 +16,38 @@ export default function HomePage({
   onSelectBusiness,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [featuredAd, setFeaturedAd] = useState(null);
+  const [featuredAds, setFeaturedAds] = useState([]);
+  const [categoryPromoAds, setCategoryPromoAds] = useState([]);
   const [sponsoredAds, setSponsoredAds] = useState([]);
   const [categories, setCategories] = useState([]);
   const [popularBusinesses, setPopularBusinesses] = useState([]);
   const [_loading, setLoading] = useState(true);
 
-
   useEffect(() => {
     async function loadHomeData() {
       setLoading(true);
       try {
-        // 1. Merr reklamat
-        const [featuredRes, sponsoredRes, catRes, bizRes] = await Promise.all([
-          fetchAdvertisements({ position: 'homepage_featured', limit: 1 }).catch(() => ({ data: [] })),
-          fetchAdvertisements({ position: 'sponsored_businesses', limit: 3 }).catch(() => ({ data: [] })),
+        // Merr të gjitha pozicionet e reklamave aktive
+        const [featuredRes, sponsoredRes, categoryPromoRes, catRes, bizRes] = await Promise.all([
+          fetchAdvertisements({ position: 'homepage_featured', limit: 3 }).catch(() => ({ data: [] })),
+          fetchAdvertisements({ position: 'sponsored_businesses', limit: 6 }).catch(() => ({ data: [] })),
+          fetchAdvertisements({ position: 'category_promotion', limit: 4 }).catch(() => ({ data: [] })),
           fetchCategories().catch(() => ({ data: [] })),
           fetchBusinesses({ featured: 1 }).catch(() => ({ data: [] })),
         ]);
 
-        if (featuredRes.data && featuredRes.data.length > 0) {
-          setFeaturedAd(featuredRes.data[0]);
-        }
+        const fAds = featuredRes.data || [];
+        setFeaturedAds(fAds);
+        fAds.forEach((ad) => trackAdImpression(ad.id));
+
         const sAds = sponsoredRes.data || [];
         setSponsoredAds(sAds);
         sAds.forEach((ad) => trackAdImpression(ad.id));
+
+        const cpAds = categoryPromoRes.data || [];
+        setCategoryPromoAds(cpAds);
+        cpAds.forEach((ad) => trackAdImpression(ad.id));
+
         setCategories(catRes.data || []);
         setPopularBusinesses((bizRes.data || []).slice(0, 6));
       } finally {
@@ -113,15 +120,18 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* 2. REKLAMA KRYESORE E SPONSORIZUAR (HOMEPAGE FEATURED) */}
-      {featuredAd && (
-        <section className="home-section home-section--ad" aria-label="Reklamë e veçuar">
-          <div className="site-container">
-            <SponsoredAdBanner
-              ad={featuredAd}
-              variant="featured"
-              onSelectBusiness={onSelectBusiness}
-            />
+      {/* 2. REKLAMAT KRYESORE TË SPONSORIZUARA (HOMEPAGE FEATURED) */}
+      {featuredAds.length > 0 && (
+        <section className="home-section home-section--ad" aria-label="Reklama të veçuara">
+          <div className="site-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {featuredAds.map((ad) => (
+              <SponsoredAdBanner
+                key={ad.id}
+                ad={ad}
+                variant="featured"
+                onSelectBusiness={onSelectBusiness}
+              />
+            ))}
           </div>
         </section>
       )}
@@ -191,7 +201,33 @@ export default function HomePage({
         </div>
       </section>
 
-      {/* 4. BIZNESET E SPONSORIZUARA DHE TË REKOMANDUARA */}
+      {/* 3.1 PROMOVIME TË VEÇUARA SIPAS KATEGORIVE (CATEGORY PROMOTION) */}
+      {categoryPromoAds.length > 0 && (
+        <section className="home-section home-section--category-promos" aria-label="Promovime sipas kategorive" style={{ paddingTop: '1rem', paddingBottom: '2.5rem' }}>
+          <div className="site-container">
+            <div className="section-header" style={{ marginBottom: '1.25rem' }}>
+              <div>
+                <span className="section-eyebrow">✦ Promovime të Spikatura sipas Sektorit</span>
+                <h2 className="section-title" style={{ fontSize: '1.5rem' }}>Promovime të Zgjedhura në Lipjan</h2>
+                <p className="section-subtitle">
+                  Ofertat dhe shërbimet e veçuara nga kategoritë kryesore të bizneseve.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+              {categoryPromoAds.map((ad) => (
+                <SponsoredAdBanner
+                  key={ad.id}
+                  ad={ad}
+                  variant="featured"
+                  onSelectBusiness={onSelectBusiness}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 4. BIZNESET E SPONSORIZUARA DHE TË REKOMANDUARA */}
       <section id="sponsored" className="home-section home-section--alt" aria-labelledby="sponsored-heading">
         <div className="site-container">

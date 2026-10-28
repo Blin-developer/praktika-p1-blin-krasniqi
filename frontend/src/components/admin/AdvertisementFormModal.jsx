@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchBusinesses } from '../../services/api';
+import { fetchAdminBusinesses, fetchBusinesses } from '../../services/api';
 
 export default function AdvertisementFormModal({
   isOpen,
@@ -32,11 +32,15 @@ export default function AdvertisementFormModal({
   useEffect(() => {
     if (isOpen) {
       setLoadingBusinesses(true);
-      fetchBusinesses()
+      fetchAdminBusinesses({ per_page: 100 })
         .then((res) => {
           setBusinesses(res.data || []);
         })
-        .catch(() => setBusinesses([]))
+        .catch(() => {
+          fetchBusinesses()
+            .then((res) => setBusinesses(res.data || []))
+            .catch(() => setBusinesses([]));
+        })
         .finally(() => setLoadingBusinesses(false));
     }
   }, [isOpen]);
@@ -243,6 +247,40 @@ export default function AdvertisementFormModal({
                   disabled={submitting}
                   maxLength={60}
                 />
+              </div>
+            </div>
+
+            <div className="form-grid form-grid--2col">
+              {/* URL e Destinacionit CTA */}
+              <div className="form-group">
+                <label htmlFor="ad-cta-url">URL e Destinacionit (CTA Link)</label>
+                <input
+                  id="ad-cta-url"
+                  type="url"
+                  className="form-control"
+                  placeholder="https://example.com/oferta-speciale"
+                  value={formData.cta_url}
+                  onChange={(e) => handleChange('cta_url', e.target.value)}
+                  disabled={submitting}
+                  maxLength={500}
+                />
+              </div>
+
+              {/* Prioriteti */}
+              <div className="form-group">
+                <label htmlFor="ad-priority">Prioriteti i Shfaqjes</label>
+                <input
+                  id="ad-priority"
+                  type="number"
+                  className="form-control"
+                  placeholder="0"
+                  value={formData.priority}
+                  onChange={(e) => handleChange('priority', e.target.value)}
+                  disabled={submitting}
+                  min={0}
+                  max={100}
+                />
+                <small className="form-hint">Numër më i lartë = prioritet më i lartë në shfaqje</small>
               </div>
             </div>
 

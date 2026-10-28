@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { fetchCategories } from '../services/api';
+import { fetchCategories, fetchAdvertisements } from '../services/api';
+import SponsoredAdBanner from '../components/SponsoredAdBanner';
 
 /**
- * Merr ikonën përkatëse vizuale sipas slug-ut të kategorisë.
+ * Merr një ikonë të përshtatshme vizuale sipas slug-ut të kategorisë.
  */
 function getCategoryIcon(slug = '') {
   const s = slug.toLowerCase();
@@ -25,22 +26,27 @@ function getCategoryIcon(slug = '') {
  */
 export default function CategoriesPage({ onSelectCategory, onNavigateToCatalog }) {
   const [categories, setCategories] = useState([]);
+  const [categoryAds, setCategoryAds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [categorySearch, setCategorySearch] = useState('');
 
   useEffect(() => {
     let isMounted = true;
-    fetchCategories()
-      .then((res) => {
+    Promise.all([
+      fetchCategories(),
+      fetchAdvertisements({ position: 'category_promotion', limit: 4 }).catch(() => ({ data: [] })),
+    ])
+      .then(([catRes, adsRes]) => {
         if (isMounted) {
-          setCategories(res.data || []);
+          setCategories(catRes.data || []);
+          setCategoryAds(adsRes.data || []);
           setError(null);
         }
       })
       .catch((err) => {
         if (isMounted) {
-          setError(err.message || 'Dështoi ngarkimi i kategorive.');
+          setError(err.message || 'Dështoi ngarkimi i të dhënave.');
         }
       })
       .finally(() => {
@@ -165,6 +171,31 @@ export default function CategoriesPage({ onSelectCategory, onNavigateToCatalog }
           </div>
         ) : (
           <>
+            {categoryAds.length > 0 && (
+              <section className="categories-ads-banner-wrap" aria-label="Promovime të veçuara në kategori" style={{ marginBottom: '2.5rem' }}>
+                <div className="section-header" style={{ marginBottom: '1rem' }}>
+                  <div>
+                    <span className="section-eyebrow">✦ Promovime të Zgjedhura</span>
+                    <h2 className="section-title" style={{ fontSize: '1.35rem' }}>Biznese të Rekomanduara në Sektorët Kryesorë</h2>
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                  {categoryAds.map((ad) => (
+                    <SponsoredAdBanner
+                      key={ad.id}
+                      ad={ad}
+                      variant="featured"
+                      onSelectBusiness={(slug) => {
+                        if (onNavigateToCatalog) {
+                          onNavigateToCatalog({ business: slug });
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
             <div className="categories-section-head">
               <h2 className="categories-section-title">
                 Të gjithë sektorët ({filteredCategories.length})

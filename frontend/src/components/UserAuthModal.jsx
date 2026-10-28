@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { createPortal } from 'react-dom';
 import { AuthContext } from '../context/AuthContext';
 
 /**
@@ -102,7 +103,7 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
     setPasswordConfirmation('');
   };
 
-  return (
+  return createPortal(
     <div
       className="modal-backdrop"
       onClick={handleBackdropClick}
@@ -110,7 +111,7 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
       aria-modal="true"
       aria-labelledby="auth-modal-title"
     >
-      <div className="auth-modal">
+      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header me tab-et e qarta */}
         <div className="auth-modal__header">
           <div className="auth-tabs">
@@ -282,6 +283,7 @@ export default function UserAuthModal({ isOpen, onClose, initialMode = 'login', 
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

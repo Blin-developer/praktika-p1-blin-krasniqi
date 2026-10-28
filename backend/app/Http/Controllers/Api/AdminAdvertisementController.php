@@ -42,11 +42,15 @@ class AdminAdvertisementController extends Controller
             'all' => Advertisement::count(),
             'active' => Advertisement::where('status', 'active')->where('is_active', true)->count(),
             'scheduled' => Advertisement::where('status', 'scheduled')->count(),
-            'expired' => Advertisement::where('status', 'expired')
-                ->orWhere(fn ($q) => $q->whereNotNull('end_at')->where('end_at', '<', now()))
-                ->count(),
+            'expired' => Advertisement::where(function ($q) {
+                $q->where('status', 'expired')
+                  ->orWhere(fn ($q2) => $q2->whereNotNull('end_at')->where('end_at', '<', now()));
+            })->count(),
             'draft' => Advertisement::where('status', 'draft')->count(),
-            'disabled' => Advertisement::where('status', 'disabled')->orWhere('is_active', false)->count(),
+            'disabled' => Advertisement::where(function ($q) {
+                $q->where('status', 'disabled')
+                  ->orWhere('is_active', false);
+            })->count(),
         ];
 
         $perPage = $request->integer('per_page', 15);

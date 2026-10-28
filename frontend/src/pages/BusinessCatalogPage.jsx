@@ -59,13 +59,23 @@ function BusinessCatalogPage({
     return Number.isFinite(p) && p > 0 ? p : 1;
   });
   const [selectedBusinessSlug, setSelectedBusinessSlug] = useState(() => {
+    if (typeof _initialBusiness === 'string') return _initialBusiness;
+    if (_initialBusiness?.slug) return _initialBusiness.slug;
     return new URLSearchParams(window.location.search).get('business') || '';
   });
+
+  useEffect(() => {
+    if (_initialBusiness) {
+      const slug = typeof _initialBusiness === 'string' ? _initialBusiness : _initialBusiness?.slug;
+      if (slug) setSelectedBusinessSlug(slug);
+    }
+  }, [_initialBusiness]);
 
   const [categories, setCategories] = useState([]);
   const [settlements, setSettlements] = useState([]);
   const [services, setServices] = useState([]);
-  const [sidebarAd, setSidebarAd] = useState(null);
+  const [sidebarAds, setSidebarAds] = useState([]);
+  const [categoryPromoAd, setCategoryPromoAd] = useState(null);
 
   // Flag për të shmangur mbishkrimin e faqes gjatë rikthimit nga historia popstate
   const isPopStateRef = useRef(false);
@@ -184,14 +194,27 @@ function BusinessCatalogPage({
       .then((data) => setServices(data.data || []))
       .catch(() => setServices([]));
 
-    fetchAdvertisements({ position: 'sidebar_banner', limit: 1 })
+    fetchAdvertisements({ position: 'sidebar_banner', limit: 3 })
+      .then((data) => setSidebarAds(data.data || []))
+      .catch(() => setSidebarAds([]));
+  }, []);
+
+  // Ngarko reklamë të veçantë për kategorinë e përzgjedhur nëse ekziston
+  useEffect(() => {
+    fetchAdvertisements({
+      position: 'category_promotion',
+      category: selectedCategory || undefined,
+      limit: 1,
+    })
       .then((data) => {
         if (data.data && data.data.length > 0) {
-          setSidebarAd(data.data[0]);
+          setCategoryPromoAd(data.data[0]);
+        } else {
+          setCategoryPromoAd(null);
         }
       })
-      .catch(() => setSidebarAd(null));
-  }, []);
+      .catch(() => setCategoryPromoAd(null));
+  }, [selectedCategory]);
 
   const filters = {
     search: debouncedSearch || undefined,
@@ -503,6 +526,17 @@ function BusinessCatalogPage({
                 </form>
               </section>
 
+              {/* Reklamë e veçantë për kategorinë e përzgjedhur */}
+              {categoryPromoAd && (
+                <div className="catalog-category-promo" style={{ marginBottom: '1.75rem' }}>
+                  <SponsoredAdBanner
+                    ad={categoryPromoAd}
+                    variant="featured"
+                    onSelectBusiness={handleSelectBusiness}
+                  />
+                </div>
+              )}
+
               {/* Lista e bizneseve me faqosje */}
               <BusinessList
                 businesses={businesses}
@@ -516,14 +550,17 @@ function BusinessCatalogPage({
               />
             </div>
 
-            {/* Sidebar me Reklamë Anësore */}
-            {sidebarAd && (
+            {/* Sidebar me Reklama Anësore */}
+            {sidebarAds.length > 0 && (
               <aside className="catalog-sidebar">
-                <SponsoredAdBanner
-                  ad={sidebarAd}
-                  variant="sidebar"
-                  onSelectBusiness={handleSelectBusiness}
-                />
+                {sidebarAds.map((ad) => (
+                  <SponsoredAdBanner
+                    key={ad.id}
+                    ad={ad}
+                    variant="sidebar"
+                    onSelectBusiness={handleSelectBusiness}
+                  />
+                ))}
               </aside>
             )}
           </div>

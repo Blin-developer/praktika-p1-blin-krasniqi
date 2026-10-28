@@ -77,7 +77,7 @@ class Advertisement extends Model
             return 'expired';
         }
 
-        if ($this->start_at && $now->lessThan($this->start_at)) {
+        if ($this->start_at && $now->copy()->addMinutes(2)->lessThan($this->start_at)) {
             return 'scheduled';
         }
 
@@ -88,7 +88,7 @@ class Advertisement extends Model
      * Scope për reklamat aktive që plotësojnë të gjitha kushtet kohore dhe të biznesit.
      *
      * Rregulla kritike:
-     * - Nuk shfaqet para datës së fillimit.
+     * - Nuk shfaqet para datës së fillimit (me 2 minuta tolerancë për sinkronizim ore).
      * - Nuk shfaqet pas datës së përfundimit.
      * - Nuk shfaqet kur është draft ose disabled.
      * - Nuk shfaqet nëse biznesi i lidhur nuk është 'published'.
@@ -96,12 +96,13 @@ class Advertisement extends Model
     public function scopeActive(Builder $query, ?string $position = null): Builder
     {
         $now = now();
+        $graceStart = $now->copy()->addMinutes(2);
 
         $query->where('is_active', true)
             ->whereNotIn('status', ['draft', 'disabled'])
-            ->where(function ($q) use ($now) {
+            ->where(function ($q) use ($graceStart) {
                 $q->whereNull('start_at')
-                  ->orWhere('start_at', '<=', $now);
+                  ->orWhere('start_at', '<=', $graceStart);
             })
             ->where(function ($q) use ($now) {
                 $q->whereNull('end_at')

@@ -7,7 +7,7 @@ import { useAuth } from '../hooks/useAuth';
  * ndërrim të dukshmërisë së fjalëkalimit dhe kontrast të lartë të lexueshmërisë.
  */
 export default function AdminLoginPage({ onNavigateToCatalog }) {
-  const { user, isAuthenticated, loading, error, login, logout, testAccess } = useAuth();
+  const { user, isAuthenticated, isAdmin, loading, error, login, logout, testAccess } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -63,14 +63,53 @@ export default function AdminLoginPage({ onNavigateToCatalog }) {
           <div className="admin-auth-card__crest" aria-hidden="true">🏛️</div>
           <div className="admin-auth-card__badge">ZONA ADMINISTRATIVE E MBROJTUR</div>
           <h1 className="admin-auth-card__title">
-            {isAuthenticated ? 'Sesioni Administrativ' : 'Hyrja e Administratorit'}
+            {isAuthenticated && !isAdmin
+              ? 'Qasja e Kufizuar (403)'
+              : isAuthenticated && isAdmin
+              ? 'Sesioni Administrativ'
+              : 'Hyrja e Administratorit'}
           </h1>
           <p className="admin-auth-card__subtitle">
             Katalogu Zyrtar i Bizneseve • Komuna e Lipjanit
           </p>
         </div>
 
-        {isAuthenticated ? (
+        {isAuthenticated && !isAdmin ? (
+          /* Rasti kur përdoruesi është i kyçur por NUK është admin */
+          <div className="admin-auth-authenticated admin-auth-authenticated--denied">
+            <div className="admin-auth-denied-badge" role="alert">
+              ⛔ Qasja e Ndaluar (403 Forbidden)
+            </div>
+
+            <div className="admin-auth-user-info">
+              <p><strong>Përdoruesi aktiv:</strong> {user?.name || 'Përdorues'} ({user?.email})</p>
+              <p><strong>Statusi i llogarisë:</strong> Përdorues standard (pa leje administratori)</p>
+            </div>
+
+            <div className="alert alert--error" role="alert" style={{ margin: '1rem 0', textAlign: 'left' }}>
+              ⚠️ Nuk keni privilegje administratori për të hyrë në këtë zonë. Paneli Administrativ mbrohet rreptësisht nga sistemi dhe lejon vetëm administratorët zyrtarë të Komunës së Lipjanit.
+            </div>
+
+            <div className="admin-auth-actions">
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={onNavigateToCatalog}
+              >
+                ← Kthehu te Katalogu Publik
+              </button>
+              <button
+                type="button"
+                className="btn btn--outline"
+                onClick={logout}
+                disabled={loading}
+              >
+                🚪 Dil për t'u kyçur si Admin
+              </button>
+            </div>
+          </div>
+        ) : isAuthenticated && isAdmin ? (
+          /* Rasti kur përdoruesi është i kyçur si Administrator i vërtetë */
           <div className="admin-auth-authenticated">
             <div className="admin-auth-success-badge">
               ✓ Jeni të kyçur si Administrator i Autorizuar
