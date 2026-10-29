@@ -555,3 +555,77 @@ export async function rejectAdminClaim(id, adminNotes = '') {
     body: JSON.stringify({ admin_notes: adminNotes }),
   });
 }
+
+// ==========================================
+// OFERTAT DHE ZBRITJET LOKALE (DEALS & COUPONS)
+// ==========================================
+
+/**
+ * Merr të gjitha ofertat aktive për faqen kryesore dhe katalogun.
+ * @param {{ category?: string, search?: string, limit?: number }} params
+ */
+export async function fetchPublicDeals(params = {}) {
+  const query = new URLSearchParams();
+  if (params.category) query.set('category', params.category);
+  if (params.search) query.set('search', params.search);
+  if (params.limit) query.set('limit', String(params.limit));
+
+  const qs = query.toString() ? `?${query.toString()}` : '';
+  return apiRequest(`/v1/deals${qs}`);
+}
+
+/**
+ * Merr ofertat aktive të një biznesi specifik.
+ * @param {string|number} idOrSlug
+ */
+export async function fetchBusinessDeals(idOrSlug) {
+  return apiRequest(`/v1/businesses/${idOrSlug}/deals`);
+}
+
+/**
+ * Merr listën e ofertave për panelin administrativ.
+ * @param {{ page?: number, status?: string, search?: string, business_id?: number }} params
+ */
+export async function fetchAdminDeals(params = {}) {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', params.page);
+  if (params.status) query.set('status', params.status);
+  if (params.search) query.set('search', params.search);
+  if (params.business_id) query.set('business_id', params.business_id);
+
+  const qs = query.toString() ? `?${query.toString()}` : '';
+  return adminRequest(`/v1/admin/deals${qs}`);
+}
+
+/**
+ * Krijon një ofertë të re (nga Admini ose Pronari).
+ * @param {Object} data
+ */
+export async function createDeal(data) {
+  return authRequest('/v1/deals', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Përditëson një ofertë ekzistuese.
+ * @param {number} id
+ * @param {Object} data
+ */
+export async function updateDeal(id, data) {
+  return authRequest(`/v1/deals/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Fshin një ofertë.
+ * @param {number} id
+ */
+export async function deleteDeal(id) {
+  return authRequest(`/v1/deals/${id}`, {
+    method: 'DELETE',
+  });
+}

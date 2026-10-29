@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import SponsoredAdBanner from '../components/SponsoredAdBanner';
 import BusinessCard from '../components/BusinessCard';
+import DealsSection from '../components/DealsSection';
 import {
   fetchAdvertisements,
   fetchCategories,
@@ -200,6 +201,9 @@ export default function HomePage({
           </div>
         </div>
       </section>
+
+      {/* 3.0 OFERTAT DHE ZBRITJET LOKALE TË JAVËS NË LIPJAN */}
+      <DealsSection onSelectBusiness={onSelectBusiness} />
 
       {/* 3.1 PROMOVIME TË VEÇUARA SIPAS KATEGORIVE (CATEGORY PROMOTION) */}
       {categoryPromoAds.length > 0 && (

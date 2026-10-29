@@ -12,6 +12,7 @@ const TAB_TITLES = {
   advertisements: '📢 Reklamat & Sponsorizimet',
   reviews: '⭐ Vlerësimet e Qytetarëve',
   claims: '🏢 Kërkesat për Pronësi',
+  deals: '🏷️ Ofertat & Zbritjet Lokale',
   account: '👤 Llogaria Ime (Profili & Siguria)',
 };
 
@@ -187,6 +188,18 @@ export default function AdminLayout({
               >
                 <span className="admin-sidebar__icon" aria-hidden="true">📋</span>
                 <span className="admin-sidebar__label">Kërkesat për Pronësi</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                className={`admin-sidebar__item ${activeTab === 'deals' ? 'is-active' : ''}`}
+                aria-current={activeTab === 'deals' ? 'page' : undefined}
+                onClick={() => handleSelectTab('deals')}
+              >
+                <span className="admin-sidebar__icon" aria-hidden="true">🏷️</span>
+                <span className="admin-sidebar__label">Ofertat &amp; Zbritjet</span>
               </button>
             </li>
 

@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\UserFavoriteController;
 use App\Http\Controllers\Api\BusinessReviewController;
 use App\Http\Controllers\Api\BusinessClaimController;
 use App\Http\Controllers\Api\BusinessOwnerController;
+use App\Http\Controllers\Api\BusinessDealController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,6 +40,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/settlements', [SettlementController::class, 'index']);
     Route::get('/services', [ServiceController::class, 'index']);
     Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
+    Route::get('/deals', [BusinessDealController::class, 'publicDeals']);
+    Route::get('/businesses/{idOrSlug}/deals', [BusinessDealController::class, 'businessDeals']);
 
     // Vlerësime dhe Kërkesa për Pronësi nga përdoruesi i kyçur
     Route::middleware('auth:sanctum')->group(function () {
@@ -52,6 +55,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/owner/businesses', [BusinessOwnerController::class, 'myBusinesses']);
         Route::get('/owner/businesses/{id}', [BusinessOwnerController::class, 'show']);
         Route::put('/owner/businesses/{id}', [BusinessOwnerController::class, 'update']);
+
+        // Menaxhimi i Ofertave nga Pronari / Përdoruesi i autorizuar
+        Route::post('/deals', [BusinessDealController::class, 'store']);
+        Route::put('/deals/{id}', [BusinessDealController::class, 'update']);
+        Route::delete('/deals/{id}', [BusinessDealController::class, 'destroy']);
     });
 
     // Publik - Reklama aktive me rregulla kohore
@@ -117,6 +125,10 @@ Route::prefix('v1')->group(function () {
         Route::get('/claims', [BusinessClaimController::class, 'adminIndex']);
         Route::post('/claims/{id}/approve', [BusinessClaimController::class, 'adminApprove']);
         Route::post('/claims/{id}/reject', [BusinessClaimController::class, 'adminReject']);
+        Route::get('/deals', [BusinessDealController::class, 'adminIndex']);
+        Route::post('/deals', [BusinessDealController::class, 'store']);
+        Route::put('/deals/{id}', [BusinessDealController::class, 'update']);
+        Route::delete('/deals/{id}', [BusinessDealController::class, 'destroy']);
     });
 });
 
@@ -125,6 +137,8 @@ Route::get('/businesses', [BusinessController::class, 'index']);
 Route::get('/businesses/{idOrSlug}', [BusinessController::class, 'show']);
 Route::get('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'index']);
 Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
+Route::get('/deals', [BusinessDealController::class, 'publicDeals']);
+Route::get('/businesses/{idOrSlug}/deals', [BusinessDealController::class, 'businessDeals']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/settlements', [SettlementController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
@@ -136,6 +150,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/owner/businesses', [BusinessOwnerController::class, 'myBusinesses']);
     Route::get('/owner/businesses/{id}', [BusinessOwnerController::class, 'show']);
     Route::put('/owner/businesses/{id}', [BusinessOwnerController::class, 'update']);
+    Route::post('/deals', [BusinessDealController::class, 'store']);
+    Route::put('/deals/{id}', [BusinessDealController::class, 'update']);
+    Route::delete('/deals/{id}', [BusinessDealController::class, 'destroy']);
 });
 
 Route::get('/advertisements', [AdvertisementController::class, 'index']);

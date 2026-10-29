@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useBusiness } from '../hooks/useBusiness';
 import { useAuth } from '../hooks/useAuth';
-import { checkBusinessClaimStatus } from '../services/api';
+import { checkBusinessClaimStatus, fetchBusinessDeals } from '../services/api';
 import { getDirectionsUrl } from '../utils/distance';
 import LeafletMap from './LeafletMap';
 import ReviewSection from './ReviewSection';
@@ -26,6 +26,7 @@ function BusinessProfile({ slug, onBack }) {
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [showOwnerModal, setShowOwnerModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [businessDeals, setBusinessDeals] = useState([]);
 
   const loadClaimStatus = useCallback(async () => {
     if (!business?.id) return;
@@ -49,6 +50,15 @@ function BusinessProfile({ slug, onBack }) {
         is_current_user_owner: Boolean(user && business.owner_id && Number(business.owner_id) === Number(user.id)),
       }));
       loadClaimStatus();
+
+      // Ngarko ofertat aktive të këtij biznesi
+      fetchBusinessDeals(business.slug || business.id)
+        .then((res) => {
+          if (res?.data) {
+            setBusinessDeals(res.data);
+          }
+        })
+        .catch(() => setBusinessDeals([]));
     }
   }, [business, user, loadClaimStatus]);
 
@@ -308,6 +318,58 @@ function BusinessProfile({ slug, onBack }) {
                 <p>{description || short_description || 'Nuk ka përshkrim të zgjeruar për këtë biznes.'}</p>
               </div>
             </section>
+
+            {/* Ofertat dhe Zbritjet Aktive të Biznesit */}
+            {businessDeals && businessDeals.length > 0 && (
+              <section className="business-profile__card business-profile__deals-card" aria-labelledby="deals-biz-heading">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <h2 id="deals-biz-heading" className="business-profile__card-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span>🏷️</span> Oferta &amp; Zbritje Aktive
+                  </h2>
+                  <span className="badge badge--success" style={{ fontWeight: 600, background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0' }}>
+                    {businessDeals.length} {businessDeals.length === 1 ? 'ofertë aktive' : 'oferta aktive'}
+                  </span>
+                </div>
+
+                <div className="profile-deals-list">
+                  {businessDeals.map((deal) => (
+                    <div key={deal.id} className="profile-deal-item">
+                      <div className="profile-deal-item__badge">
+                        {deal.discount_badge}
+                      </div>
+                      <div className="profile-deal-item__content">
+                        <h3 className="profile-deal-item__title">{deal.title}</h3>
+                        {deal.description && (
+                          <p className="profile-deal-item__desc">{deal.description}</p>
+                        )}
+                        <div className="profile-deal-item__meta">
+                          {deal.deal_price != null && (
+                            <span className="profile-deal-item__price">
+                              Çmimi: <strong>{parseFloat(deal.deal_price).toFixed(2)}€</strong>
+                              {deal.original_price != null && (
+                                <span className="profile-deal-item__orig-price">
+                                  {parseFloat(deal.original_price).toFixed(2)}€
+                                </span>
+                              )}
+                            </span>
+                          )}
+                          {deal.coupon_code && (
+                            <span className="profile-deal-item__coupon">
+                              Kuponi: <code>{deal.coupon_code}</code>
+                            </span>
+                          )}
+                          {deal.end_date && (
+                            <span className="profile-deal-item__expiry">
+                              ⏳ Skadon më {new Date(deal.end_date).toLocaleDateString('sq-AL')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Shërbimet & Lehtësirat */}
             {services && services.length > 0 && (

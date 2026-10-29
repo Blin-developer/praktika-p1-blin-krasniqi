@@ -8,6 +8,7 @@ import AdminSettlementsTab from '../components/admin/AdminSettlementsTab';
 import AdminServicesTab from '../components/admin/AdminServicesTab';
 import AdminReviewsTab from '../components/admin/AdminReviewsTab';
 import AdminClaimsTab from '../components/admin/AdminClaimsTab';
+import AdminDealsTab from '../components/admin/AdminDealsTab';
 import AdminAccountTab from '../components/admin/AdminAccountTab';
 import {
   fetchAdminBusinesses,
@@ -697,6 +698,9 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
         ) : activeView === 'claims' ? (
           /* ======================= CLAIMS MODERATION ======================= */
           <AdminClaimsTab />
+        ) : activeView === 'deals' ? (
+          /* ======================= DEALS & DISCOUNTS ======================= */
+          <AdminDealsTab />
         ) : activeView === 'categories' ? (
           /* ======================= CATEGORIES ======================= */
           <AdminCategoriesTab />

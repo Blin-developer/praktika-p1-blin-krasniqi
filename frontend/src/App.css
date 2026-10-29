@@ -6671,4 +6671,308 @@ p {
   }
 }
 
+/* ==========================================================================
+   Pika 4: Oferta Ditore dhe Zbritje Lokale (Deals & Coupons)
+   ========================================================================== */
+.deals-section {
+  padding-top: 2rem;
+  padding-bottom: 2.5rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.deals-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.75rem;
+}
+
+.deals-eyebrow {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.deals-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.08);
+}
+
+.deals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Kartela e Ofertës */
+.deal-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.22s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.deal-card:hover {
+  transform: translateY(-3px);
+  border-color: #f87171;
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.1);
+}
+
+.deal-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.deal-card__badge {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+}
+
+.deal-card__category {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+}
+
+.deal-card__business {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.deal-card__biz-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.deal-card__biz-loc {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.deal-card__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.35;
+}
+
+.deal-card__desc {
+  font-size: 0.86rem;
+  color: #475569;
+  line-height: 1.5;
+  margin: 0 0 1rem 0;
+  flex: 1;
+}
+
+.deal-card__pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.deal-card__deal-price {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #16a34a;
+}
+
+.deal-card__orig-price {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
+/* Rreshti i kuponit */
+.deal-card__coupon-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  padding: 0.45rem 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.deal-card__coupon-label {
+  font-size: 0.76rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.deal-card__coupon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: all 0.15s ease;
+}
+
+.deal-card__coupon-btn:hover {
+  background: #dbeafe;
+}
+
+.deal-card__coupon-btn--copied {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.deal-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  margin-top: auto;
+}
+
+.deal-card__expiry {
+  font-size: 0.76rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.deal-card__cta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #2563eb;
+  transition: transform 0.15s ease;
+}
+
+.deal-card:hover .deal-card__cta {
+  transform: translateX(3px);
+}
+
+/* Skeleton */
+.deal-card--skeleton {
+  min-height: 220px;
+  background: #f8fafc;
+}
+
+/* Ofertat në Profilin e Biznesit */
+.business-profile__deals-card {
+  border: 1.5px solid #fecaca;
+  background: linear-gradient(180deg, #fffafa 0%, #ffffff 100%);
+}
+
+.profile-deals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.profile-deal-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.profile-deal-item__badge {
+  background: #ea580c;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.profile-deal-item__content {
+  flex: 1;
+}
+
+.profile-deal-item__title {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.profile-deal-item__desc {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.45;
+}
+
+.profile-deal-item__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+}
+
+.profile-deal-item__price {
+  color: #15803d;
+}
+
+.profile-deal-item__orig-price {
+  text-decoration: line-through;
+  color: #94a3b8;
+  margin-left: 0.3rem;
+}
+
+.profile-deal-item__coupon code {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.profile-deal-item__expiry {
+  color: #64748b;
+}
+
+
 

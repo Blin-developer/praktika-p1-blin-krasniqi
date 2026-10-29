@@ -102,3 +102,4 @@ export const LIPJAN_CENTER_COORDS = {
   lng: 21.1258,
   label: "Qendra e Lipjanit (Sheshi 'Adem Jashari')",
 };
+

@@ -134,6 +134,16 @@ class Business extends Model
         return $this->hasMany(BusinessClaim::class)->latest();
     }
 
+    public function deals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessDeal::class)->latest();
+    }
+
+    public function activeDeals(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessDeal::class)->active();
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');
