@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useBusiness } from '../hooks/useBusiness';
 import { useAuth } from '../hooks/useAuth';
 import { checkBusinessClaimStatus } from '../services/api';
+import { getDirectionsUrl } from '../utils/distance';
 import LeafletMap from './LeafletMap';
 import ReviewSection from './ReviewSection';
 import BusinessClaimModal from './BusinessClaimModal';
@@ -221,6 +222,18 @@ function BusinessProfile({ slug, onBack }) {
                 aria-label="Hap lokacionin në Google Maps"
               >
                 🗺️ Hap në Hartë ↗
+              </a>
+            )}
+            {hasCoordinates && (
+              <a
+                href={getDirectionsUrl(latNum, lngNum)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn--outline-primary business-profile__action-btn"
+                aria-label="Më trego rrugën hap-pas-hapi në Google Maps"
+                title="Hap navigimin hap-pas-hapi"
+              >
+                🧭 Më trego rrugën ↗
               </a>
             )}
           </div>

@@ -61,6 +61,7 @@ function BusinessList({
   onSelectBusiness,
   currentPage = 1,
   onPageChange,
+  userLocation = null,
 }) {
   const itemsPerPage = 12;
 
@@ -103,6 +104,7 @@ function BusinessList({
             key={biz.id || biz.slug}
             business={biz}
             onSelectBusiness={onSelectBusiness}
+            userLocation={userLocation}
           />
         ))}
       </div>

@@ -1,9 +1,14 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import BusinessList from '../components/BusinessList';
 import BusinessProfile from '../components/BusinessProfile';
 import SponsoredAdBanner from '../components/SponsoredAdBanner';
 import LeafletMap from '../components/LeafletMap';
 import { useBusinesses } from '../hooks/useBusinesses';
+import {
+  calculateHaversineDistanceKm,
+  formatDistance,
+  LIPJAN_CENTER_COORDS,
+} from '../utils/distance';
 import {
   fetchCategories,
   fetchSettlements,
@@ -85,6 +90,21 @@ function BusinessCatalogPage({
   const [services, setServices] = useState([]);
   const [sidebarAds, setSidebarAds] = useState([]);
   const [categoryPromoAd, setCategoryPromoAd] = useState(null);
+
+  // Gjendjet e Geolocation ("Bizneset Afër Meje")
+  const [userLocation, setUserLocation] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('lipjan_user_location');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [nearMeActive, setNearMeActive] = useState(() => {
+    return new URLSearchParams(window.location.search).get('sort') === 'near_me';
+  });
+  const [geoLoading, setGeoLoading] = useState(false);
+  const [geoError, setGeoError] = useState(null);
 
   // Flag për të shmangur mbishkrimin e faqes gjatë rikthimit nga historia popstate
   const isPopStateRef = useRef(false);
@@ -187,7 +207,9 @@ function BusinessCatalogPage({
       setSelectedService(params.get('service') || '');
       setSelectedWebsite(params.get('website') || '');
       setSelectedSchedule(params.get('schedule') || '');
-      setSelectedSort(params.get('sort') || '');
+      const s = params.get('sort') || '';
+      setSelectedSort(s);
+      setNearMeActive(s === 'near_me');
       const p = parseInt(params.get('page'), 10);
       setCurrentPage(Number.isFinite(p) && p > 0 ? p : 1);
     };
@@ -239,10 +261,118 @@ function BusinessCatalogPage({
     service: selectedService || undefined,
     website: selectedWebsite || undefined,
     schedule: selectedSchedule || undefined,
-    sort: selectedSort || undefined,
+    sort: selectedSort === 'near_me' ? undefined : (selectedSort || undefined),
   };
 
   const { businesses, loading, error, reload } = useBusinesses(filters);
+
+  // Kërkesa e koordinatave reale GPS nga shfletuesi i qytetarit
+  const requestUserLocation = () => {
+    setGeoLoading(true);
+    setGeoError(null);
+
+    if (!navigator.geolocation) {
+      setGeoLoading(false);
+      setGeoError('Shfletuesi ose pajisja juaj nuk mbështet shërbimin GPS Geolocation.');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          label: 'Vendndodhja juaj (GPS)',
+        };
+        setUserLocation(loc);
+        try {
+          sessionStorage.setItem('lipjan_user_location', JSON.stringify(loc));
+        } catch {}
+        setNearMeActive(true);
+        setSelectedSort('near_me');
+        setGeoLoading(false);
+      },
+      (err) => {
+        setGeoLoading(false);
+        let msg = 'Nuk mund të lexohej vendndodhja automatike nga GPS.';
+        if (err.code === 1) {
+          msg = 'Qasja në lokacion u refuzua nga shfletuesi. Ju lutem lejoni lejen (Allow Location) ose përdorni qendrën e Lipjanit.';
+        } else if (err.code === 2) {
+          msg = 'Sinjali GPS nuk u kap nga pajisja juaj.';
+        } else if (err.code === 3) {
+          msg = 'Koha e kërkimit të GPS skadoi.';
+        }
+        setGeoError(msg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
+  // Aktivizimi / Çaktivizimi i butonit "Afër Meje"
+  const handleToggleNearMe = () => {
+    if (nearMeActive) {
+      setNearMeActive(false);
+      if (selectedSort === 'near_me') {
+        setSelectedSort('');
+      }
+    } else {
+      if (userLocation?.lat != null && userLocation?.lng != null) {
+        setNearMeActive(true);
+        setSelectedSort('near_me');
+      } else {
+        requestUserLocation();
+      }
+    }
+  };
+
+  // Vendosja e menjëhershme e koordinatave të qendrës së Lipjanit (Sheshi "Adem Jashari")
+  const handleUseLipjanCenter = () => {
+    const loc = { ...LIPJAN_CENTER_COORDS };
+    setUserLocation(loc);
+    try {
+      sessionStorage.setItem('lipjan_user_location', JSON.stringify(loc));
+    } catch {}
+    setNearMeActive(true);
+    setSelectedSort('near_me');
+    setGeoError(null);
+  };
+
+  // Llogaritja reale e distancës me Formulën Haversine dhe renditja sipas afërsisë fizike
+  const processedBusinesses = useMemo(() => {
+    if (!businesses || businesses.length === 0) return [];
+
+    if (nearMeActive && userLocation?.lat != null && userLocation?.lng != null) {
+      const mapped = businesses.map((biz) => {
+        if (biz.latitude != null && biz.longitude != null) {
+          const bLat = parseFloat(biz.latitude);
+          const bLng = parseFloat(biz.longitude);
+          if (!isNaN(bLat) && !isNaN(bLng)) {
+            const distKm = calculateHaversineDistanceKm(
+              userLocation.lat,
+              userLocation.lng,
+              bLat,
+              bLng
+            );
+            return {
+              ...biz,
+              distance_km: distKm,
+              distance_text: formatDistance(distKm),
+            };
+          }
+        }
+        return {
+          ...biz,
+          distance_km: Infinity,
+          distance_text: null,
+        };
+      });
+
+      // Rendit nga më i afërti tek më i largëti
+      return mapped.sort((a, b) => a.distance_km - b.distance_km);
+    }
+
+    return businesses;
+  }, [businesses, nearMeActive, userLocation]);
 
   function handleSearchSubmit(e) {
     e.preventDefault();
@@ -257,6 +387,8 @@ function BusinessCatalogPage({
     setSelectedWebsite('');
     setSelectedSchedule('');
     setSelectedSort('');
+    setNearMeActive(false);
+    setGeoError(null);
     setCurrentPage(1);
     setSelectedBusinessSlug('');
     window.history.replaceState(null, '', window.location.pathname);
@@ -392,6 +524,22 @@ function BusinessCatalogPage({
                           className="filter-chip__remove"
                           onClick={() => setSelectedSort('')}
                           aria-label="Hiq renditjen e vlerësimeve"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {nearMeActive && (
+                      <span className="filter-chip filter-chip--highlight" style={{ background: '#eff6ff', color: '#1e40af', borderColor: '#93c5fd' }}>
+                        🧭 Afër Meje ({userLocation?.label?.replace('Vendndodhja juaj (GPS)', 'GPS') || 'Aktive'})
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => {
+                            setNearMeActive(false);
+                            if (selectedSort === 'near_me') setSelectedSort('');
+                          }}
+                          aria-label="Hiq renditjen afër meje"
                         >
                           ✕
                         </button>
@@ -583,7 +731,14 @@ function BusinessCatalogPage({
                   {/* Buton i shpejtë për renditjen sipas yjeve / vlerësimeve */}
                   <button
                     type="button"
-                    onClick={() => setSelectedSort(selectedSort === 'top_rated' ? '' : 'top_rated')}
+                    onClick={() => {
+                      if (selectedSort === 'top_rated') {
+                        setSelectedSort('');
+                      } else {
+                        setSelectedSort('top_rated');
+                        setNearMeActive(false);
+                      }
+                    }}
                     className={`btn btn--sm ${selectedSort === 'top_rated' ? 'btn--primary' : 'btn--secondary'}`}
                     style={{
                       display: 'inline-flex',
@@ -598,6 +753,31 @@ function BusinessCatalogPage({
                   >
                     <span>⭐</span>
                     {selectedSort === 'top_rated' ? 'Më të Vlerësuarat ✓' : 'Më të Vlerësuarat'}
+                  </button>
+
+                  {/* Buton i shpejtë për "Afër Meje" (Geolocation & Rruga) */}
+                  <button
+                    type="button"
+                    onClick={handleToggleNearMe}
+                    disabled={geoLoading}
+                    className={`btn btn--sm ${nearMeActive ? 'btn--primary' : 'btn--secondary'}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                    }}
+                    title="Rendit bizneset më afër vendndodhjes suaj me GPS"
+                  >
+                    <span>{geoLoading ? '⏳' : '🧭'}</span>
+                    {geoLoading
+                      ? 'Duke kërkuar GPS...'
+                      : nearMeActive
+                      ? 'Afër Meje ✓'
+                      : '🧭 Afër Meje'}
                   </button>
                 </div>
 
@@ -647,6 +827,79 @@ function BusinessCatalogPage({
                 </div>
               </div>
 
+              {/* Njoftimi i statusit kur Afër Meje është aktive */}
+              {nearMeActive && userLocation && (
+                <div className="near-me-status-banner">
+                  <div className="near-me-status-banner__left">
+                    <span className="near-me-status-banner__icon">🧭</span>
+                    <div>
+                      <h4 className="near-me-status-banner__title">
+                        Bizneset Afër Meje – Renditur sipas afërsisë fizike
+                      </h4>
+                      <p className="near-me-status-banner__text">
+                        Pika juaj e referimit: <strong>{userLocation.label || 'Koordinatat GPS'}</strong> ({userLocation.lat.toFixed(4)}, {userLocation.lng.toFixed(4)}).
+                        {processedBusinesses.length > 0 && processedBusinesses[0].distance_text && (
+                          <span> Biznesi më i afërt ndodhet vetëm <strong>{processedBusinesses[0].distance_text}</strong>.</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="near-me-status-banner__actions">
+                    <button
+                      type="button"
+                      className="btn btn--sm btn--secondary"
+                      onClick={requestUserLocation}
+                      disabled={geoLoading}
+                    >
+                      🔄 Rifresko GPS
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--sm btn--outline-danger"
+                      onClick={() => {
+                        setNearMeActive(false);
+                        if (selectedSort === 'near_me') setSelectedSort('');
+                      }}
+                    >
+                      ✕ Çaktivizo
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Njoftim në rast refuzimi të GPS nga shfletuesi me buton testues për qendrën e Lipjanit */}
+              {geoError && (
+                <div className="near-me-error-banner">
+                  <span className="near-me-error-banner__icon">⚠️</span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 700, color: '#991b1b', marginBottom: '4px' }}>
+                      Nuk u mor dot vendndodhja automatike nga shfletuesi
+                    </div>
+                    <p style={{ margin: '0 0 8px 0', fontSize: '0.85rem', color: '#7f1d1d' }}>
+                      {geoError}
+                    </p>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        type="button"
+                        className="btn btn--sm btn--primary"
+                        onClick={handleUseLipjanCenter}
+                        style={{ fontSize: '0.82rem' }}
+                      >
+                        📍 Përdor Qendrën e Lipjanit (Sheshi "Adem Jashari")
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--sm btn--secondary"
+                        onClick={() => setGeoError(null)}
+                        style={{ fontSize: '0.82rem' }}
+                      >
+                        Mbyll
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Lista e bizneseve me faqosje OSE Harta Leaflet */}
               {viewMode === 'map' ? (
                 <div className="catalog-map-section" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -655,27 +908,28 @@ function BusinessCatalogPage({
                       📍 Harta Ndërvepruese e Komunës së Lipjanit – Lokacione Fizike të Verifikuara
                     </span>
                     <span style={{ fontSize: '0.8rem', color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
-                      ✓ {businesses.filter(b => b.latitude && b.longitude).length} pinpoint-e aktive
+                      ✓ {processedBusinesses.filter(b => b.latitude && b.longitude).length} pinpoint-e aktive
                     </span>
                   </div>
 
                   <LeafletMap
-                    businesses={businesses}
+                    businesses={processedBusinesses}
+                    userLocation={nearMeActive ? userLocation : null}
                     height="540px"
                     onSelectBusiness={handleSelectBusiness}
                   />
 
                   {/* Bizneset me lokacion në proces verifikimi */}
-                  {businesses.some(b => !b.latitude || !b.longitude) && (
+                  {processedBusinesses.some(b => !b.latitude || !b.longitude) && (
                     <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '1rem 1.25rem' }}>
                       <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#92400e', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span>⚠️</span> Bizneset me lokacion në proces verifikimi fizik ({businesses.filter(b => !b.latitude || !b.longitude).length})
+                        <span>⚠️</span> Bizneset me lokacion në proces verifikimi fizik ({processedBusinesses.filter(b => !b.latitude || !b.longitude).length})
                       </h4>
                       <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.82rem', color: '#b45309' }}>
                         Për arsye saktësie, këto biznese nuk shfaqen me koordinata të improvizuara në hartë deri në konfirmimin e plotë të lokacionit të tyre fizik:
                       </p>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                        {businesses.filter(b => !b.latitude || !b.longitude).map(b => (
+                        {processedBusinesses.filter(b => !b.latitude || !b.longitude).map(b => (
                           <button
                             key={b.id}
                             type="button"
@@ -702,7 +956,8 @@ function BusinessCatalogPage({
                 </div>
               ) : (
                 <BusinessList
-                  businesses={businesses}
+                  businesses={processedBusinesses}
+                  userLocation={nearMeActive ? userLocation : null}
                   loading={loading}
                   error={error}
                   onRetry={reload}

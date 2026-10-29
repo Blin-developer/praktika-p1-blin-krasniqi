@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { getDirectionsUrl } from '../utils/distance';
 
 /**
  * Merr një ikonë të përshtatshme për kategorinë.
@@ -22,6 +23,7 @@ function BusinessCard({
   business,
   onSelectBusiness,
   isSponsored = false,
+  userLocation = null,
 }) {
   const {
     slug,
@@ -85,6 +87,11 @@ function BusinessCard({
             <span className="badge__icon" aria-hidden="true">{catIcon}</span>
             {category?.name ?? 'Kategori'}
           </span>
+          {business.distance_text && (
+            <span className="badge badge--distance" title={`Distanca fizike nga lokacioni juaj: ${business.distance_text}`}>
+              🧭 {business.distance_text}
+            </span>
+          )}
         </div>
 
         <div className="biz-card__actions-top">
@@ -243,18 +250,32 @@ function BusinessCard({
         </div>
       </div>
 
-      {/* Footer me veprimin kryesor */}
+      {/* Footer me veprimin kryesor dhe butonin e rrugës */}
       <div className="biz-card__footer">
-        {onSelectBusiness && (
-          <button
-            type="button"
-            className="btn btn--view-profile"
-            onClick={() => onSelectBusiness(slug)}
-            aria-label={`Shiko profilin e plotë për ${name}`}
-          >
-            Shiko Profilin →
-          </button>
-        )}
+        <div className="biz-card__footer-actions">
+          {onSelectBusiness && (
+            <button
+              type="button"
+              className="btn btn--view-profile"
+              onClick={() => onSelectBusiness(slug)}
+              aria-label={`Shiko profilin e plotë për ${name}`}
+            >
+              Shiko Profilin →
+            </button>
+          )}
+          {business.latitude && business.longitude && (
+            <a
+              href={getDirectionsUrl(business.latitude, business.longitude, userLocation)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn--route-card"
+              onClick={(e) => e.stopPropagation()}
+              title={`Hap navigimin hap-pas-hapi në Google Maps për ${name}`}
+            >
+              🧭 Rruga ↗
+            </a>
+          )}
+        </div>
       </div>
     </article>
   );
