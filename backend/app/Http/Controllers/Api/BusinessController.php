@@ -98,6 +98,16 @@ class BusinessController extends Controller
             $query->whereHas('activeDeals');
         }
 
+        // Filtro vetëm bizneset me foto në galeri
+        if ($request->boolean('has_photos')) {
+            $query->whereHas('photos');
+        }
+
+        // Filtro vetëm bizneset me meny digjitale
+        if ($request->boolean('has_menu')) {
+            $query->whereHas('menuItems');
+        }
+
         // Renditja: mbështetje për renditjen sipas vlerësimit me yje (Më të Vlerësuarat)
         $sort = $request->input('sort');
         if (in_array($sort, ['top_rated', 'rating'], true)) {
