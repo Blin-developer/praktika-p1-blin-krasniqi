@@ -16,7 +16,7 @@ class BusinessController extends Controller
     {
         $query = Business::with(['category', 'settlement', 'services'])
             ->withAvg('reviews', 'rating')
-            ->withCount('reviews')
+            ->withCount(['reviews', 'photos', 'menuItems', 'activeDeals'])
             ->published();
 
         // Filtro sipas fjalës kyçe (emër, përshkrim, adresë, ose shërbim)
@@ -91,6 +91,11 @@ class BusinessController extends Controller
         // Filtro vetëm bizneset e veçuara
         if ($request->boolean('featured')) {
             $query->where('is_featured', true);
+        }
+
+        // Filtro vetëm bizneset me oferta aktive
+        if ($request->boolean('has_deals')) {
+            $query->whereHas('activeDeals');
         }
 
         // Renditja: mbështetje për renditjen sipas vlerësimit me yje (Më të Vlerësuarat)

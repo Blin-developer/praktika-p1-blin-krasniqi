@@ -72,6 +72,7 @@ function BusinessCatalogPage({
     return Number.isFinite(p) && p > 0 ? p : 1;
   });
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
+  const [dealsOnly, setDealsOnly] = useState(false);
   const [selectedBusinessSlug, setSelectedBusinessSlug] = useState(() => {
     if (typeof _initialBusiness === 'string') return _initialBusiness;
     if (_initialBusiness?.slug) return _initialBusiness.slug;
@@ -262,6 +263,7 @@ function BusinessCatalogPage({
     website: selectedWebsite || undefined,
     schedule: selectedSchedule || undefined,
     sort: selectedSort === 'near_me' ? undefined : (selectedSort || undefined),
+    has_deals: dealsOnly ? true : undefined,
   };
 
   const { businesses, loading, error, reload } = useBusinesses(filters);
@@ -778,6 +780,30 @@ function BusinessCatalogPage({
                       : nearMeActive
                       ? 'Afër Meje ✓'
                       : '🧭 Afër Meje'}
+                  </button>
+
+                  {/* Buton i shpejtë për biznese me Oferta & Zbritje */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDealsOnly((prev) => !prev);
+                      setCurrentPage(1);
+                    }}
+                    className={`btn btn--sm ${dealsOnly ? 'btn--primary' : 'btn--secondary'}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                      ...(dealsOnly ? { background: '#db2777', borderColor: '#be185d', color: '#fff' } : {}),
+                    }}
+                    title="Filtro vetëm bizneset që kanë oferta ditore dhe zbritje aktive"
+                  >
+                    <span>🏷️</span>
+                    {dealsOnly ? 'Me Oferta ✓' : 'Me Oferta'}
                   </button>
                 </div>
 

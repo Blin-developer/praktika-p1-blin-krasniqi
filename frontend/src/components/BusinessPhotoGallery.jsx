@@ -137,3 +137,4 @@ export default function BusinessPhotoGallery({ photos = [], businessName = 'Bizn
     </section>
   );
 }
+

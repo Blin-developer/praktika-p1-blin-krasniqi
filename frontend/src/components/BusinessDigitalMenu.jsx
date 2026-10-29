@@ -134,3 +134,4 @@ export default function BusinessDigitalMenu({ menuItems = [], businessName = 'Bi
     </section>
   );
 }
+

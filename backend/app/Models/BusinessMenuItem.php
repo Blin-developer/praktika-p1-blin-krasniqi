@@ -37,3 +37,4 @@ class BusinessMenuItem extends Model
         return $this->belongsTo(Business::class);
     }
 }
+

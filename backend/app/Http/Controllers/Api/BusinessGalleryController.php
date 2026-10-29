@@ -244,3 +244,4 @@ class BusinessGalleryController extends Controller
         ]);
     }
 }
+

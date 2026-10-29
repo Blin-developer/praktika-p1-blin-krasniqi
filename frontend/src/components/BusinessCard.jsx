@@ -92,6 +92,21 @@ function BusinessCard({
               🧭 {business.distance_text}
             </span>
           )}
+          {business.active_deals_count > 0 && (
+            <span className="badge badge--deal-pill" title="Ky biznes ka oferta dhe zbritje aktive">
+              🏷️ Ofertë
+            </span>
+          )}
+          {business.photos_count > 0 && (
+            <span className="badge badge--photo-pill" title={`${business.photos_count} foto në galeri`}>
+              📸 {business.photos_count}
+            </span>
+          )}
+          {business.menu_items_count > 0 && (
+            <span className="badge badge--menu-pill" title="Ky biznes ofron meny digjitale">
+              🍽️ Meny
+            </span>
+          )}
         </div>
 
         <div className="biz-card__actions-top">

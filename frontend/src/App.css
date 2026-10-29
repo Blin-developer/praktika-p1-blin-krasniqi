@@ -6537,6 +6537,42 @@ p {
   padding: 0.2rem 0.55rem;
 }
 
+.badge--deal-pill {
+  background: #fdf2f8;
+  color: #be185d;
+  border: 1px solid #fbcfe8;
+  font-weight: 700;
+  font-size: 0.74rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  animation: pulseDeal 2s infinite ease-in-out;
+}
+
+@keyframes pulseDeal {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.badge--photo-pill {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-weight: 600;
+  font-size: 0.74rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.badge--menu-pill {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  font-weight: 600;
+  font-size: 0.74rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+}
+
 .biz-card__footer-actions {
   display: flex;
   align-items: center;
