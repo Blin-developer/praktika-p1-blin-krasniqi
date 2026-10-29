@@ -550,3 +550,4 @@ export default function AdminDealsTab() {
     </div>
   );
 }
+

@@ -49,6 +49,31 @@ async function authRequest(endpoint, options = {}) {
 const adminRequest = authRequest;
 
 /**
+ * Ndihmës i brendshëm për thirrjet e përgjithshme publike pa pasur nevojë për token.
+ */
+async function publicRequest(endpoint, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || `Gabim HTTP ${response.status}`;
+    throw new ApiError(errorMsg, response.status, data.errors || {});
+  }
+
+  return data;
+}
+
+const apiRequest = publicRequest;
+
+/**
  * Merr listën e bizneseve të publikuara nga API-ja (Publike).
  * @param {Object} params – parametra opsionalë: search, category, settlement, service, website, schedule, featured
  */
@@ -626,6 +651,99 @@ export async function updateDeal(id, data) {
  */
 export async function deleteDeal(id) {
   return authRequest(`/v1/deals/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ==========================================
+// GALERIA E FOTOVE DHE MENYJA DIGJITALE (PIKA 5)
+// ==========================================
+
+/**
+ * Merr fotot e galerisë për një biznes.
+ * @param {string|number} idOrSlug
+ */
+export async function fetchBusinessPhotos(idOrSlug) {
+  return apiRequest(`/v1/businesses/${idOrSlug}/photos`);
+}
+
+/**
+ * Shton një foto në galeri (URL ose FormData me skedar).
+ * @param {string|number} idOrSlug
+ * @param {FormData|Object} data
+ */
+export async function uploadBusinessPhoto(idOrSlug, data) {
+  if (data instanceof FormData) {
+    const token = getToken();
+    const response = await fetch(`${API_BASE_URL}/v1/businesses/${idOrSlug}/photos`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: data,
+    });
+    const resData = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new ApiError(resData.message || 'Gabim gjatë ngarkimit të fotos.', response.status);
+    }
+    return resData;
+  }
+
+  return authRequest(`/v1/businesses/${idOrSlug}/photos`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Fshin një foto nga galeria.
+ * @param {number} photoId
+ */
+export async function deleteBusinessPhoto(photoId) {
+  return authRequest(`/v1/photos/${photoId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * Merr menynë digjitale të një biznesi.
+ * @param {string|number} idOrSlug
+ */
+export async function fetchBusinessMenu(idOrSlug) {
+  return apiRequest(`/v1/businesses/${idOrSlug}/menu`);
+}
+
+/**
+ * Shton një artikull të ri në menynë digjitale.
+ * @param {string|number} idOrSlug
+ * @param {Object} data
+ */
+export async function createMenuItem(idOrSlug, data) {
+  return authRequest(`/v1/businesses/${idOrSlug}/menu`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Përditëson një artikull ekzistues të menysë.
+ * @param {number} itemId
+ * @param {Object} data
+ */
+export async function updateMenuItem(itemId, data) {
+  return authRequest(`/v1/menu/${itemId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Fshin një artikull nga menyja digjitale.
+ * @param {number} itemId
+ */
+export async function deleteMenuItem(itemId) {
+  return authRequest(`/v1/menu/${itemId}`, {
     method: 'DELETE',
   });
 }

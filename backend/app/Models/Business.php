@@ -144,6 +144,16 @@ class Business extends Model
         return $this->hasMany(BusinessDeal::class)->active();
     }
 
+    public function photos(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessPhoto::class)->orderBy('is_primary', 'desc')->orderBy('sort_order');
+    }
+
+    public function menuItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessMenuItem::class)->orderBy('sort_order');
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published');

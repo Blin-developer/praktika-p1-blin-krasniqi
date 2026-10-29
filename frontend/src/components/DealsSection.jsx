@@ -184,3 +184,4 @@ export default function DealsSection({ onSelectBusiness }) {
     </section>
   );
 }
+

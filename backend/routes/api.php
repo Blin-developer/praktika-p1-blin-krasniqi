@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\BusinessReviewController;
 use App\Http\Controllers\Api\BusinessClaimController;
 use App\Http\Controllers\Api\BusinessOwnerController;
 use App\Http\Controllers\Api\BusinessDealController;
+use App\Http\Controllers\Api\BusinessGalleryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
     Route::get('/deals', [BusinessDealController::class, 'publicDeals']);
     Route::get('/businesses/{idOrSlug}/deals', [BusinessDealController::class, 'businessDeals']);
+    Route::get('/businesses/{idOrSlug}/photos', [BusinessGalleryController::class, 'photos']);
+    Route::get('/businesses/{idOrSlug}/menu', [BusinessGalleryController::class, 'menuItems']);
 
     // Vlerësime dhe Kërkesa për Pronësi nga përdoruesi i kyçur
     Route::middleware('auth:sanctum')->group(function () {
@@ -60,6 +63,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/deals', [BusinessDealController::class, 'store']);
         Route::put('/deals/{id}', [BusinessDealController::class, 'update']);
         Route::delete('/deals/{id}', [BusinessDealController::class, 'destroy']);
+
+        // Galeria dhe Menyja Digjitale
+        Route::post('/businesses/{idOrSlug}/photos', [BusinessGalleryController::class, 'storePhoto']);
+        Route::delete('/photos/{photoId}', [BusinessGalleryController::class, 'deletePhoto']);
+        Route::post('/businesses/{idOrSlug}/menu', [BusinessGalleryController::class, 'storeMenuItem']);
+        Route::put('/menu/{itemId}', [BusinessGalleryController::class, 'updateMenuItem']);
+        Route::delete('/menu/{itemId}', [BusinessGalleryController::class, 'deleteMenuItem']);
     });
 
     // Publik - Reklama aktive me rregulla kohore
@@ -139,6 +149,8 @@ Route::get('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, '
 Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
 Route::get('/deals', [BusinessDealController::class, 'publicDeals']);
 Route::get('/businesses/{idOrSlug}/deals', [BusinessDealController::class, 'businessDeals']);
+Route::get('/businesses/{idOrSlug}/photos', [BusinessGalleryController::class, 'photos']);
+Route::get('/businesses/{idOrSlug}/menu', [BusinessGalleryController::class, 'menuItems']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/settlements', [SettlementController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
@@ -153,6 +165,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/deals', [BusinessDealController::class, 'store']);
     Route::put('/deals/{id}', [BusinessDealController::class, 'update']);
     Route::delete('/deals/{id}', [BusinessDealController::class, 'destroy']);
+    Route::post('/businesses/{idOrSlug}/photos', [BusinessGalleryController::class, 'storePhoto']);
+    Route::delete('/photos/{photoId}', [BusinessGalleryController::class, 'deletePhoto']);
+    Route::post('/businesses/{idOrSlug}/menu', [BusinessGalleryController::class, 'storeMenuItem']);
+    Route::put('/menu/{itemId}', [BusinessGalleryController::class, 'updateMenuItem']);
+    Route::delete('/menu/{itemId}', [BusinessGalleryController::class, 'deleteMenuItem']);
 });
 
 Route::get('/advertisements', [AdvertisementController::class, 'index']);

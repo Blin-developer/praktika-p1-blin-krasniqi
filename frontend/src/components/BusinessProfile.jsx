@@ -8,6 +8,8 @@ import ReviewSection from './ReviewSection';
 import BusinessClaimModal from './BusinessClaimModal';
 import OwnerBusinessModal from './OwnerBusinessModal';
 import UserAuthModal from './UserAuthModal';
+import BusinessPhotoGallery from './BusinessPhotoGallery';
+import BusinessDigitalMenu from './BusinessDigitalMenu';
 
 /**
  * BusinessProfile.jsx – Pamja e detajuar e profilit të një biznesi
@@ -176,6 +178,16 @@ function BusinessProfile({ slug, onBack }) {
             {claimStatus.is_current_user_owner && (
               <span className="badge badge--owner-badge" title="Ju jeni pronari i verifikuar i këtij biznesi">
                 👑 Biznesi Juaj
+              </span>
+            )}
+            {business.photos && business.photos.length > 0 && (
+              <span className="badge badge--gallery-tag" title={`${business.photos.length} foto në galeri`}>
+                📸 {business.photos.length} Foto
+              </span>
+            )}
+            {business.menu_items && business.menu_items.length > 0 && (
+              <span className="badge badge--menu-tag" title="Ky biznes ofron meny digjitale">
+                🍽️ Meny Digjitale
               </span>
             )}
           </div>
@@ -370,6 +382,18 @@ function BusinessProfile({ slug, onBack }) {
                 </div>
               </section>
             )}
+
+            {/* Galeria e Fotove me Shumë Foto */}
+            <BusinessPhotoGallery
+              photos={business.photos}
+              businessName={name}
+            />
+
+            {/* Menyja Digjitale për Gastronominë */}
+            <BusinessDigitalMenu
+              menuItems={business.menu_items}
+              businessName={name}
+            />
 
             {/* Shërbimet & Lehtësirat */}
             {services && services.length > 0 && (
