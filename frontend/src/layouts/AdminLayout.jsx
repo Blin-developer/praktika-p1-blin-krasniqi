@@ -10,6 +10,8 @@ const TAB_TITLES = {
   settlements: '📍 Vendbanimet e Komunës',
   services: '🛠️ Shërbimet & Lehtësirat',
   advertisements: '📢 Reklamat & Sponsorizimet',
+  reviews: '⭐ Vlerësimet e Qytetarëve',
+  claims: '🏢 Kërkesat për Pronësi',
   account: '👤 Llogaria Ime (Profili & Siguria)',
 };
 
@@ -161,6 +163,30 @@ export default function AdminLayout({
               >
                 <span className="admin-sidebar__icon" aria-hidden="true">📢</span>
                 <span className="admin-sidebar__label">Reklamat</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                className={`admin-sidebar__item ${activeTab === 'reviews' ? 'is-active' : ''}`}
+                aria-current={activeTab === 'reviews' ? 'page' : undefined}
+                onClick={() => handleSelectTab('reviews')}
+              >
+                <span className="admin-sidebar__icon" aria-hidden="true">⭐</span>
+                <span className="admin-sidebar__label">Vlerësimet</span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                type="button"
+                className={`admin-sidebar__item ${activeTab === 'claims' ? 'is-active' : ''}`}
+                aria-current={activeTab === 'claims' ? 'page' : undefined}
+                onClick={() => handleSelectTab('claims')}
+              >
+                <span className="admin-sidebar__icon" aria-hidden="true">📋</span>
+                <span className="admin-sidebar__label">Kërkesat për Pronësi</span>
               </button>
             </li>
 

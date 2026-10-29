@@ -5461,3 +5461,1064 @@ p {
     padding: 1.25rem 1.25rem 1.75rem;
   }
 }
+
+/* ==========================================================================
+   ADMIN BUSINESS FORM MODAL STYLES (Shto / Edito Biznes të Ri)
+   ========================================================================== */
+
+.admin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+  animation: adminModalFadeIn 0.2s ease-out;
+}
+
+@keyframes adminModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.admin-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: adminModalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.admin-modal--form {
+  max-width: 760px;
+}
+
+@keyframes adminModalSlideUp {
+  from {
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.admin-modal__header {
+  padding: 1.25rem 1.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 1rem;
+}
+
+.admin-modal__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.admin-modal__subtitle {
+  margin: 0.35rem 0 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.admin-modal__close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.admin-modal__close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-modal__body {
+  padding: 1.5rem 1.75rem;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: #ffffff;
+}
+
+/* Seksionet brenda formularit */
+.admin-form-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-form-section__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-form-section__hint {
+  margin: -0.25rem 0 0.25rem 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+/* Grid-et e fushave */
+.admin-form-grid {
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+}
+
+.admin-form-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-form-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 640px) {
+  .admin-form-grid--2,
+  .admin-form-grid--3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fushat e formularit */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+}
+
+.form-field .req {
+  color: #ef4444;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="number"],
+.form-field input[type="url"],
+.form-field input[type="tel"],
+.form-field select,
+.form-field textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  line-height: 1.5;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background-color: #ffffff;
+}
+
+.form-field input:disabled,
+.form-field select:disabled,
+.form-field textarea:disabled {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.form-field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.65rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  padding-right: 2.25rem;
+  appearance: none;
+}
+
+.form-field.has-error input,
+.form-field.has-error select,
+.form-field.has-error textarea {
+  border-color: #ef4444;
+  background-color: #fffafb;
+}
+
+.form-field.has-error input:focus,
+.form-field.has-error select:focus,
+.form-field.has-error textarea:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+/* Checkbox i biznesit të veçuar */
+.form-field--checkbox {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.form-field--checkbox .checkbox-label {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  margin: 0 !important;
+  user-select: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.form-field--checkbox input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #2563eb;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+/* Shërbimet / Lehtësirat Checkboxes */
+.admin-services-checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+}
+
+.admin-service-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.85rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.admin-service-checkbox:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.admin-service-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.admin-service-checkbox__name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.admin-service-checkbox.is-checked {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.admin-service-checkbox.is-checked .admin-service-checkbox__name {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* Footer-i i modalit gjithmonë i fiksuar në fund */
+.admin-modal__footer {
+  padding: 1rem 1.75rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+}
+
+.admin-alert {
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.admin-alert--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* ==========================================================================
+   Vlerësimet dhe Përshtypjet e Qytetarëve (Reviews & Ratings)
+   ========================================================================== */
+
+/* Badge i vlerësimit me yje në kartela dhe profil */
+.badge--rating {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border: 1px solid #fcd34d;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.biz-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  padding: 0.2rem 0.55rem;
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.biz-card__rating-star {
+  color: #eab308;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.biz-card__rating-score {
+  color: #713f12;
+  font-weight: 700;
+}
+
+.biz-card__rating-count {
+  color: #a16207;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.biz-card__rating--none {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.biz-card__rating-star-empty {
+  color: #94a3b8;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.biz-card__rating-none-text {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* Filter chip highlight për më të vlerësuarat */
+.filter-chip--highlight {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border-color: #fcd34d !important;
+  font-weight: 600 !important;
+}
+
+/* Seksioni i Vlerësimeve */
+.review-section {
+  margin-top: 1.5rem;
+  padding: 1.75rem;
+}
+
+.review-section__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+.review-section__count-badge {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+/* Përmbledhja e rezultateve të yjeve */
+.review-summary-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+@media (max-width: 640px) {
+  .review-summary-card {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    text-align: center;
+  }
+}
+
+.review-summary-card__score-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-summary-card__big-score {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #0f172a;
+  line-height: 1;
+  font-family: inherit;
+}
+
+.review-summary-card__stars {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0.5rem 0 0.35rem 0;
+  font-size: 1.4rem;
+}
+
+.review-summary-card__subtitle {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Shiritat e shpërndarjes */
+.review-summary-card__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+}
+
+.review-bar-row__label {
+  width: 32px;
+  font-weight: 600;
+  color: #475569;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.review-bar-row__track {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.review-bar-row__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b 0%, #eab308 100%);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.review-bar-row__count {
+  width: 24px;
+  font-size: 0.78rem;
+  color: #64748b;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+/* Yjet globale */
+.star {
+  line-height: 1;
+  user-select: none;
+}
+
+.star--filled {
+  color: #eab308;
+}
+
+.star--empty {
+  color: #cbd5e1;
+}
+
+/* Call to action për përdoruesit e pa-kyçur */
+.review-cta-box {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: #ffffff;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.review-cta-box__icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+}
+
+.review-cta-box__content {
+  flex: 1;
+  min-width: 200px;
+}
+
+.review-cta-box__title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.review-cta-box__desc {
+  font-size: 0.84rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.review-cta-box__btn {
+  white-space: nowrap;
+}
+
+/* Formulari i vlerësimit */
+.review-form-wrapper {
+  margin-bottom: 2rem;
+}
+
+.review-form {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.review-form__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.review-form__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.review-feedback {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.review-feedback--success {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.review-feedback--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+/* Përzgjedhësi i yjeve interaktiv */
+.star-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.star-picker-group__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.star-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.star-picker__btn {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: #cbd5e1;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.1s ease, color 0.15s ease;
+}
+
+.star-picker__btn:hover {
+  transform: scale(1.15);
+}
+
+.star-picker__btn.is-active {
+  color: #eab308;
+}
+
+.star-picker__hint {
+  margin-left: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
+.review-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+/* Vlerësimi ekzistues i përdoruesit */
+.review-user-existing {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.review-user-existing__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.review-user-existing__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Lista e komenteve */
+.review-list {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
+
+.review-list__title {
+  margin: 0 0 1.25rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.review-list__loading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.review-list__empty {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+}
+
+.review-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.review-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  transition: box-shadow 0.15s ease;
+}
+
+.review-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.review-item__header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.review-item__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.review-item__user-info {
+  flex: 1;
+}
+
+.review-item__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.review-item__user-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.review-item__date {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: block;
+}
+
+.review-item__stars {
+  display: flex;
+  gap: 2px;
+  font-size: 1rem;
+}
+
+.review-item__body {
+  margin-top: 0.75rem;
+  padding-left: 3.35rem;
+}
+
+@media (max-width: 640px) {
+  .review-item__body {
+    padding-left: 0;
+  }
+}
+
+.review-item__comment {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.review-item__footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.review-item__admin-del-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.78rem;
+  color: #ef4444;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.review-item__admin-del-btn:hover {
+  background: #fee2e2;
+}
+
+/* ==========================================================================
+   Kërkesat për Pronësi & Portali i Pronarëve të Bizneseve ("Claim Business")
+   ========================================================================== */
+.badge--claimed {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.badge--owner-badge {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Shiriti i pronarit të verifikuar në krye të profilit */
+.claim-owner-banner {
+  margin-top: 1.25rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+  border: 1.5px solid #86efac;
+  border-radius: 12px;
+  padding: 1.15rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+}
+
+.claim-owner-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.claim-owner-banner__icon {
+  font-size: 2rem;
+  line-height: 1;
+  background: #dcfce7;
+  padding: 0.5rem;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.claim-owner-banner__title {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.claim-owner-banner__text {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #166534;
+  line-height: 1.4;
+}
+
+.claim-owner-banner__btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+@media (max-width: 768px) {
+  .claim-owner-banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+  .claim-owner-banner__btn {
+    width: 100%;
+  }
+}
+
+/* Njoftimet e statusit të kërkesës për pronësi */
+.claim-status-banner {
+  margin-top: 1.25rem;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  font-size: 0.9rem;
+}
+
+.claim-status-banner__icon {
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.claim-status-banner strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.claim-status-banner p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.claim-status-banner--pending {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.claim-status-banner--rejected {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+/* Kartela anësore: A është ky biznesi juaj? */
+.claim-prompt-card {
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 12px;
+  padding: 1.35rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.claim-prompt-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+}
+
+.claim-prompt-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.claim-prompt-card__icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.claim-prompt-card__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.claim-prompt-card__subtitle {
+  margin: 0.15rem 0 0 0;
+  font-size: 0.78rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.claim-prompt-card__desc {
+  margin: 0 0 1rem 0;
+  font-size: 0.84rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.claim-prompt-card__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+}
+

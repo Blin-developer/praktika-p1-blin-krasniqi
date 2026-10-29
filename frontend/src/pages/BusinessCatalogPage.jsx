@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import BusinessList from '../components/BusinessList';
 import BusinessProfile from '../components/BusinessProfile';
 import SponsoredAdBanner from '../components/SponsoredAdBanner';
+import LeafletMap from '../components/LeafletMap';
 import { useBusinesses } from '../hooks/useBusinesses';
 import {
   fetchCategories,
@@ -54,10 +55,18 @@ function BusinessCatalogPage({
   const [selectedSchedule, setSelectedSchedule] = useState(() => {
     return new URLSearchParams(window.location.search).get('schedule') || '';
   });
+  const [selectedSort, setSelectedSort] = useState(() => {
+    return (
+      initialFilters.sort ||
+      new URLSearchParams(window.location.search).get('sort') ||
+      ''
+    );
+  });
   const [currentPage, setCurrentPage] = useState(() => {
     const p = parseInt(new URLSearchParams(window.location.search).get('page'), 10);
     return Number.isFinite(p) && p > 0 ? p : 1;
   });
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
   const [selectedBusinessSlug, setSelectedBusinessSlug] = useState(() => {
     if (typeof _initialBusiness === 'string') return _initialBusiness;
     if (_initialBusiness?.slug) return _initialBusiness.slug;
@@ -96,6 +105,7 @@ function BusinessCatalogPage({
     selectedService,
     selectedWebsite,
     selectedSchedule,
+    selectedSort,
   });
 
   useEffect(() => {
@@ -111,7 +121,8 @@ function BusinessCatalogPage({
       prev.selectedSettlement !== selectedSettlement ||
       prev.selectedService !== selectedService ||
       prev.selectedWebsite !== selectedWebsite ||
-      prev.selectedSchedule !== selectedSchedule;
+      prev.selectedSchedule !== selectedSchedule ||
+      prev.selectedSort !== selectedSort;
 
     if (hasFilterChanged) {
       setCurrentPage(1);
@@ -122,6 +133,7 @@ function BusinessCatalogPage({
         selectedService,
         selectedWebsite,
         selectedSchedule,
+        selectedSort,
       };
     }
   }, [
@@ -131,6 +143,7 @@ function BusinessCatalogPage({
     selectedService,
     selectedWebsite,
     selectedSchedule,
+    selectedSort,
   ]);
 
   // Sinkronizo URL-në kur ndryshojnë filtrat, kërkimi, faqja ose profili
@@ -142,6 +155,7 @@ function BusinessCatalogPage({
     if (selectedService) params.set('service', selectedService);
     if (selectedWebsite) params.set('website', selectedWebsite);
     if (selectedSchedule) params.set('schedule', selectedSchedule);
+    if (selectedSort) params.set('sort', selectedSort);
     if (currentPage > 1) params.set('page', String(currentPage));
     if (selectedBusinessSlug) params.set('business', selectedBusinessSlug);
 
@@ -155,6 +169,7 @@ function BusinessCatalogPage({
     selectedService,
     selectedWebsite,
     selectedSchedule,
+    selectedSort,
     currentPage,
     selectedBusinessSlug,
   ]);
@@ -172,6 +187,7 @@ function BusinessCatalogPage({
       setSelectedService(params.get('service') || '');
       setSelectedWebsite(params.get('website') || '');
       setSelectedSchedule(params.get('schedule') || '');
+      setSelectedSort(params.get('sort') || '');
       const p = parseInt(params.get('page'), 10);
       setCurrentPage(Number.isFinite(p) && p > 0 ? p : 1);
     };
@@ -223,6 +239,7 @@ function BusinessCatalogPage({
     service: selectedService || undefined,
     website: selectedWebsite || undefined,
     schedule: selectedSchedule || undefined,
+    sort: selectedSort || undefined,
   };
 
   const { businesses, loading, error, reload } = useBusinesses(filters);
@@ -239,6 +256,7 @@ function BusinessCatalogPage({
     setSelectedService('');
     setSelectedWebsite('');
     setSelectedSchedule('');
+    setSelectedSort('');
     setCurrentPage(1);
     setSelectedBusinessSlug('');
     window.history.replaceState(null, '', window.location.pathname);
@@ -269,6 +287,7 @@ function BusinessCatalogPage({
     selectedService,
     selectedWebsite,
     selectedSchedule,
+    selectedSort,
   ].filter(Boolean).length;
 
   return (
@@ -360,6 +379,19 @@ function BusinessCatalogPage({
                           className="filter-chip__remove"
                           onClick={() => setSelectedSchedule('')}
                           aria-label="Hiq filtrin e orarit"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    )}
+                    {selectedSort === 'top_rated' && (
+                      <span className="filter-chip filter-chip--highlight">
+                        ⭐ Më të Vlerësuarat në Lipjan
+                        <button
+                          type="button"
+                          className="filter-chip__remove"
+                          onClick={() => setSelectedSort('')}
+                          aria-label="Hiq renditjen e vlerësimeve"
                         >
                           ✕
                         </button>
@@ -537,17 +569,149 @@ function BusinessCatalogPage({
                 </div>
               )}
 
-              {/* Lista e bizneseve me faqosje */}
-              <BusinessList
-                businesses={businesses}
-                loading={loading}
-                error={error}
-                onRetry={reload}
-                onReset={handleReset}
-                onSelectBusiness={handleSelectBusiness}
-                currentPage={currentPage}
-                onPageChange={handlePageChange}
-              />
+              {/* Shiriti i mënyrës së shfaqjes (Listë / Hartë Leaflet) dhe Renditja */}
+              <div className="catalog-view-switcher" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.25rem 0 1rem 0', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: '0.9rem', color: '#64748b', fontWeight: 500 }}>
+                    {!loading && (
+                      <span>
+                        Gjithsej <strong>{businesses.length}</strong> biznese {viewMode === 'map' && `(${businesses.filter(b => b.latitude && b.longitude).length} me marker të saktë fizik)`}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Buton i shpejtë për renditjen sipas yjeve / vlerësimeve */}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSort(selectedSort === 'top_rated' ? '' : 'top_rated')}
+                    className={`btn btn--sm ${selectedSort === 'top_rated' ? 'btn--primary' : 'btn--secondary'}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      padding: '5px 12px',
+                      borderRadius: '6px',
+                    }}
+                    title="Rendit bizneset nga më të vlerësuarat me yje në Lipjan"
+                  >
+                    <span>⭐</span>
+                    {selectedSort === 'top_rated' ? 'Më të Vlerësuarat ✓' : 'Më të Vlerësuarat'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'inline-flex', background: '#f1f5f9', padding: '3px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      background: viewMode === 'list' ? '#ffffff' : 'transparent',
+                      color: viewMode === 'list' ? '#0f172a' : '#64748b',
+                      boxShadow: viewMode === 'list' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      transition: 'all 0.15s ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <span>📋</span> Pamja Listë
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('map')}
+                    style={{
+                      padding: '6px 14px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      background: viewMode === 'map' ? '#2563eb' : 'transparent',
+                      color: viewMode === 'map' ? '#ffffff' : '#64748b',
+                      boxShadow: viewMode === 'map' ? '0 1px 3px rgba(0,0,0,0.15)' : 'none',
+                      transition: 'all 0.15s ease',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                    }}
+                  >
+                    <span>🗺️</span> Harta Leaflet
+                  </button>
+                </div>
+              </div>
+
+              {/* Lista e bizneseve me faqosje OSE Harta Leaflet */}
+              {viewMode === 'map' ? (
+                <div className="catalog-map-section" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div style={{ background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.85rem', color: '#0f172a', fontWeight: 600 }}>
+                      📍 Harta Ndërvepruese e Komunës së Lipjanit – Lokacione Fizike të Verifikuara
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: '#059669', background: '#ecfdf5', padding: '2px 8px', borderRadius: '4px', fontWeight: 600 }}>
+                      ✓ {businesses.filter(b => b.latitude && b.longitude).length} pinpoint-e aktive
+                    </span>
+                  </div>
+
+                  <LeafletMap
+                    businesses={businesses}
+                    height="540px"
+                    onSelectBusiness={handleSelectBusiness}
+                  />
+
+                  {/* Bizneset me lokacion në proces verifikimi */}
+                  {businesses.some(b => !b.latitude || !b.longitude) && (
+                    <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '1rem 1.25rem' }}>
+                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#92400e', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>⚠️</span> Bizneset me lokacion në proces verifikimi fizik ({businesses.filter(b => !b.latitude || !b.longitude).length})
+                      </h4>
+                      <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.82rem', color: '#b45309' }}>
+                        Për arsye saktësie, këto biznese nuk shfaqen me koordinata të improvizuara në hartë deri në konfirmimin e plotë të lokacionit të tyre fizik:
+                      </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        {businesses.filter(b => !b.latitude || !b.longitude).map(b => (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => handleSelectBusiness(b.slug)}
+                            style={{
+                              background: '#ffffff',
+                              border: '1px solid #fde68a',
+                              borderRadius: '6px',
+                              padding: '4px 10px',
+                              fontSize: '0.8rem',
+                              color: '#78350f',
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <strong>{b.name}</strong> <span style={{ color: '#92400e', fontSize: '0.75rem' }}>({b.settlement?.name || 'Lipjan'})</span> ➔
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <BusinessList
+                  businesses={businesses}
+                  loading={loading}
+                  error={error}
+                  onRetry={reload}
+                  onReset={handleReset}
+                  onSelectBusiness={handleSelectBusiness}
+                  currentPage={currentPage}
+                  onPageChange={handlePageChange}
+                />
+              )}
             </div>
 
             {/* Sidebar me Reklama Anësore */}

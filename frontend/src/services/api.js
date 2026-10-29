@@ -62,6 +62,7 @@ export async function fetchBusinesses(params = {}) {
   if (params.website) url.searchParams.set('website', params.website);
   if (params.schedule) url.searchParams.set('schedule', params.schedule);
   if (params.featured) url.searchParams.set('featured', '1');
+  if (params.sort) url.searchParams.set('sort', params.sort);
 
   const response = await fetch(url.toString(), {
     headers: { Accept: 'application/json' },
@@ -255,6 +256,35 @@ export async function deleteAdminAdvertisement(id) {
   });
 }
 
+/**
+ * Ngarkon një skedar imazhi nga kompjuteri në server (Administrator).
+ * @param {File} file
+ * @returns {Promise<{status: string, message: string, url: string}>}
+ */
+export async function uploadAdminImage(file) {
+  const token = getToken();
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await fetch(`${API_BASE_URL}/v1/admin/upload-image`, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg = data.message || `Gabim gjatë ngarkimit të fotos (${response.status})`;
+    throw new ApiError(errorMsg, response.status, data.errors || {});
+  }
+
+  return data;
+}
+
 // ==========================================
 // USER FAVORITES (BIZNESET E RUAJTURA)
 // ==========================================
@@ -368,5 +398,160 @@ export async function updateAdminBusinessStatus(id, status) {
 export async function deleteAdminBusiness(id) {
   return adminRequest(`/v1/admin/businesses/${id}`, {
     method: 'DELETE',
+  });
+}
+
+// ==========================================
+// Vlerësimet dhe Përshtypjet (Reviews & Ratings)
+// ==========================================
+
+/**
+ * Merr të gjitha vlerësimet dhe statistikat për një biznes (Publike).
+ * @param {string|number} idOrSlug
+ */
+export async function fetchBusinessReviews(idOrSlug) {
+  const response = await fetch(`${API_BASE_URL}/v1/businesses/${idOrSlug}/reviews`, {
+    headers: { Accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gabim gjatë marrjes së vlerësimeve: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Dërgon ose përditëson vlerësimin e përdoruesit të kyçur.
+ * @param {string|number} idOrSlug
+ * @param {{ rating: number, comment?: string }} data
+ */
+export async function submitBusinessReview(idOrSlug, data) {
+  return authRequest(`/v1/businesses/${idOrSlug}/reviews`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Fshin vlerësimin e përdoruesit të kyçur për një biznes.
+ * @param {string|number} idOrSlug
+ */
+export async function deleteBusinessReview(idOrSlug) {
+  return authRequest(`/v1/businesses/${idOrSlug}/reviews`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * Merr listën e të gjitha vlerësimeve për panelin administrativ (Moderim).
+ * @param {{ page?: number, search?: string, rating?: number|string }} params
+ */
+export async function fetchAdminReviews(params = {}) {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', params.page);
+  if (params.search) query.set('search', params.search);
+  if (params.rating) query.set('rating', params.rating);
+
+  const qs = query.toString() ? `?${query.toString()}` : '';
+  return adminRequest(`/v1/admin/reviews${qs}`);
+}
+
+/**
+ * Fshin një vlerësim nga administratori (Moderim).
+ * @param {number} id
+ */
+export async function deleteAdminReview(id) {
+  return adminRequest(`/v1/admin/reviews/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+// ==========================================
+// Portali i Pronarëve ("Claim your Business")
+// ==========================================
+
+/**
+ * Kontrollon statusin e kërkesës për pronësi të këtij biznesi për përdoruesin aktual.
+ * @param {string|number} idOrSlug
+ */
+export async function checkBusinessClaimStatus(idOrSlug) {
+  return authRequest(`/v1/businesses/${idOrSlug}/claim-status`);
+}
+
+/**
+ * Dërgon një kërkesë për marrjen e pronësisë së biznesit ("Claim Business").
+ * @param {string|number} idOrSlug
+ * @param {{ full_name: string, phone: string, email: string, business_role: string, verification_notes: string }} data
+ */
+export async function submitBusinessClaim(idOrSlug, data) {
+  return authRequest(`/v1/businesses/${idOrSlug}/claim`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Merr listën e bizneseve ku përdoruesi i kyçur është pronar i verifikuar.
+ */
+export async function fetchMyOwnedBusinesses() {
+  return authRequest('/v1/owner/businesses');
+}
+
+/**
+ * Merr detajet e biznesit të pronarit për editim.
+ * @param {number|string} id
+ */
+export async function fetchOwnedBusiness(id) {
+  return authRequest(`/v1/owner/businesses/${id}`);
+}
+
+/**
+ * Përditëson të dhënat e biznesit nga vetë pronari i verifikuar.
+ * @param {number|string} id
+ * @param {Object} data
+ */
+export async function updateOwnedBusiness(id, data) {
+  return authRequest(`/v1/owner/businesses/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Merr listën e të gjitha kërkesave për pronësi për administratorin.
+ * @param {{ page?: number, status?: string, search?: string }} params
+ */
+export async function fetchAdminClaims(params = {}) {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', params.page);
+  if (params.status) query.set('status', params.status);
+  if (params.search) query.set('search', params.search);
+
+  const qs = query.toString() ? `?${query.toString()}` : '';
+  return adminRequest(`/v1/admin/claims${qs}`);
+}
+
+/**
+ * Aprovon kërkesën për pronësi (Administrator).
+ * @param {number} id
+ * @param {string} [adminNotes]
+ */
+export async function approveAdminClaim(id, adminNotes = '') {
+  return adminRequest(`/v1/admin/claims/${id}/approve`, {
+    method: 'POST',
+    body: JSON.stringify({ admin_notes: adminNotes }),
+  });
+}
+
+/**
+ * Refuzon kërkesën për pronësi (Administrator).
+ * @param {number} id
+ * @param {string} [adminNotes]
+ */
+export async function rejectAdminClaim(id, adminNotes = '') {
+  return adminRequest(`/v1/admin/claims/${id}/reject`, {
+    method: 'POST',
+    body: JSON.stringify({ admin_notes: adminNotes }),
   });
 }

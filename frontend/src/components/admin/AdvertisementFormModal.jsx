@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { fetchAdminBusinesses, fetchBusinesses } from '../../services/api';
+import { useState, useEffect, useRef } from 'react';
+import { fetchAdminBusinesses, fetchBusinesses, uploadAdminImage } from '../../services/api';
 
 export default function AdvertisementFormModal({
   isOpen,
@@ -11,6 +11,9 @@ export default function AdvertisementFormModal({
 }) {
   const [businesses, setBusinesses] = useState([]);
   const [loadingBusinesses, setLoadingBusinesses] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     business_id: '',
@@ -28,6 +31,27 @@ export default function AdvertisementFormModal({
   });
 
   const [clientErrors, setClientErrors] = useState({});
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setUploadError(null);
+    try {
+      const res = await uploadAdminImage(file);
+      if (res.url) {
+        setFormData((prev) => ({ ...prev, image_url: res.url }));
+      }
+    } catch (err) {
+      setUploadError(err.message || 'Dështoi ngarkimi i fotos.');
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -219,21 +243,84 @@ export default function AdvertisementFormModal({
               />
             </div>
 
-            <div className="form-grid form-grid--2col">
-              {/* URL e Imazhit */}
-              <div className="form-group">
-                <label htmlFor="ad-image">URL e Imazhit Promovues</label>
+            {/* Imazhi Promovues - Upload nga kompjuteri ose URL */}
+            <div className="form-group form-group--image-upload">
+              <label htmlFor="ad-image" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <span style={{ fontWeight: 600 }}>Foto / Imazhi Promovues</span>
+                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>Ngarko nga kompjuteri ose me URL</span>
+              </label>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {/* Butoni për ngarkim nga kompjuteri */}
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                    disabled={submitting || uploadingImage}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn--secondary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={submitting || uploadingImage}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    {uploadingImage ? '⏳ Duke ngarkuar foton...' : '📂 Zgjidh Foto nga Kompjuteri'}
+                  </button>
+                  {formData.image_url && (
+                    <button
+                      type="button"
+                      className="btn btn--ghost"
+                      style={{ color: '#ef4444', fontSize: '0.85rem' }}
+                      onClick={() => setFormData((prev) => ({ ...prev, image_url: '' }))}
+                      disabled={submitting || uploadingImage}
+                    >
+                      ✕ Hiq Foton
+                    </button>
+                  )}
+                </div>
+
+                {uploadError && (
+                  <span className="form-error" style={{ color: '#ef4444', fontSize: '0.85rem' }}>
+                    ⚠️ {uploadError}
+                  </span>
+                )}
+
+                {/* Input fushe për URL/link të fotos */}
                 <input
                   id="ad-image"
-                  type="url"
+                  type="text"
                   className="form-control"
-                  placeholder="https://images.unsplash.com/..."
+                  placeholder="ose shkruaj lidhjen e fotos: https://images.unsplash.com/..."
                   value={formData.image_url}
                   onChange={(e) => handleChange('image_url', e.target.value)}
-                  disabled={submitting}
+                  disabled={submitting || uploadingImage}
                 />
-              </div>
 
+                {/* Preview i fotos në kohë reale */}
+                {formData.image_url && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#f8fafc', padding: '0.75rem', borderRadius: '8px', border: '1.5px solid #e2e8f0' }}>
+                    <img
+                      src={formData.image_url}
+                      alt="Pamja paraprake e fotos"
+                      style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#16a34a', display: 'block' }}>✓ Foto e përzgjedhur</span>
+                      <span style={{ fontSize: '0.75rem', color: '#64748b', wordBreak: 'break-all' }}>{formData.image_url}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="form-grid form-grid--2col">
               {/* Butoni CTA */}
               <div className="form-group">
                 <label htmlFor="ad-cta">Teksti i Butonit (CTA)</label>
@@ -248,15 +335,13 @@ export default function AdvertisementFormModal({
                   maxLength={60}
                 />
               </div>
-            </div>
 
-            <div className="form-grid form-grid--2col">
               {/* URL e Destinacionit CTA */}
               <div className="form-group">
                 <label htmlFor="ad-cta-url">URL e Destinacionit (CTA Link)</label>
                 <input
                   id="ad-cta-url"
-                  type="url"
+                  type="text"
                   className="form-control"
                   placeholder="https://example.com/oferta-speciale"
                   value={formData.cta_url}
@@ -265,23 +350,23 @@ export default function AdvertisementFormModal({
                   maxLength={500}
                 />
               </div>
+            </div>
 
-              {/* Prioriteti */}
-              <div className="form-group">
-                <label htmlFor="ad-priority">Prioriteti i Shfaqjes</label>
-                <input
-                  id="ad-priority"
-                  type="number"
-                  className="form-control"
-                  placeholder="0"
-                  value={formData.priority}
-                  onChange={(e) => handleChange('priority', e.target.value)}
-                  disabled={submitting}
-                  min={0}
-                  max={100}
-                />
-                <small className="form-hint">Numër më i lartë = prioritet më i lartë në shfaqje</small>
-              </div>
+            {/* Prioriteti */}
+            <div className="form-group">
+              <label htmlFor="ad-priority">Prioriteti i Shfaqjes</label>
+              <input
+                id="ad-priority"
+                type="number"
+                className="form-control"
+                placeholder="0"
+                value={formData.priority}
+                onChange={(e) => handleChange('priority', e.target.value)}
+                disabled={submitting}
+                min={0}
+                max={100}
+              />
+              <small className="form-hint">Numër më i lartë = prioritet më i lartë në shfaqje</small>
             </div>
 
             <div className="form-grid form-grid--3col">

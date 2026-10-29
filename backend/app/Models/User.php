@@ -65,4 +65,25 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Business::class, 'user_favorites')->withTimestamps();
     }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessReview::class);
+    }
+
+    /**
+     * Bizneset e verifikuara në pronësi të përdoruesit.
+     */
+    public function claimedBusinesses(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Business::class, 'owner_id');
+    }
+
+    /**
+     * Kërkesat për pronësi të dërguara nga ky përdorues.
+     */
+    public function businessClaims(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessClaim::class);
+    }
 }

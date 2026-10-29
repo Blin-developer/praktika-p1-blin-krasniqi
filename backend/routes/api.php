@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\SettlementController;
 use App\Http\Controllers\Api\UserFavoriteController;
+use App\Http\Controllers\Api\BusinessReviewController;
+use App\Http\Controllers\Api\BusinessClaimController;
+use App\Http\Controllers\Api\BusinessOwnerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,9 +34,25 @@ Route::prefix('v1')->group(function () {
     // Publik - Biznese, Kategori, Vendbanime, Shërbime
     Route::get('/businesses', [BusinessController::class, 'index']);
     Route::get('/businesses/{idOrSlug}', [BusinessController::class, 'show']);
+    Route::get('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'index']);
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/settlements', [SettlementController::class, 'index']);
     Route::get('/services', [ServiceController::class, 'index']);
+    Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
+
+    // Vlerësime dhe Kërkesa për Pronësi nga përdoruesi i kyçur
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'store']);
+        Route::delete('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'destroy']);
+
+        // Kërkimi i pronësisë së biznesit ("Claim your Business")
+        Route::post('/businesses/{idOrSlug}/claim', [BusinessClaimController::class, 'store']);
+
+        // Portali i Pronarit të Biznesit (vetë-menaxhim)
+        Route::get('/owner/businesses', [BusinessOwnerController::class, 'myBusinesses']);
+        Route::get('/owner/businesses/{id}', [BusinessOwnerController::class, 'show']);
+        Route::put('/owner/businesses/{id}', [BusinessOwnerController::class, 'update']);
+    });
 
     // Publik - Reklama aktive me rregulla kohore
     Route::get('/advertisements', [AdvertisementController::class, 'index']);
@@ -92,15 +111,32 @@ Route::prefix('v1')->group(function () {
         Route::put('/advertisements/{id}', [AdminAdvertisementController::class, 'update']);
         Route::patch('/advertisements/{id}/toggle', [AdminAdvertisementController::class, 'toggle']);
         Route::delete('/advertisements/{id}', [AdminAdvertisementController::class, 'destroy']);
+        Route::post('/upload-image', [AdminAdvertisementController::class, 'uploadImage']);
+        Route::get('/reviews', [BusinessReviewController::class, 'adminIndex']);
+        Route::delete('/reviews/{id}', [BusinessReviewController::class, 'adminDestroy']);
+        Route::get('/claims', [BusinessClaimController::class, 'adminIndex']);
+        Route::post('/claims/{id}/approve', [BusinessClaimController::class, 'adminApprove']);
+        Route::post('/claims/{id}/reject', [BusinessClaimController::class, 'adminReject']);
     });
 });
 
 // Direct aliases për thjeshtësi dhe kompatibilitet të plotë me frontend
 Route::get('/businesses', [BusinessController::class, 'index']);
 Route::get('/businesses/{idOrSlug}', [BusinessController::class, 'show']);
+Route::get('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'index']);
+Route::get('/businesses/{idOrSlug}/claim-status', [BusinessClaimController::class, 'checkStatus']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/settlements', [SettlementController::class, 'index']);
 Route::get('/services', [ServiceController::class, 'index']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'store']);
+    Route::delete('/businesses/{idOrSlug}/reviews', [BusinessReviewController::class, 'destroy']);
+    Route::post('/businesses/{idOrSlug}/claim', [BusinessClaimController::class, 'store']);
+    Route::get('/owner/businesses', [BusinessOwnerController::class, 'myBusinesses']);
+    Route::get('/owner/businesses/{id}', [BusinessOwnerController::class, 'show']);
+    Route::put('/owner/businesses/{id}', [BusinessOwnerController::class, 'update']);
+});
 
 Route::get('/advertisements', [AdvertisementController::class, 'index']);
 Route::post('/advertisements/{id}/click', [AdvertisementController::class, 'trackClick']);
@@ -153,4 +189,10 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::put('/advertisements/{id}', [AdminAdvertisementController::class, 'update']);
     Route::patch('/advertisements/{id}/toggle', [AdminAdvertisementController::class, 'toggle']);
     Route::delete('/advertisements/{id}', [AdminAdvertisementController::class, 'destroy']);
+    Route::post('/upload-image', [AdminAdvertisementController::class, 'uploadImage']);
+    Route::get('/reviews', [BusinessReviewController::class, 'adminIndex']);
+    Route::delete('/reviews/{id}', [BusinessReviewController::class, 'adminDestroy']);
+    Route::get('/claims', [BusinessClaimController::class, 'adminIndex']);
+    Route::post('/claims/{id}/approve', [BusinessClaimController::class, 'adminApprove']);
+    Route::post('/claims/{id}/reject', [BusinessClaimController::class, 'adminReject']);
 });

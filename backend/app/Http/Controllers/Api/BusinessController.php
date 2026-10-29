@@ -15,6 +15,8 @@ class BusinessController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Business::with(['category', 'settlement', 'services'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->published();
 
         // Filtro sipas fjalës kyçe (emër, përshkrim, adresë, ose shërbim)
@@ -91,9 +93,18 @@ class BusinessController extends Controller
             $query->where('is_featured', true);
         }
 
-        $businesses = $query->orderBy('is_featured', 'desc')
-            ->orderBy('name', 'asc')
-            ->get();
+        // Renditja: mbështetje për renditjen sipas vlerësimit me yje (Më të Vlerësuarat)
+        $sort = $request->input('sort');
+        if (in_array($sort, ['top_rated', 'rating'], true)) {
+            $query->orderByRaw('reviews_avg_rating IS NULL, reviews_avg_rating DESC')
+                ->orderByDesc('reviews_count')
+                ->orderBy('name', 'asc');
+        } else {
+            $query->orderBy('is_featured', 'desc')
+                ->orderBy('name', 'asc');
+        }
+
+        $businesses = $query->get();
 
         return response()->json([
             'status' => 'success',
@@ -107,7 +118,9 @@ class BusinessController extends Controller
      */
     public function show(string $idOrSlug): JsonResponse
     {
-        $business = Business::with(['category', 'settlement', 'services'])
+        $business = Business::with(['category', 'settlement', 'services', 'reviews.user:id,name'])
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->published()
             ->where(function ($q) use ($idOrSlug) {
                 if (is_numeric($idOrSlug)) {

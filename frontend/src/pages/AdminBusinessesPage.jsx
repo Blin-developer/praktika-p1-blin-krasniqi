@@ -6,6 +6,8 @@ import AdminAdvertisementsTab from '../components/admin/AdminAdvertisementsTab';
 import AdminCategoriesTab from '../components/admin/AdminCategoriesTab';
 import AdminSettlementsTab from '../components/admin/AdminSettlementsTab';
 import AdminServicesTab from '../components/admin/AdminServicesTab';
+import AdminReviewsTab from '../components/admin/AdminReviewsTab';
+import AdminClaimsTab from '../components/admin/AdminClaimsTab';
 import AdminAccountTab from '../components/admin/AdminAccountTab';
 import {
   fetchAdminBusinesses,
@@ -689,6 +691,12 @@ export default function AdminBusinessesPage({ onNavigateToCatalog }) {
         ) : activeView === 'advertisements' ? (
           /* ======================= ADVERTISEMENTS ======================= */
           <AdminAdvertisementsTab />
+        ) : activeView === 'reviews' ? (
+          /* ======================= REVIEWS MODERATION ======================= */
+          <AdminReviewsTab />
+        ) : activeView === 'claims' ? (
+          /* ======================= CLAIMS MODERATION ======================= */
+          <AdminClaimsTab />
         ) : activeView === 'categories' ? (
           /* ======================= CATEGORIES ======================= */
           <AdminCategoriesTab />

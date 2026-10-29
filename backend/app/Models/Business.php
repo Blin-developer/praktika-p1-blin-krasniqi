@@ -18,6 +18,7 @@ class Business extends Model
         'slug',
         'category_id',
         'settlement_id',
+        'owner_id',
         'description',
         'short_description',
         'address',
@@ -38,6 +39,59 @@ class Business extends Model
         'longitude' => 'float',
         'opening_hours' => 'array',
     ];
+
+    protected $appends = [
+        'has_verified_location',
+        'location_status',
+        'reviews_avg_rating',
+        'reviews_count',
+        'is_claimed',
+    ];
+
+    public function getIsClaimedAttribute(): bool
+    {
+        return !is_null($this->owner_id);
+    }
+
+    public function getHasVerifiedLocationAttribute(): bool
+    {
+        return !is_null($this->latitude) && !is_null($this->longitude);
+    }
+
+    public function getLocationStatusAttribute(): string
+    {
+        return $this->getHasVerifiedLocationAttribute() ? 'verified' : 'pending_verification';
+    }
+
+    public function getReviewsAvgRatingAttribute(): ?float
+    {
+        if (array_key_exists('reviews_avg_rating', $this->attributes)) {
+            return $this->attributes['reviews_avg_rating'] !== null
+                ? round((float) $this->attributes['reviews_avg_rating'], 1)
+                : null;
+        }
+
+        if ($this->relationLoaded('reviews')) {
+            $avg = $this->reviews->avg('rating');
+            return $avg ? round((float) $avg, 1) : null;
+        }
+
+        $avg = $this->reviews()->avg('rating');
+        return $avg ? round((float) $avg, 1) : null;
+    }
+
+    public function getReviewsCountAttribute(): int
+    {
+        if (array_key_exists('reviews_count', $this->attributes)) {
+            return (int) $this->attributes['reviews_count'];
+        }
+
+        if ($this->relationLoaded('reviews')) {
+            return $this->reviews->count();
+        }
+
+        return $this->reviews()->count();
+    }
 
     public function category(): BelongsTo
     {
@@ -63,6 +117,21 @@ class Business extends Model
     public function favoritedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_favorites')->withTimestamps();
+    }
+
+    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessReview::class)->latest();
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function claims(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(BusinessClaim::class)->latest();
     }
 
     public function scopePublished($query)

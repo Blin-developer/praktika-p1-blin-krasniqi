@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Advertisement;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 
 class AdminAdvertisementController extends Controller
 {
@@ -239,6 +240,35 @@ class AdminAdvertisementController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Reklama u fshi me sukses.',
+        ]);
+    }
+
+    /**
+     * Ngarkon një skedar imazhi nga kompjuteri në storage publik dhe kthen URL-në.
+     */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $request->validate([
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'],
+        ], [
+            'image.required' => 'Ju lutem përzgjidhni një foto nga kompjuteri.',
+            'image.image' => 'Skedari i zgjedhur duhet të jetë imazh.',
+            'image.mimes' => 'Imazhi duhet të jetë i formatit: jpg, png, webp, ose gif.',
+            'image.max' => 'Madhësia e imazhit nuk mund të kalojë 5MB.',
+        ]);
+
+        /** @var UploadedFile $file */
+        $file = $request->file('image');
+        $extension = $file->getClientOriginalExtension() ?: 'jpg';
+        $filename = time() . '_' . uniqid() . '.' . $extension;
+        $file->storeAs('advertisements', $filename, 'public');
+
+        $url = asset('storage/advertisements/' . $filename);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Imazhi u ngarkua me sukses.',
+            'url' => $url,
         ]);
     }
 }

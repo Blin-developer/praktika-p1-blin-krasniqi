@@ -181,6 +181,19 @@ function BusinessCard({
             name
           )}
         </h3>
+
+        {business.reviews_count > 0 ? (
+          <div className="biz-card__rating" title={`Mesatarja: ${Number(business.reviews_avg_rating).toFixed(1)} nga 5 yje`}>
+            <span className="biz-card__rating-star">★</span>
+            <span className="biz-card__rating-score">{Number(business.reviews_avg_rating).toFixed(1)}</span>
+            <span className="biz-card__rating-count">({business.reviews_count})</span>
+          </div>
+        ) : (
+          <div className="biz-card__rating biz-card__rating--none" title="Ende pa vlerësime nga qytetarët">
+            <span className="biz-card__rating-star-empty">☆</span>
+            <span className="biz-card__rating-none-text">E re</span>
+          </div>
+        )}
       </div>
 
       {/* Përshkrimi i shkurtër */}
