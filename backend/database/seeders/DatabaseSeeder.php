@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             CatalogSeeder::class,
             AdminUserSeeder::class,
             BusinessMediaSeeder::class,
+            UpdateBusinessLocationsSeeder::class,
         ]);
     }
 }

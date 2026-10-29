@@ -29,6 +29,14 @@ function BusinessProfile({ slug, onBack }) {
   const [showOwnerModal, setShowOwnerModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [businessDeals, setBusinessDeals] = useState([]);
+  const [userLocation] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem('lipjan_user_location');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const loadClaimStatus = useCallback(async () => {
     if (!business?.id) return;
@@ -433,22 +441,22 @@ function BusinessProfile({ slug, onBack }) {
 
               {hasCoordinates ? (
                 <div className="business-profile__map-container">
-                  <LeafletMap business={business} height="360px" />
+                  <LeafletMap business={business} userLocation={userLocation} height="360px" />
 
                   <div className="business-profile__map-footer">
                     <span className="business-profile__coords-text">
                       Koordinatat fizike: {latNum.toFixed(6)}, {lngNum.toFixed(6)}
                     </span>
-                    <div className="business-profile__map-external-links">
+                    <div className="business-profile__map-external-links" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${latNum},${lngNum}`}
+                        href={getDirectionsUrl(latNum, lngNum, userLocation)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="business-card__link"
+                        className="btn btn--sm btn--primary"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none', padding: '4px 10px', fontSize: '0.8rem' }}
                       >
-                        Google Maps ↗
+                        🧭 Navigo me Google Maps ↗
                       </a>
-                      <span aria-hidden="true"> &bull; </span>
                       <a
                         href={`https://www.openstreetmap.org/?mlat=${latNum}&mlon=${lngNum}#map=17/${latNum}/${lngNum}`}
                         target="_blank"
