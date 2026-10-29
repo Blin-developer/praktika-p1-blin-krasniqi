@@ -123,7 +123,7 @@ class BusinessController extends Controller
      */
     public function show(string $idOrSlug): JsonResponse
     {
-        $business = Business::with(['category', 'settlement', 'services', 'reviews.user:id,name', 'photos', 'menuItems'])
+        $business = Business::with(['category', 'settlement', 'services', 'reviews.user:id,name', 'photos', 'menuItems', 'activeDeals'])
             ->withAvg('reviews', 'rating')
             ->withCount('reviews')
             ->published()
