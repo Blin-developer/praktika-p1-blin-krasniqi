@@ -15,6 +15,49 @@ import UserAuthModal from './UserAuthModal';
  */
 function BusinessProfile({ slug, onBack }) {
   const { business, loading, error, reload } = useBusiness(slug);
+  const { user, isAuthenticated } = useAuth();
+
+  const [claimStatus, setClaimStatus] = useState({
+    is_claimed: false,
+    is_current_user_owner: false,
+    user_claim: null,
+  });
+  const [showClaimModal, setShowClaimModal] = useState(false);
+  const [showOwnerModal, setShowOwnerModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const loadClaimStatus = useCallback(async () => {
+    if (!business?.id) return;
+    try {
+      const res = await checkBusinessClaimStatus(business.slug || business.id);
+      setClaimStatus({
+        is_claimed: Boolean(res.is_claimed),
+        is_current_user_owner: Boolean(res.is_current_user_owner),
+        user_claim: res.user_claim,
+      });
+    } catch {
+      // Shpërfill gabimet e statusit
+    }
+  }, [business?.id, business?.slug]);
+
+  useEffect(() => {
+    if (business) {
+      setClaimStatus((prev) => ({
+        ...prev,
+        is_claimed: Boolean(business.owner_id),
+        is_current_user_owner: Boolean(user && business.owner_id && Number(business.owner_id) === Number(user.id)),
+      }));
+      loadClaimStatus();
+    }
+  }, [business, user, loadClaimStatus]);
+
+  const handleClaimClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+    } else {
+      setShowClaimModal(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -61,42 +104,6 @@ function BusinessProfile({ slug, onBack }) {
       </div>
     );
   }
-
-  const { user, isAuthenticated } = useAuth();
-  const [claimStatus, setClaimStatus] = useState({
-    is_claimed: Boolean(business?.owner_id),
-    is_current_user_owner: Boolean(user && business?.owner_id && business.owner_id === user.id),
-    user_claim: null,
-  });
-  const [showClaimModal, setShowClaimModal] = useState(false);
-  const [showOwnerModal, setShowOwnerModal] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-
-  const loadClaimStatus = useCallback(async () => {
-    if (!isAuthenticated || !business?.id) return;
-    try {
-      const res = await checkBusinessClaimStatus(business.slug || business.id);
-      setClaimStatus({
-        is_claimed: res.is_claimed,
-        is_current_user_owner: res.is_current_user_owner,
-        user_claim: res.user_claim,
-      });
-    } catch {
-      // Shpërfill gabimet e statusit
-    }
-  }, [isAuthenticated, business?.id, business?.slug]);
-
-  useEffect(() => {
-    loadClaimStatus();
-  }, [loadClaimStatus]);
-
-  const handleClaimClick = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-    } else {
-      setShowClaimModal(true);
-    }
-  };
 
   const {
     name,
