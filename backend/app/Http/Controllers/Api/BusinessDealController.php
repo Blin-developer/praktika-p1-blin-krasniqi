@@ -170,9 +170,11 @@ class BusinessDealController extends Controller
         $deal->load('business:id,name,slug');
 
         // ✉️ Dërgo email notifikim tek administratori
-        $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com');
+        $rawAdminEmails = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com,blinkrasniqi824@gmail.com');
+        $adminEmails = array_filter(array_map('trim', explode(',', (string) $rawAdminEmails)));
+
         try {
-            Mail::to($adminEmail)->send(new NewDealCreatedMail($deal));
+            Mail::to($adminEmails)->send(new NewDealCreatedMail($deal));
         } catch (\Throwable $e) {
             Log::error('NewDealCreatedMail dështoi: ' . $e->getMessage());
         }

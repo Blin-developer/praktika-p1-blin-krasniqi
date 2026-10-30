@@ -125,10 +125,11 @@ class BusinessClaimController extends Controller
 
         // ✉️ Dërgo email notifikim tek administratori
         $claim->load(['business.category', 'user']);
-        $adminEmail = config('mail.admin_notification_email', env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com'));
+        $rawAdminEmails = config('mail.admin_notification_email', env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com,blinkrasniqi824@gmail.com'));
+        $adminEmails = array_filter(array_map('trim', explode(',', (string) $rawAdminEmails)));
 
         try {
-            Mail::to($adminEmail)->send(new ClaimSubmittedAdminMail($claim));
+            Mail::to($adminEmails)->send(new ClaimSubmittedAdminMail($claim));
         } catch (\Throwable $e) {
             Log::error('ClaimSubmittedAdminMail dështoi: ' . $e->getMessage());
         }

@@ -105,10 +105,11 @@ class BusinessReviewController extends Controller
 
         // ✉️ Dërgo email notifikim tek administratori
         $review->load(['business.category', 'user']);
-        $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com');
+        $rawAdminEmails = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi16@gmail.com,blinkrasniqi824@gmail.com');
+        $adminEmails = array_filter(array_map('trim', explode(',', (string) $rawAdminEmails)));
 
         try {
-            Mail::to($adminEmail)->send(new NewReviewNotificationMail($review, true));
+            Mail::to($adminEmails)->send(new NewReviewNotificationMail($review, true));
         } catch (\Throwable $e) {
             Log::error('NewReviewNotificationMail (admin) dështoi: ' . $e->getMessage());
         }
