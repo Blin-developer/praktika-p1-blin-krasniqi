@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewDealCreatedMail;
 use App\Models\Business;
 use App\Models\BusinessDeal;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BusinessDealController extends Controller
 {
@@ -165,6 +168,14 @@ class BusinessDealController extends Controller
 
         $deal = BusinessDeal::create($validated);
         $deal->load('business:id,name,slug');
+
+        // ✉️ Dërgo email notifikim tek administratori
+        $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi824@gmail.com');
+        try {
+            Mail::to($adminEmail)->send(new NewDealCreatedMail($deal));
+        } catch (\Throwable $e) {
+            Log::error('NewDealCreatedMail dështoi: ' . $e->getMessage());
+        }
 
         return response()->json([
             'status' => 'success',

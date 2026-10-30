@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewReviewNotificationMail;
 use App\Models\Business;
 use App\Models\BusinessReview;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BusinessReviewController extends Controller
 {
@@ -96,8 +100,30 @@ class BusinessReviewController extends Controller
 
         // Llogarit mesataren e re
         $allReviews = BusinessReview::where('business_id', $business->id)->get();
-        $count = $allReviews->count();
-        $average = round((float) $allReviews->avg('rating'), 1);
+        $count      = $allReviews->count();
+        $average    = round((float) $allReviews->avg('rating'), 1);
+
+        // ✉️ Dërgo email notifikim tek administratori
+        $review->load(['business.category', 'user']);
+        $adminEmail = env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi824@gmail.com');
+
+        try {
+            Mail::to($adminEmail)->send(new NewReviewNotificationMail($review, true));
+        } catch (\Throwable $e) {
+            Log::error('NewReviewNotificationMail (admin) dështoi: ' . $e->getMessage());
+        }
+
+        // ✉️ Dërgo email notifikim tek pronari i biznesit (nëse ka dhe nuk është i njëjti person)
+        try {
+            if ($business->owner_id) {
+                $owner = User::find($business->owner_id);
+                if ($owner && $owner->email && $owner->id !== $user->id) {
+                    Mail::to($owner->email)->send(new NewReviewNotificationMail($review, false));
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('NewReviewNotificationMail (owner) dështoi: ' . $e->getMessage());
+        }
 
         return response()->json([
             'status' => 'success',

@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ClaimStatusUpdatedMail;
+use App\Mail\ClaimSubmittedAdminMail;
 use App\Models\Business;
 use App\Models\BusinessClaim;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BusinessClaimController extends Controller
 {
@@ -21,12 +25,12 @@ class BusinessClaimController extends Controller
 
         if (! $business) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Biznesi nuk u gjet.',
             ], 404);
         }
 
-        $user = $request->user('sanctum') ?: $request->user();
+        $user    = $request->user('sanctum') ?: $request->user();
         $isOwner = $business->owner_id && $user && (int) $business->owner_id === (int) $user->id;
 
         $userClaim = null;
@@ -38,16 +42,17 @@ class BusinessClaimController extends Controller
         }
 
         return response()->json([
-            'status' => 'success',
-            'business_id' => $business->id,
-            'is_claimed' => (bool) $business->owner_id,
+            'status'                => 'success',
+            'business_id'           => $business->id,
+            'is_claimed'            => (bool) $business->owner_id,
             'is_current_user_owner' => $isOwner,
-            'user_claim' => $userClaim,
+            'user_claim'            => $userClaim,
         ]);
     }
 
     /**
      * Dërgon një kërkesë të re për marrjen e pronësisë së biznesit ("Claim Business").
+     * Dërgon email notifikim tek administratori.
      */
     public function store(Request $request, string $idOrSlug): JsonResponse
     {
@@ -57,7 +62,7 @@ class BusinessClaimController extends Controller
 
         if (! $business) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Biznesi nuk u gjet.',
             ], 404);
         }
@@ -68,14 +73,14 @@ class BusinessClaimController extends Controller
         if ($business->owner_id) {
             if ($business->owner_id === $user->id) {
                 return response()->json([
-                    'status' => 'info',
+                    'status'  => 'info',
                     'message' => 'Ju tashmë jeni pronari i verifikuar i këtij biznesi.',
                 ]);
             }
 
             return response()->json([
-                'status' => 'error',
-                'message' => 'Ky biznes ka tashmë një pronar të verifikuar në sistem. Nëse mendoni se bëhet fjalë për gabim, kontaktoni administratën e komunës.',
+                'status'  => 'error',
+                'message' => 'Ky biznes ka tashmë një pronar të verifikuar në sistem. Nëse mendoni se ka ndodhur gabim, kontaktoni administratën e komunës.',
             ], 422);
         }
 
@@ -87,41 +92,51 @@ class BusinessClaimController extends Controller
 
         if ($existingPending) {
             return response()->json([
-                'status' => 'warning',
+                'status'  => 'warning',
                 'message' => 'Ju tashmë keni dërguar një kërkesë për këtë biznes, e cila është në pritje të shqyrtimit nga administratori.',
-                'claim' => $existingPending,
+                'claim'   => $existingPending,
             ], 422);
         }
 
         $validated = $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'email', 'max:255'],
-            'business_role' => ['required', 'string', 'max:100'],
+            'full_name'          => ['required', 'string', 'max:255'],
+            'phone'              => ['required', 'string', 'max:50'],
+            'email'              => ['required', 'email', 'max:255'],
+            'business_role'      => ['required', 'string', 'max:100'],
             'verification_notes' => ['required', 'string', 'max:2000'],
         ], [
-            'full_name.required' => 'Ju lutem shënoni emrin dhe mbiemrin tuaj të plotë.',
-            'phone.required' => 'Numri i telefonit është i detyrueshëm për verifikim.',
-            'email.required' => 'Email adresa është e detyrueshme.',
-            'business_role.required' => 'Ju lutem specifikoni rolin tuaj në biznes (p.sh. Pronar, Menaxher).',
+            'full_name.required'          => 'Ju lutem shënoni emrin dhe mbiemrin tuaj të plotë.',
+            'phone.required'              => 'Numri i telefonit është i detyrueshëm për verifikim.',
+            'email.required'              => 'Email adresa është e detyrueshme.',
+            'business_role.required'      => 'Ju lutem specifikoni rolin tuaj në biznes (p.sh. Pronar, Menaxher).',
             'verification_notes.required' => 'Ju lutem jepni dëshmi ose informacione verifikuese (p.sh. Numrin Unik Identifikues / NUI të ARBK-së).',
         ]);
 
         $claim = BusinessClaim::create([
-            'business_id' => $business->id,
-            'user_id' => $user->id,
-            'full_name' => $validated['full_name'],
-            'phone' => $validated['phone'],
-            'email' => $validated['email'],
-            'business_role' => $validated['business_role'],
+            'business_id'        => $business->id,
+            'user_id'            => $user->id,
+            'full_name'          => $validated['full_name'],
+            'phone'              => $validated['phone'],
+            'email'              => $validated['email'],
+            'business_role'      => $validated['business_role'],
             'verification_notes' => $validated['verification_notes'],
-            'status' => 'pending',
+            'status'             => 'pending',
         ]);
 
+        // ✉️ Dërgo email notifikim tek administratori
+        $claim->load(['business.category', 'user']);
+        $adminEmail = config('mail.admin_notification_email', env('ADMIN_NOTIFICATION_EMAIL', 'blinkrasniqi824@gmail.com'));
+
+        try {
+            Mail::to($adminEmail)->send(new ClaimSubmittedAdminMail($claim));
+        } catch (\Throwable $e) {
+            Log::error('ClaimSubmittedAdminMail dështoi: ' . $e->getMessage());
+        }
+
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Kërkesa juaj për pronësi u dërgua me sukses! Administrata e Komunës do ta shqyrtojë dhe do t\'ju njoftojë.',
-            'data' => $claim,
+            'data'    => $claim,
         ], 201);
     }
 
@@ -156,32 +171,33 @@ class BusinessClaimController extends Controller
         $claims = $query->paginate(15);
 
         return response()->json([
-            'status' => 'success',
-            'data' => $claims->items(),
-            'total' => $claims->total(),
+            'status'       => 'success',
+            'data'         => $claims->items(),
+            'total'        => $claims->total(),
             'current_page' => $claims->currentPage(),
-            'last_page' => $claims->lastPage(),
+            'last_page'    => $claims->lastPage(),
         ]);
     }
 
     /**
      * Aprovon kërkesën për pronësi: biznesi i caktohet përdoruesit të aprovuar.
+     * Dërgon email notifikim tek aplikanti.
      */
     public function adminApprove(Request $request, int $id): JsonResponse
     {
-        $claim = BusinessClaim::with('business')->find($id);
+        $claim = BusinessClaim::with(['business.category', 'user'])->find($id);
 
         if (! $claim) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Kërkesa nuk u gjet.',
             ], 404);
         }
 
-        $admin = $request->user();
+        $admin      = $request->user();
         $adminNotes = $request->input('admin_notes');
 
-        $claim->status = 'approved';
+        $claim->status      = 'approved';
         $claim->admin_notes = $adminNotes;
         $claim->reviewed_by = $admin->id;
         $claim->reviewed_at = now();
@@ -197,48 +213,66 @@ class BusinessClaimController extends Controller
                 ->where('id', '!=', $claim->id)
                 ->where('status', 'pending')
                 ->update([
-                    'status' => 'rejected',
+                    'status'      => 'rejected',
                     'admin_notes' => 'Një kërkesë tjetër u aprovua për këtë biznes.',
                     'reviewed_by' => $admin->id,
                     'reviewed_at' => now(),
                 ]);
         }
 
+        // ✉️ Dërgo email notifikim tek aplikanti
+        try {
+            if ($claim->user && $claim->user->email) {
+                Mail::to($claim->user->email)->send(new ClaimStatusUpdatedMail($claim));
+            }
+        } catch (\Throwable $e) {
+            Log::error('ClaimStatusUpdatedMail (approve) dështoi: ' . $e->getMessage());
+        }
+
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => "Kërkesa u aprovua. Përdoruesi tani ka qasje të plotë për përditësimin e biznesit \"{$claim->business->name}\".",
-            'data' => $claim,
+            'data'    => $claim,
         ]);
     }
 
     /**
      * Refuzon kërkesën për pronësi nga administratori.
+     * Dërgon email notifikim tek aplikanti.
      */
     public function adminReject(Request $request, int $id): JsonResponse
     {
-        $claim = BusinessClaim::with('business')->find($id);
+        $claim = BusinessClaim::with(['business.category', 'user'])->find($id);
 
         if (! $claim) {
             return response()->json([
-                'status' => 'error',
+                'status'  => 'error',
                 'message' => 'Kërkesa nuk u gjet.',
             ], 404);
         }
 
-        $admin = $request->user();
+        $admin      = $request->user();
         $adminNotes = $request->input('admin_notes');
 
-        $claim->status = 'rejected';
+        $claim->status      = 'rejected';
         $claim->admin_notes = $adminNotes;
         $claim->reviewed_by = $admin->id;
         $claim->reviewed_at = now();
         $claim->save();
 
+        // ✉️ Dërgo email notifikim tek aplikanti
+        try {
+            if ($claim->user && $claim->user->email) {
+                Mail::to($claim->user->email)->send(new ClaimStatusUpdatedMail($claim));
+            }
+        } catch (\Throwable $e) {
+            Log::error('ClaimStatusUpdatedMail (reject) dështoi: ' . $e->getMessage());
+        }
+
         return response()->json([
-            'status' => 'success',
+            'status'  => 'success',
             'message' => 'Kërkesa për pronësi u refuzua me sukses.',
-            'data' => $claim,
+            'data'    => $claim,
         ]);
     }
 }
-
