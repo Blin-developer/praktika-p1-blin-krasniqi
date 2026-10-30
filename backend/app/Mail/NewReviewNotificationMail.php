@@ -30,7 +30,7 @@ class NewReviewNotificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.reviews.new-review',
+            view: 'emails.reviews.new-review',
             with: [
                 'review'        => $this->review,
                 'business'      => $this->review->business,

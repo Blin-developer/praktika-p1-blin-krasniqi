@@ -31,7 +31,7 @@ class ClaimStatusUpdatedMail extends Mailable
         $isApproved = $this->claim->status === 'approved';
 
         return new Content(
-            markdown: 'emails.claims.status-updated',
+            view: 'emails.claims.status-updated',
             with: [
                 'claim'       => $this->claim,
                 'business'    => $this->claim->business,

@@ -27,7 +27,7 @@ class NewDealCreatedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.deals.new-deal',
+            view: 'emails.deals.new-deal',
             with: [
                 'deal'       => $this->deal,
                 'business'   => $this->deal->business,

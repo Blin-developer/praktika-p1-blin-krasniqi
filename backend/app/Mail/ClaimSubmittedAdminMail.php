@@ -27,7 +27,7 @@ class ClaimSubmittedAdminMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.claims.submitted-admin',
+            view: 'emails.claims.submitted-admin',
             with: [
                 'claim'       => $this->claim,
                 'business'    => $this->claim->business,
