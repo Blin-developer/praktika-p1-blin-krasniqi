@@ -148,10 +148,10 @@ export default function LeafletMap({
 
       marker.bindPopup(popupContent).openPopup();
 
-      // Gjithmonë qendërzojmë në biznesin me pamje rruge (zoom 16)
+      // Gjithmonë qendërzojmë tek biznesi me pamje të afërt rruge (zoom 16)
       map.setView([lat, lng], 16);
 
-      // Nëse përdoruesi ka GPS aktiv
+      // Nëse përdoruesi ka GPS aktiv, shfaqim edhe vendndodhjen e tij pa zhvendosur qendrën e biznesit
       if (userLocation && userLocation.lat && userLocation.lng) {
         const uLat = parseFloat(userLocation.lat);
         const uLng = parseFloat(userLocation.lng);
@@ -169,12 +169,6 @@ export default function LeafletMap({
             <p style="margin: 2px 0 0 0; color: #64748b; font-size: 11px;">${userLocation.label || 'GPS'} (~${distKm < 1 ? Math.round(distKm * 1000) + ' m' : distKm.toFixed(1) + ' km'} larg)</p>
           </div>
         `);
-
-        // Vetëm nëse përdoruesi është afër (nën 15 km), përshtatim pamjen për të dy
-        if (distKm <= 15) {
-          const bounds = L.latLngBounds([[lat, lng], [uLat, uLng]]);
-          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
-        }
       }
     }
     // RASTI 2: Pamje katalogu me shumë biznese
@@ -262,12 +256,15 @@ export default function LeafletMap({
         }
 
         // Përshtat kufijtë VETËM për bizneset e Komunës së Lipjanit
-        // Kjo garanton që harta nuk do të zvogëlohet kurrë jashtë Lipjanit nëse GPS është larg
-        const bizBounds = L.latLngBounds(bizLatLngs);
-        map.fitBounds(bizBounds, {
-          padding: [30, 30],
-          maxZoom: 15,
-        });
+        if (bizLatLngs.length === 1) {
+          map.setView(bizLatLngs[0], 16);
+        } else {
+          const bizBounds = L.latLngBounds(bizLatLngs);
+          map.fitBounds(bizBounds, {
+            padding: [40, 40],
+            maxZoom: 15,
+          });
+        }
       } else {
         map.setView([LIPJAN_CENTER_COORDS.lat, LIPJAN_CENTER_COORDS.lng], 14);
       }
@@ -298,6 +295,15 @@ export default function LeafletMap({
     };
   }, [business, businesses, userLocation, onSelectBusiness]);
 
+  const handleRecenter = () => {
+    if (!mapInstanceRef.current) return;
+    if (business?.latitude != null && business?.longitude != null) {
+      mapInstanceRef.current.setView([parseFloat(business.latitude), parseFloat(business.longitude)], 17);
+    } else {
+      mapInstanceRef.current.setView([LIPJAN_CENTER_COORDS.lat, LIPJAN_CENTER_COORDS.lng], 15);
+    }
+  };
+
   return (
     <div
       className="leaflet-map-wrapper"
@@ -315,6 +321,32 @@ export default function LeafletMap({
         ref={mapContainerRef}
         style={{ width: '100%', height: '100%', zIndex: 1 }}
       />
+      <button
+        type="button"
+        onClick={handleRecenter}
+        style={{
+          position: 'absolute',
+          bottom: '12px',
+          left: '12px',
+          zIndex: 10,
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid #cbd5e1',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          fontSize: '11px',
+          fontWeight: 700,
+          color: '#1e40af',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+          backdropFilter: 'blur(4px)',
+        }}
+        title="Rikthe fokusin në qendër"
+      >
+        <span>🎯</span> {business ? 'Qendro te Biznesi' : 'Qendra e Lipjanit'}
+      </button>
     </div>
   );
 }

@@ -91,6 +91,12 @@ class UpdateBusinessLocationsSeeder extends Seeder
                 'address' => 'Rruga Haradin Bajrami nr. 8, Lipjan',
                 'settlement_id' => $lipjanQenderId,
             ],
+            // Restaurant Home ndodhet në qendër të fshatit Dobrajë e Madhe
+            'restaurant-home' => [
+                'latitude' => 42.54420000,
+                'longitude' => 21.08250000,
+                'address' => 'Rruga e Re, Dobrajë e Madhe',
+            ],
         ];
 
         foreach ($locationUpdates as $slug => $data) {
