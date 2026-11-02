@@ -2730,11 +2730,66 @@ p {
 }
 
 @media (min-width: 860px) {
+  .ad-featured-banner,
+  .sponsored-banner--featured {
+    height: 330px;
+    max-height: 330px;
+  }
+
   .ad-featured-banner__grid,
   .sponsored-banner--featured .sponsored-banner__card {
     grid-template-columns: 1.25fr 1fr;
-    min-height: 290px;
+    height: 330px;
+    max-height: 330px;
     align-items: stretch;
+  }
+
+  .ad-featured-banner__text,
+  .sponsored-banner--featured .sponsored-banner__body {
+    padding: 2rem 2.25rem;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .ad-featured-banner__media,
+  .sponsored-banner--featured .sponsored-banner__media {
+    height: 100%;
+    min-height: 330px;
+    max-height: 330px;
+  }
+
+  .ad-featured-banner__img,
+  .sponsored-banner--featured .sponsored-banner__img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+}
+
+@media (max-width: 859px) {
+  .ad-featured-banner,
+  .sponsored-banner--featured {
+    height: auto;
+    min-height: auto;
+  }
+
+  .ad-featured-banner__grid,
+  .sponsored-banner--featured .sponsored-banner__card {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .ad-featured-banner__media,
+  .sponsored-banner--featured .sponsored-banner__media {
+    height: 220px;
+    min-height: 220px;
+    max-height: 220px;
+  }
+
+  .ad-featured-banner__text,
+  .sponsored-banner--featured .sponsored-banner__body {
+    padding: 1.5rem;
   }
 }
 
@@ -2777,20 +2832,28 @@ p {
 
 .ad-featured-banner__title,
 .sponsored-banner__title {
-  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
   font-weight: 800;
   color: var(--text-main);
   line-height: 1.25;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.65rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .ad-featured-banner__desc,
 .sponsored-banner__desc {
-  font-size: 0.96rem;
-  line-height: 1.6;
+  font-size: 0.94rem;
+  line-height: 1.55;
   color: var(--text-muted);
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
   max-width: 580px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .ad-featured-banner__actions,
