@@ -2690,6 +2690,9 @@ p {
 /* 1. Featured Ad Banner (Homepage) */
 .ad-featured-banner,
 .sponsored-banner--featured {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   background: linear-gradient(135deg, #fffdf8 0%, #ffffff 50%, #f8fafc 100%);
   border: 1.5px solid rgba(245, 158, 11, 0.32);
   border-radius: var(--radius-lg);
@@ -2697,7 +2700,7 @@ p {
   box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.1), var(--shadow-sm);
   transition: var(--transition);
   position: relative;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .ad-featured-banner::before,
@@ -2723,12 +2726,15 @@ p {
 .sponsored-banner--featured .sponsored-banner__card {
   display: grid;
   grid-template-columns: 1fr;
+  width: 100%;
 }
 
 @media (min-width: 860px) {
   .ad-featured-banner__grid,
   .sponsored-banner--featured .sponsored-banner__card {
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: 1.25fr 1fr;
+    min-height: 290px;
+    align-items: stretch;
   }
 }
 
@@ -2743,8 +2749,20 @@ p {
 .ad-featured-banner__badge-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
   margin-bottom: 0.85rem;
+}
+
+.badge--slide-counter {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 0.22rem 0.6rem;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
 }
 
 .ad-featured-banner__brand,
@@ -2784,25 +2802,111 @@ p {
 }
 
 .ad-featured-banner__media,
-.sponsored-banner__media {
+.sponsored-banner--featured .sponsored-banner__media {
   position: relative;
-  min-height: 240px;
-  max-height: 340px;
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
   overflow: hidden;
-  background: #e2e8f0;
+  background: #f1f5f9;
 }
 
 .ad-featured-banner__img,
-.sponsored-banner__img {
+.sponsored-banner--featured .sponsored-banner__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ad-featured-banner:hover .ad-featured-banner__img,
 .sponsored-banner--featured:hover .sponsored-banner__img {
   transform: scale(1.03);
+}
+
+/* Featured Ad Carousel Controls */
+.ad-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.ad-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  color: var(--text-main);
+  font-size: 1.75rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(6px);
+  user-select: none;
+}
+
+.ad-carousel-btn:hover {
+  background: var(--primary);
+  color: #ffffff;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3);
+}
+
+.ad-carousel-btn--prev {
+  left: -22px;
+}
+
+.ad-carousel-btn--next {
+  right: -22px;
+}
+
+@media (max-width: 900px) {
+  .ad-carousel-btn--prev {
+    left: 8px;
+  }
+  .ad-carousel-btn--next {
+    right: 8px;
+  }
+}
+
+.ad-carousel-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.15rem;
+}
+
+.ad-carousel-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.45);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.ad-carousel-dot:hover {
+  background: var(--primary);
+  transform: scale(1.2);
+}
+
+.ad-carousel-dot--active {
+  width: 32px;
+  background: var(--primary);
+  border-radius: 999px;
 }
 
 /* 2. Sidebar Ad Banner (Catalog) */

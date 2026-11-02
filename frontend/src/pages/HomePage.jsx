@@ -18,6 +18,8 @@ export default function HomePage({
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [featuredAds, setFeaturedAds] = useState([]);
+  const [activeAdIndex, setActiveAdIndex] = useState(0);
+  const [isAdPaused, setIsAdPaused] = useState(false);
   const [categoryPromoAds, setCategoryPromoAds] = useState([]);
   const [sponsoredAds, setSponsoredAds] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -58,6 +60,17 @@ export default function HomePage({
 
     loadHomeData();
   }, []);
+
+  // Karusel automatik për reklamat kryesore nëse ka më shumë se 1
+  useEffect(() => {
+    if (featuredAds.length <= 1 || isAdPaused) return;
+
+    const timer = setInterval(() => {
+      setActiveAdIndex((prev) => (prev + 1) % featuredAds.length);
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, [featuredAds.length, isAdPaused]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -124,15 +137,64 @@ export default function HomePage({
       {/* 2. REKLAMAT KRYESORE TË SPONSORIZUARA (HOMEPAGE FEATURED) */}
       {featuredAds.length > 0 && (
         <section className="home-section home-section--ad" aria-label="Reklama të veçuara">
-          <div className="site-container" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {featuredAds.map((ad) => (
-              <SponsoredAdBanner
-                key={ad.id}
-                ad={ad}
-                variant="featured"
-                onSelectBusiness={onSelectBusiness}
-              />
-            ))}
+          <div className="site-container">
+            <div
+              className="ad-carousel-wrapper"
+              onMouseEnter={() => setIsAdPaused(true)}
+              onMouseLeave={() => setIsAdPaused(false)}
+            >
+              {(() => {
+                const currentAd = featuredAds[activeAdIndex] || featuredAds[0];
+                return (
+                  <SponsoredAdBanner
+                    key={currentAd.id}
+                    ad={currentAd}
+                    variant="featured"
+                    slideNumber={featuredAds.length > 1 ? `${activeAdIndex + 1} nga ${featuredAds.length}` : null}
+                    onSelectBusiness={onSelectBusiness}
+                  />
+                );
+              })()}
+
+              {featuredAds.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="ad-carousel-btn ad-carousel-btn--prev"
+                    onClick={() =>
+                      setActiveAdIndex((prev) => (prev - 1 + featuredAds.length) % featuredAds.length)
+                    }
+                    aria-label="Reklama e mëparshme"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    className="ad-carousel-btn ad-carousel-btn--next"
+                    onClick={() =>
+                      setActiveAdIndex((prev) => (prev + 1) % featuredAds.length)
+                    }
+                    aria-label="Reklama tjetër"
+                  >
+                    ›
+                  </button>
+
+                  <div className="ad-carousel-dots" role="tablist" aria-label="Navigimi i reklamave kryesore">
+                    {featuredAds.map((ad, idx) => (
+                      <button
+                        key={ad.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={idx === activeAdIndex}
+                        className={`ad-carousel-dot ${idx === activeAdIndex ? 'ad-carousel-dot--active' : ''}`}
+                        onClick={() => setActiveAdIndex(idx)}
+                        aria-label={`Shfaq reklamën ${idx + 1}: ${ad.title}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </section>
       )}

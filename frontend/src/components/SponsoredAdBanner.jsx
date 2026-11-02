@@ -8,6 +8,7 @@ import { trackAdClick, trackAdImpression } from '../services/api';
 export default function SponsoredAdBanner({
   ad,
   variant = 'featured', // 'featured' | 'sidebar'
+  slideNumber = null,
   onSelectBusiness,
 }) {
   useEffect(() => {
@@ -80,6 +81,9 @@ export default function SponsoredAdBanner({
         <div className="ad-featured-banner__text">
           <div className="ad-featured-banner__badge-row">
             <span className="ad-badge ad-badge--gold">✦ E sponsorizuar</span>
+            {slideNumber && (
+              <span className="badge badge--slide-counter">{slideNumber}</span>
+            )}
             {ad.business?.category?.name && (
               <span className="badge badge--category">{ad.business.category.name}</span>
             )}
