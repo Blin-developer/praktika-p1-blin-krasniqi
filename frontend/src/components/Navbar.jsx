@@ -88,7 +88,24 @@ export default function Navbar({
             onClick={() => handleNav('home')}
             aria-label="Kthehu në kryefaqe"
           >
-            <span className="brand-logo__crest" aria-hidden="true">🏛️</span>
+            <span className="brand-logo__crest" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+                <rect width="36" height="36" rx="8" fill="url(#crestGradNav)"/>
+                <path d="M18 5.5L6.5 11.2V14.2H29.5V11.2L18 5.5Z" fill="#F59E0B"/>
+                <rect x="8.5" y="15.2" width="3.2" height="11" rx="0.8" fill="#FFFFFF"/>
+                <rect x="13.5" y="15.2" width="3.2" height="11" rx="0.8" fill="#FFFFFF"/>
+                <rect x="19.3" y="15.2" width="3.2" height="11" rx="0.8" fill="#FFFFFF"/>
+                <rect x="24.3" y="15.2" width="3.2" height="11" rx="0.8" fill="#FFFFFF"/>
+                <rect x="6.5" y="27" width="23" height="3.2" rx="1" fill="#F59E0B"/>
+                <circle cx="18" cy="11.2" r="1.6" fill="#1E3A8A"/>
+                <defs>
+                  <linearGradient id="crestGradNav" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#1E3A8A"/>
+                    <stop offset="1" stopColor="#2563EB"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </span>
             <div className="brand-logo__text">
               <span className="brand-logo__title">Katalogu i Bizneseve</span>
               <span className="brand-logo__subtitle">Komuna e Lipjanit</span>
